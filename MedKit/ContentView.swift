@@ -8,14 +8,21 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var story: String = ""
+    
     var body: some View {
-        VStack {
-            Image(systemName: "pill.fill")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("MedKit")
+        ScrollView {
+            VStack {
+                Text("Story:")
+                Text(story)
+                Spacer()
+                Button("Generate Story") {
+                    Task {
+                        story = try await GeminiModel.shared.generateStory()
+                    }
+                }
+            }
         }
-        .padding()
     }
 }
 
