@@ -6,6 +6,7 @@
 //
 
 import FirebaseCore
+import SwiftData
 import SwiftUI
 
 class AppDelegate: NSObject, UIApplicationDelegate {
@@ -25,5 +26,12 @@ struct MedKitApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: [
+            MedicineModel.self,
+            StrengthModel.self,
+            CompositionModel.self,
+            MedicineCustomFieldModel.self,
+            CustomFieldModel.self,
+        ])
     }
 }
