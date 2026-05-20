@@ -1,5 +1,5 @@
 //
-//  AIModel.swift
+//  GeminiManager.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 16/05/26.
@@ -8,9 +8,9 @@
 import FirebaseAILogic
 import Foundation
 
-struct GeminiModel {
+struct GeminiManager {
     
-    static let shared = GeminiModel()
+    static let shared = GeminiManager()
     
     private init() {
         initAI()

@@ -19,7 +19,7 @@ class MedicineModel: Codable {
     var expiryDate: Date
     
     @Relationship(deleteRule: .cascade)
-    var strength: StrengthModel?
+    var strength: StrengthModel
     
     @Relationship(deleteRule: .cascade)
     var compositions: [CompositionModel]
@@ -34,7 +34,7 @@ class MedicineModel: Codable {
         quantity: Float = 0,
         manufacturedDate: Date = .now,
         expiryDate: Date = .now,
-        strength: StrengthModel? = nil,
+        strength: StrengthModel = .init(),
         compositions: [CompositionModel] = [],
         customFields: [MedicineCustomFieldModel] = [],
         tags: [String] = [],
@@ -60,7 +60,7 @@ class MedicineModel: Codable {
         quantity = try container.decode(Float.self, forKey: .quantity)
         manufacturedDate = try container.decode(Date.self, forKey: .manufacturedDate)
         expiryDate = try container.decode(Date.self, forKey: .expiryDate)
-        strength = try container.decodeIfPresent(StrengthModel.self, forKey: .strength)
+        strength = try container.decode(StrengthModel.self, forKey: .strength)
         compositions = try container.decode([CompositionModel].self, forKey: .compositions)
         customFields = try container.decode([MedicineCustomFieldModel].self, forKey: .customFields)
         tags = try container.decode([String].self, forKey: .tags)
@@ -73,7 +73,7 @@ class MedicineModel: Codable {
         try container.encode(quantity, forKey: .quantity)
         try container.encode(manufacturedDate, forKey: .manufacturedDate)
         try container.encode(expiryDate, forKey: .expiryDate)
-        try container.encodeIfPresent(strength, forKey: .strength)
+        try container.encode(strength, forKey: .strength)
         try container.encode(compositions, forKey: .compositions)
         try container.encode(customFields, forKey: .customFields)
         try container.encode(tags, forKey: .tags)
