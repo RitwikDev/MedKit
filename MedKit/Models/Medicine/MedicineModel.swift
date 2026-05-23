@@ -27,7 +27,7 @@ class MedicineModel: Codable {
     @Relationship(deleteRule: .cascade)
     var customFields: [CustomFieldModel]
     
-    var tags: [String]
+    var tags: [TagModel]
     
     init(
         name: String = "",
@@ -37,7 +37,7 @@ class MedicineModel: Codable {
         strength: StrengthModel? = nil,
         composition: [CompositionModel] = [],
         customFields: [CustomFieldModel] = [],
-        tags: [String] = [],
+        tags: [TagModel] = [],
     ) {
         self.name = name
         self.quantity = quantity
@@ -63,7 +63,7 @@ class MedicineModel: Codable {
         strength = try container.decodeIfPresent(StrengthModel.self, forKey: .strength)
         composition = try container.decode([CompositionModel].self, forKey: .composition)
         customFields = try container.decode([CustomFieldModel].self, forKey: .customFields)
-        tags = try container.decode([String].self, forKey: .tags)
+        tags = try container.decode([TagModel].self, forKey: .tags)
     }
     
     func encode(to encoder: Encoder) throws {

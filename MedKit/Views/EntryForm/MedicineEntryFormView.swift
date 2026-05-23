@@ -18,12 +18,14 @@ struct MedicineEntryFormView: View {
     @State private var draftMedicine: MedicineModel
     @State private var activeSheet: SheetType? = nil
     @State private var compositionToEdit: CompositionModel
+    @State private var tagToEdit: TagModel
     
-    init(medicine: MedicineModel, compositionToEdit: CompositionModel = .init()) {
+    init(medicine: MedicineModel, compositionToEdit: CompositionModel = .init(), tagToEdit: TagModel = .init()) {
         self.medicine = medicine
         self.draftMedicine = medicine.copy()
         self.activeSheet = nil
         self.compositionToEdit = compositionToEdit
+        self.tagToEdit = tagToEdit
     }
     
     var body: some View {
@@ -71,7 +73,8 @@ struct MedicineEntryFormView: View {
 
             // MARK: - Tags
             Section(content: {
-                TagsView(tags: $draftMedicine.tags) {
+                TagsView(tags: $draftMedicine.tags,
+                         tagToEdit: $tagToEdit) {
                     activeSheet = .tags
                 }
             }, header: {
@@ -94,7 +97,8 @@ struct MedicineEntryFormView: View {
             case .customFields:
                 CustomFieldEntrySheetView()
             case .tags:
-                TagEntrySheetView()
+                TagEntrySheetView(tags: $draftMedicine.tags,
+                                  tagToEdit: $tagToEdit)
             }
         }
         .scrollDismissesKeyboard(.interactively)

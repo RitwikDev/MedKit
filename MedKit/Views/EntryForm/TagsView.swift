@@ -8,72 +8,79 @@
 import SwiftUI
 
 struct TagsView: View {
-    @Binding var tags: [String]
+    @Binding var tags: [TagModel]
+    @Binding var tagToEdit: TagModel
     let buttonAction: () -> Void
     
-    @State private var showAlert: Bool = false
+    @State private var showDeleteConfirmation: Bool = false
     @State private var showError: Bool = false
-    @State private var tappedTag: String = ""
-    @State private var renamedTappedTag: String = ""
     @State private var errorMessage: String = ""
-    @State private var indexOfTappedTag: Int = -1
     
     var body: some View {
         List {
-            ForEach(Array(tags.enumerated()), id: \.offset) { index, tag in
-                Button(tag) {
-                    tappedTag = tag
-                    renamedTappedTag = tag
-                    indexOfTappedTag = index
-                    showAlert.toggle()
+            ForEach($tags) { $tag in
+                HStack {
+                    Button(tag.value) {
+                        tagToEdit = tag
+                        buttonAction()
+                    }
+                    .foregroundStyle(.primary)
+                    
+                    Spacer()
+                    
+                    RoundedTintedButtonView(buttonAction: {
+                        tagToEdit = tag
+                        showDeleteConfirmation.toggle()
+                    },
+                                            title: "Delete \(tag.value)",
+                                            systemImage: "xmark",
+                                            tintColor: .red)
                 }
-                .foregroundStyle(.primary)
             }
             
-            Button("Add Tag") { buttonAction() }
+            Button("Add Tag") {
+                tagToEdit = .init()
+                buttonAction()
+            }
         }
-        .alert("Rename \(tappedTag)", isPresented: $showAlert) {
-            TextField(tappedTag, text: $renamedTappedTag)
-            Button("Dismiss", action: clearVariables)
-            Button("Done", action: renameTag)
-            .disabled(renamedTappedTag == tappedTag || renamedTappedTag.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-        }
-        .alert("Could not rename \(tappedTag)", isPresented: $showError) {
-            Button("Dismiss", action: clearVariables)
+        .alert("Something went wrong",
+               isPresented: $showError) {
+            Button("Dismiss") { }
         } message: {
             Text(errorMessage)
         }
-    }
-    
-    private func renameTag() {
-        let lowercasedTags = tags.map { $0.lowercased() }
-        let trimmedRenamedTappedTag = renamedTappedTag.trimmingCharacters(in: .whitespacesAndNewlines)
-        let rawRenamedTappedTag = trimmedRenamedTappedTag.lowercased()
-        
-        if (indexOfTappedTag == -1) {
-            errorMessage = "The tag was not found."
-            showError = true
-        } else {
-            if (lowercasedTags.contains(rawRenamedTappedTag)) {
-                errorMessage = "\(trimmedRenamedTappedTag) is already present in the list."
-                showError = true
-            } else {
-                tags[indexOfTappedTag] = trimmedRenamedTappedTag
-                clearVariables()
+        .confirmationDialog("Delete \(tagToEdit.value)?",
+                            isPresented: $showDeleteConfirmation,
+                            titleVisibility: .visible) {
+            Button("Delete") {
+                withAnimation {
+                    deleteTag()
+                }
             }
         }
     }
     
-    private func clearVariables() {
-        tappedTag = ""
-        renamedTappedTag = ""
-        errorMessage = ""
-        indexOfTappedTag = -1
-        showAlert = false
-        showError = false
+    private func deleteTag() {
+        var indexOfTagToDelete = -1
+        
+        for (index, tag) in self.tags.enumerated() {
+            if (tag.id == tagToEdit.id) {
+                indexOfTagToDelete = index
+                break
+            }
+        }
+        
+        if (indexOfTagToDelete != -1) {
+            tags.remove(at: indexOfTagToDelete)
+        } else {
+            errorMessage = "Could not delete \(tagToEdit)."
+            showError = true
+        }
     }
 }
 
 #Preview {
-    TagsView(tags: .constant(["Tag 1", "Tag 2"]), buttonAction: { })
+    TagsView(tags: .constant([.init(value:"Tag 1"), .init(value: "Tag 2")]),
+             tagToEdit: .constant(.init()),
+             buttonAction: { })
 }

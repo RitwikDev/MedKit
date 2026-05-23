@@ -28,7 +28,10 @@ let sampleMedicines: [MedicineModel] = [
             CustomFieldModel(label: "Storage Condition", value: .text("Store below 25°C")),
             CustomFieldModel(label: "Prescription Required", value: .text("Yes"))
         ],
-        tags: ["Antibiotic", "Prescription Only", "Capsule"]
+        tags: [.init(value: "Antibiotic"),
+            .init(value: "Prescription Only"),
+            .init(value: "Capsule")
+        ]
     ),
     
     // 2. Paracetamol / Acetaminophen (Analgesic)
@@ -45,7 +48,10 @@ let sampleMedicines: [MedicineModel] = [
             CustomFieldModel(label: "Storage Condition", value: .text("Store in a dry place")),
             CustomFieldModel(label: "Prescription Required", value: .text("No"))
         ],
-        tags: ["Pain Reliever", "Fever Reducer", "OTC"]
+        tags: [.init(value: "Pain Reliever"),
+            .init(value: "Fever Reducer"),
+            .init(value: "OTC")
+        ]
     ),
     
     // 3. Ibuprofen (NSAID)
@@ -61,7 +67,10 @@ let sampleMedicines: [MedicineModel] = [
         customFields: [
             CustomFieldModel(label: "Side Effects", value: .list(["Stomach upset", "Nausea", "Dizziness"]))
         ],
-        tags: ["NSAID", "Anti-inflammatory", "OTC"]
+        tags: [.init(value: "NSAID"),
+            .init(value: "Anti-inflammatory"),
+            .init(value: "OTC")
+        ]
     ),
     
     // 4. Atorvastatin (Cholesterol)
@@ -77,7 +86,10 @@ let sampleMedicines: [MedicineModel] = [
         customFields: [
             CustomFieldModel(label: "Prescription Required", value: .text("Yes"))
         ],
-        tags: ["Statins", "Cholesterol", "Chronic"]
+        tags: [.init(value: "Statins"),
+            .init(value: "Cholesterol"),
+            .init(value: "Chronic")
+        ]
     ),
     
     // 5. Metformin (Antidiabetic)
@@ -93,7 +105,9 @@ let sampleMedicines: [MedicineModel] = [
         customFields: [
             CustomFieldModel(label: "Storage Condition", value: .text("Protect from light"))
         ],
-        tags: ["Diabetes", "Oral Hypoglycemic"]
+        tags: [.init(value: "Diabetes"),
+            .init(value: "Oral Hypoglycemic")
+        ]
     ),
     
     // 6. Lisinopril (ACE Inhibitor for Blood Pressure)
@@ -109,7 +123,10 @@ let sampleMedicines: [MedicineModel] = [
         customFields: [
             CustomFieldModel(label: "Side Effects", value: .list(["Dry cough", "Headache"]))
         ],
-        tags: ["Antihypertensive", "ACE Inhibitor", "Prescription Only"]
+        tags: [.init(value: "Antihypertensive"),
+            .init(value: "ACE Inhibitor"),
+            .init(value: "Prescription Only")
+        ]
     ),
     
     // 7. Cetirizine (Antihistamine)
@@ -125,7 +142,10 @@ let sampleMedicines: [MedicineModel] = [
         customFields: [
             CustomFieldModel(label: "Prescription Required", value: .text("No"))
         ],
-        tags: ["Antihistamine", "Allergy", "Non-Drowsy"]
+        tags: [.init(value: "Antihistamine"),
+            .init(value: "Allergy"),
+            .init(value: "Non-Drowsy")
+        ]
     ),
     
     // 8. Augmentin (Combination Antibiotic)
@@ -142,7 +162,10 @@ let sampleMedicines: [MedicineModel] = [
         customFields: [
             CustomFieldModel(label: "Storage Condition", value: .text("Store in airtight container"))
         ],
-        tags: ["Antibiotic", "Combination Drug", "Prescription Only"]
+        tags: [.init(value: "Antibiotic"),
+            .init(value: "Combination Drug"),
+            .init(value: "Prescription Only")
+        ]
     ),
     
     // 9. Salbutamol / Albuterol (Bronchodilator Inhaler)
@@ -158,7 +181,10 @@ let sampleMedicines: [MedicineModel] = [
         customFields: [
             CustomFieldModel(label: "Storage Condition", value: .text("Do not puncture or incinerate canister"))
         ],
-        tags: ["Asthma", "Bronchodilator", "Inhaler"]
+        tags: [.init(value: "Asthma"),
+            .init(value: "Bronchodilator"),
+            .init(value: "Inhaler")
+        ]
     ),
     
     // 10. Omeprazole (Antacid / PPI)
@@ -174,7 +200,10 @@ let sampleMedicines: [MedicineModel] = [
         customFields: [
             CustomFieldModel(label: "Prescription Required", value: .text("No"))
         ],
-        tags: ["Antacid", "PPI", "Acid Reflux"]
+        tags: [.init(value: "Antacid"),
+            .init(value: "PPI"),
+            .init(value: "Acid Reflux")
+        ]
     ),
     
     // 11. Nux Vomica
@@ -196,4 +225,33 @@ let sampleCompositions: [CompositionModel] = [
     CompositionModel(name: "Clavulanic Acid", strength: StrengthModel(amount: 125, unit: "mg")),
     CompositionModel(name: "Salbutamol Sulfate", strength: StrengthModel(amount: 100, unit: "mcg")),
     CompositionModel(name: "Omeprazole Magnesium", strength: StrengthModel(amount: 20, unit: "mg"))
+]
+
+let sampleTags: [TagModel] = [
+    .init(value: "ACE Inhibitor"),
+    .init(value: "Acid Reflux"),
+    .init(value: "Allergy"),
+    .init(value: "Antacid"),
+    .init(value: "Anti-inflammatory"),
+    .init(value: "Antibiotic"),
+    .init(value: "Antihistamine"),
+    .init(value: "Antihypertensive"),
+    .init(value: "Asthma"),
+    .init(value: "Bronchodilator"),
+    .init(value: "Capsule"),
+    .init(value: "Cholesterol"),
+    .init(value: "Chronic"),
+    .init(value: "Combination Drug"),
+    .init(value: "Diabetes"),
+    .init(value: "Fever Reducer"),
+    .init(value: "Inhaler"),
+    .init(value: "Non-Drowsy"),
+    .init(value: "NSAID"),
+    .init(value: "Oral Hypoglycemic"),
+    .init(value: "OTC"),
+    .init(value: "Pain Reliever"),
+    .init(value: "PPI"),
+    .init(value: "Prescription Only"),
+    .init(value: "Statins"),
+
 ]

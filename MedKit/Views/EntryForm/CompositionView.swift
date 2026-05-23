@@ -57,7 +57,6 @@ struct CompositionView: View {
                     deleteComposition()
                 }
             }
-            Button("Cancel") { }
         }
     }
     

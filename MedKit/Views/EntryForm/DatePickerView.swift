@@ -42,7 +42,6 @@ struct DatePickerView: View {
             Button("Delete") {
                 deleteDate()
             }
-            Button("Cancel") { }
         }
     }
     

@@ -53,7 +53,6 @@ struct StrengthView: View {
             Button("Delete") {
                 deleteStrength()
             }
-            Button("Cancel") { }
         }
         .alert(alertAction == .add ? "Add Strength" : "Edit Strength",
                isPresented: $showAlert) {

@@ -32,6 +32,7 @@ struct MedKitApp: App {
             CompositionModel.self,
             MedicineCustomFieldModel.self,
             CustomFieldModel.self,
+            TagModel.self
         ])
     }
 }
