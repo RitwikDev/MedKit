@@ -12,6 +12,7 @@ struct MedicinesListView: View {
     @Environment(\.modelContext) var modelContext
 
 //    @Query var medicines: [MedicineModel]
+    
     @State private var medicines = sampleMedicines
     @State private var medicineStackPath: [MedicineModel] = []
     
@@ -45,8 +46,8 @@ struct MedicinesListView: View {
 
 #Preview {
     do {
-        let configuraion = ModelConfiguration (isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: MedicineModel.self, configurations: configuraion)
+        let configuration = ModelConfiguration (isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: MedicineModel.self, configurations: configuration)
         
         return MedicinesListView()
             .modelContainer(container)

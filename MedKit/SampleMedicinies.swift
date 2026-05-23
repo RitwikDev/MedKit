@@ -12,12 +12,6 @@ func createDate(monthsFromNow: Int) -> Date {
     return Calendar.current.date(byAdding: .month, value: monthsFromNow, to: Date()) ?? Date()
 }
 
-// MARK: - Mock Custom Field IDs
-// Simulating predefined custom fields (e.g., Storage condition, Brand Owner, Prescription required)
-let storageConditionFieldId = UUID()
-let prescriptionRequiredFieldId = UUID()
-let sideEffectsFieldId = UUID()
-
 // MARK: - 10 Sample Medicines
 let sampleMedicines: [MedicineModel] = [
     // 1. Amoxicillin (Antibiotic)
@@ -27,12 +21,12 @@ let sampleMedicines: [MedicineModel] = [
         manufacturedDate: createDate(monthsFromNow: -3),
         expiryDate: createDate(monthsFromNow: 18),
         strength: StrengthModel(amount: 500, unit: "mg"),
-        compositions: [
+        composition: [
             CompositionModel(name: "Amoxicillin Trihydrate", strength: StrengthModel(amount: 500, unit: "mg"))
         ],
         customFields: [
-            MedicineCustomFieldModel(customFieldId: storageConditionFieldId, value: .text("Store below 25°C")),
-            MedicineCustomFieldModel(customFieldId: prescriptionRequiredFieldId, value: .text("Yes"))
+            CustomFieldModel(label: "Storage Condition", value: .text("Store below 25°C")),
+            CustomFieldModel(label: "Prescription Required", value: .text("Yes"))
         ],
         tags: ["Antibiotic", "Prescription Only", "Capsule"]
     ),
@@ -44,12 +38,12 @@ let sampleMedicines: [MedicineModel] = [
         manufacturedDate: createDate(monthsFromNow: -6),
         expiryDate: createDate(monthsFromNow: 24),
         strength: StrengthModel(amount: 500, unit: "mg"),
-        compositions: [
+        composition: [
             CompositionModel(name: "Acetaminophen", strength: StrengthModel(amount: 500, unit: "mg"))
         ],
         customFields: [
-            MedicineCustomFieldModel(customFieldId: storageConditionFieldId, value: .text("Store in a dry place")),
-            MedicineCustomFieldModel(customFieldId: prescriptionRequiredFieldId, value: .text("No"))
+            CustomFieldModel(label: "Storage Condition", value: .text("Store in a dry place")),
+            CustomFieldModel(label: "Prescription Required", value: .text("No"))
         ],
         tags: ["Pain Reliever", "Fever Reducer", "OTC"]
     ),
@@ -61,11 +55,11 @@ let sampleMedicines: [MedicineModel] = [
         manufacturedDate: createDate(monthsFromNow: -2),
         expiryDate: createDate(monthsFromNow: 22),
         strength: StrengthModel(amount: 400, unit: "mg"),
-        compositions: [
+        composition: [
             CompositionModel(name: "Ibuprofen", strength: StrengthModel(amount: 400, unit: "mg"))
         ],
         customFields: [
-            MedicineCustomFieldModel(customFieldId: sideEffectsFieldId, value: .list(["Stomach upset", "Nausea", "Dizziness"]))
+            CustomFieldModel(label: "Side Effects", value: .list(["Stomach upset", "Nausea", "Dizziness"]))
         ],
         tags: ["NSAID", "Anti-inflammatory", "OTC"]
     ),
@@ -77,11 +71,11 @@ let sampleMedicines: [MedicineModel] = [
         manufacturedDate: createDate(monthsFromNow: -5),
         expiryDate: createDate(monthsFromNow: 15),
         strength: StrengthModel(amount: 20, unit: "mg"),
-        compositions: [
+        composition: [
             CompositionModel(name: "Atorvastatin Calcium", strength: StrengthModel(amount: 20, unit: "mg"))
         ],
         customFields: [
-            MedicineCustomFieldModel(customFieldId: prescriptionRequiredFieldId, value: .text("Yes"))
+            CustomFieldModel(label: "Prescription Required", value: .text("Yes"))
         ],
         tags: ["Statins", "Cholesterol", "Chronic"]
     ),
@@ -93,11 +87,11 @@ let sampleMedicines: [MedicineModel] = [
         manufacturedDate: createDate(monthsFromNow: -4),
         expiryDate: createDate(monthsFromNow: 20),
         strength: StrengthModel(amount: 850, unit: "mg"),
-        compositions: [
+        composition: [
             CompositionModel(name: "Metformin Hydrochloride", strength: StrengthModel(amount: 850, unit: "mg"))
         ],
         customFields: [
-            MedicineCustomFieldModel(customFieldId: storageConditionFieldId, value: .text("Protect from light"))
+            CustomFieldModel(label: "Storage Condition", value: .text("Protect from light"))
         ],
         tags: ["Diabetes", "Oral Hypoglycemic"]
     ),
@@ -109,11 +103,11 @@ let sampleMedicines: [MedicineModel] = [
         manufacturedDate: createDate(monthsFromNow: -1),
         expiryDate: createDate(monthsFromNow: 23),
         strength: StrengthModel(amount: 10, unit: "mg"),
-        compositions: [
+        composition: [
             CompositionModel(name: "Lisinopril Dihydrate", strength: StrengthModel(amount: 10, unit: "mg"))
         ],
         customFields: [
-            MedicineCustomFieldModel(customFieldId: sideEffectsFieldId, value: .list(["Dry cough", "Headache"]))
+            CustomFieldModel(label: "Side Effects", value: .list(["Dry cough", "Headache"]))
         ],
         tags: ["Antihypertensive", "ACE Inhibitor", "Prescription Only"]
     ),
@@ -125,11 +119,11 @@ let sampleMedicines: [MedicineModel] = [
         manufacturedDate: createDate(monthsFromNow: -8),
         expiryDate: createDate(monthsFromNow: 12),
         strength: StrengthModel(amount: 10, unit: "mg"),
-        compositions: [
+        composition: [
             CompositionModel(name: "Cetirizine Hydrochloride", strength: StrengthModel(amount: 10, unit: "mg"))
         ],
         customFields: [
-            MedicineCustomFieldModel(customFieldId: prescriptionRequiredFieldId, value: .text("No"))
+            CustomFieldModel(label: "Prescription Required", value: .text("No"))
         ],
         tags: ["Antihistamine", "Allergy", "Non-Drowsy"]
     ),
@@ -141,12 +135,12 @@ let sampleMedicines: [MedicineModel] = [
         manufacturedDate: createDate(monthsFromNow: -2),
         expiryDate: createDate(monthsFromNow: 10),
         strength: StrengthModel(amount: 625, unit: "mg"),
-        compositions: [
+        composition: [
             CompositionModel(name: "Amoxicillin", strength: StrengthModel(amount: 500, unit: "mg")),
             CompositionModel(name: "Clavulanic Acid", strength: StrengthModel(amount: 125, unit: "mg"))
         ],
         customFields: [
-            MedicineCustomFieldModel(customFieldId: storageConditionFieldId, value: .text("Store in airtight container"))
+            CustomFieldModel(label: "Storage Condition", value: .text("Store in airtight container"))
         ],
         tags: ["Antibiotic", "Combination Drug", "Prescription Only"]
     ),
@@ -158,11 +152,11 @@ let sampleMedicines: [MedicineModel] = [
         manufacturedDate: createDate(monthsFromNow: -7),
         expiryDate: createDate(monthsFromNow: 17),
         strength: StrengthModel(amount: 100, unit: "mcg/actuation"),
-        compositions: [
+        composition: [
             CompositionModel(name: "Salbutamol Sulfate", strength: StrengthModel(amount: 100, unit: "mcg"))
         ],
         customFields: [
-            MedicineCustomFieldModel(customFieldId: storageConditionFieldId, value: .text("Do not puncture or incinerate canister"))
+            CustomFieldModel(label: "Storage Condition", value: .text("Do not puncture or incinerate canister"))
         ],
         tags: ["Asthma", "Bronchodilator", "Inhaler"]
     ),
@@ -174,12 +168,32 @@ let sampleMedicines: [MedicineModel] = [
         manufacturedDate: createDate(monthsFromNow: -3),
         expiryDate: createDate(monthsFromNow: 21),
         strength: StrengthModel(amount: 20, unit: "mg"),
-        compositions: [
+        composition: [
             CompositionModel(name: "Omeprazole Magnesium", strength: StrengthModel(amount: 20, unit: "mg"))
         ],
         customFields: [
-            MedicineCustomFieldModel(customFieldId: prescriptionRequiredFieldId, value: .text("No"))
+            CustomFieldModel(label: "Prescription Required", value: .text("No"))
         ],
         tags: ["Antacid", "PPI", "Acid Reflux"]
+    ),
+    
+    // 11. Nux Vomica
+    MedicineModel(
+        name: "Nux Vomica",
+        quantity: 2
     )
+]
+
+let sampleCompositions: [CompositionModel] = [
+    CompositionModel(name: "Amoxicillin Trihydrate", strength: StrengthModel(amount: 500, unit: "mg")),
+    CompositionModel(name: "Acetaminophen", strength: StrengthModel(amount: 500, unit: "mg")),
+    CompositionModel(name: "Ibuprofen", strength: StrengthModel(amount: 400, unit: "mg")),
+    CompositionModel(name: "Atorvastatin Calcium", strength: StrengthModel(amount: 20, unit: "mg")),
+    CompositionModel(name: "Metformin Hydrochloride", strength: StrengthModel(amount: 850, unit: "mg")),
+    CompositionModel(name: "Lisinopril Dihydrate", strength: StrengthModel(amount: 10, unit: "mg")),
+    CompositionModel(name: "Cetirizine Hydrochloride", strength: StrengthModel(amount: 10, unit: "mg")),
+    CompositionModel(name: "Amoxicillin", strength: StrengthModel(amount: 500, unit: "mg")),
+    CompositionModel(name: "Clavulanic Acid", strength: StrengthModel(amount: 125, unit: "mg")),
+    CompositionModel(name: "Salbutamol Sulfate", strength: StrengthModel(amount: 100, unit: "mcg")),
+    CompositionModel(name: "Omeprazole Magnesium", strength: StrengthModel(amount: 20, unit: "mg"))
 ]

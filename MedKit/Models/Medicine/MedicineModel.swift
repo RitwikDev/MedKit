@@ -14,29 +14,29 @@ class MedicineModel: Codable {
     
     var quantity: Float
     
-    var manufacturedDate: Date
+    var manufacturedDate: Date?
     
-    var expiryDate: Date
-    
-    @Relationship(deleteRule: .cascade)
-    var strength: StrengthModel
+    var expiryDate: Date?
     
     @Relationship(deleteRule: .cascade)
-    var compositions: [CompositionModel]
+    var strength: StrengthModel?
     
     @Relationship(deleteRule: .cascade)
-    var customFields: [MedicineCustomFieldModel]
+    var composition: [CompositionModel]
+    
+    @Relationship(deleteRule: .cascade)
+    var customFields: [CustomFieldModel]
     
     var tags: [String]
     
     init(
         name: String = "",
         quantity: Float = 0,
-        manufacturedDate: Date = .now,
-        expiryDate: Date = .now,
-        strength: StrengthModel = .init(),
-        compositions: [CompositionModel] = [],
-        customFields: [MedicineCustomFieldModel] = [],
+        manufacturedDate: Date? = nil,
+        expiryDate: Date? = nil,
+        strength: StrengthModel? = nil,
+        composition: [CompositionModel] = [],
+        customFields: [CustomFieldModel] = [],
         tags: [String] = [],
     ) {
         self.name = name
@@ -44,13 +44,13 @@ class MedicineModel: Codable {
         self.manufacturedDate = manufacturedDate
         self.expiryDate = expiryDate
         self.strength = strength
-        self.compositions = compositions
+        self.composition = composition
         self.customFields = customFields
         self.tags = tags
     }
     
     enum CodingKeys: String, CodingKey {
-        case name, quantity, manufacturedDate, expiryDate, strength, compositions, customFields, tags
+        case name, quantity, manufacturedDate, expiryDate, strength, composition, customFields, tags
     }
     
     required init(from decoder: Decoder) throws {
@@ -58,11 +58,11 @@ class MedicineModel: Codable {
         
         name = try container.decode(String.self, forKey: .name)
         quantity = try container.decode(Float.self, forKey: .quantity)
-        manufacturedDate = try container.decode(Date.self, forKey: .manufacturedDate)
-        expiryDate = try container.decode(Date.self, forKey: .expiryDate)
-        strength = try container.decode(StrengthModel.self, forKey: .strength)
-        compositions = try container.decode([CompositionModel].self, forKey: .compositions)
-        customFields = try container.decode([MedicineCustomFieldModel].self, forKey: .customFields)
+        manufacturedDate = try container.decodeIfPresent(Date.self, forKey: .manufacturedDate)
+        expiryDate = try container.decodeIfPresent(Date.self, forKey: .expiryDate)
+        strength = try container.decodeIfPresent(StrengthModel.self, forKey: .strength)
+        composition = try container.decode([CompositionModel].self, forKey: .composition)
+        customFields = try container.decode([CustomFieldModel].self, forKey: .customFields)
         tags = try container.decode([String].self, forKey: .tags)
     }
     
@@ -71,12 +71,23 @@ class MedicineModel: Codable {
         
         try container.encode(name, forKey: .name)
         try container.encode(quantity, forKey: .quantity)
-        try container.encode(manufacturedDate, forKey: .manufacturedDate)
-        try container.encode(expiryDate, forKey: .expiryDate)
-        try container.encode(strength, forKey: .strength)
-        try container.encode(compositions, forKey: .compositions)
+        try container.encodeIfPresent(manufacturedDate, forKey: .manufacturedDate)
+        try container.encodeIfPresent(expiryDate, forKey: .expiryDate)
+        try container.encodeIfPresent(strength, forKey: .strength)
+        try container.encode(composition, forKey: .composition)
         try container.encode(customFields, forKey: .customFields)
         try container.encode(tags, forKey: .tags)
+    }
+    
+    func copy() -> MedicineModel {
+        MedicineModel(name: name,
+                      quantity: quantity,
+                      manufacturedDate: manufacturedDate,
+                      expiryDate: expiryDate,
+                      strength: strength,
+                      composition: composition,
+                      customFields: customFields,
+                      tags: tags)
     }
     
     func getJsonString() -> String {

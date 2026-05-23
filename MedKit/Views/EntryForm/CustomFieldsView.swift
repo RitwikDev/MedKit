@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct CustomFieldsView: View {
-    @Binding var customFields: [MedicineCustomFieldModel]
+    @Binding var customFields: [CustomFieldModel]
+    let buttonAction: () -> Void
+    
     var body: some View {
-        VStack {
+        List {
             ForEach($customFields) { $customField in
                 switch customField.value {
                 case .date(let dateValue):
@@ -66,10 +68,15 @@ struct CustomFieldsView: View {
                     }
                 }
             }
+            
+            Button("Add Custom Field") { buttonAction() }
         }
     }
 }
 
 #Preview {
-    CustomFieldsView(customFields: .constant([]))
+    CustomFieldsView(customFields: .constant([
+        CustomFieldModel(label: "Storage Method", value: .text("Store in a cool, dry place"))
+    ]),
+                     buttonAction: { })
 }

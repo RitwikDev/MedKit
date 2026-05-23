@@ -8,8 +8,8 @@
 import Foundation
 
 enum CustomFieldTypeEnum: Codable {
-    case Number
-    case Text
-    case Date
-    case List
+    case number(Float)
+    case text(String)
+    case date(Date)
+    case list([String])
 }

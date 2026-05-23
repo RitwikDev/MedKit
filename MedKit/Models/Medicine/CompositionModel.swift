@@ -11,9 +11,9 @@ import SwiftData
 @Model
 class CompositionModel: Codable {
     var name: String
-    var strength: StrengthModel
+    var strength: StrengthModel?
     
-    init(name: String = "", strength: StrengthModel = StrengthModel()) {
+    init(name: String = "", strength: StrengthModel? = nil) {
         self.name = name
         self.strength = strength
     }
@@ -26,12 +26,24 @@ class CompositionModel: Codable {
     required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         name = try container.decode(String.self, forKey: .name)
-        strength = try container.decode(StrengthModel.self, forKey: .strength)
+        strength = try container.decodeIfPresent(StrengthModel.self, forKey: .strength)
     }
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
-        try container.encode(strength, forKey: .strength)
+        try container.encodeIfPresent(strength, forKey: .strength)
+    }
+    
+    func getFullName() -> String {
+        if let strength = strength {
+            return "\(name) \(strength.amount) \(strength.unit)"
+        } else {
+            return name
+        }
+    }
+    
+    func copy() -> CompositionModel {
+        CompositionModel(name: name, strength: strength)
     }
 }
