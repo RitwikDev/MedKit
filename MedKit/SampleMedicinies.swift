@@ -12,7 +12,7 @@ func createDate(monthsFromNow: Int) -> Date {
     return Calendar.current.date(byAdding: .month, value: monthsFromNow, to: Date()) ?? Date()
 }
 
-// MARK: - 10 Sample Medicines
+// MARK: - 11 Sample Medicines
 let sampleMedicines: [MedicineModel] = [
     // 1. Amoxicillin (Antibiotic)
     MedicineModel(

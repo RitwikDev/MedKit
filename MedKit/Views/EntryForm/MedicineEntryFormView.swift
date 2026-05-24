@@ -7,108 +7,67 @@
 
 import SwiftUI
 
-private enum SheetType: String, Identifiable {
-    case composition, customFields, tags
-    var id: String { self.rawValue }
-}
-
 struct MedicineEntryFormView: View {
-    @State var medicine: MedicineModel
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     
-    @State private var draftMedicine: MedicineModel
-    @State private var activeSheet: SheetType? = nil
-    @State private var compositionToEdit: CompositionModel
-    @State private var tagToEdit: TagModel
+//    @State var medicine: MedicineModel
+    @Bindable var draftMedicine: MedicineModel
+    @State private var compositionToEdit: CompositionModel? = nil
     
-    init(medicine: MedicineModel, compositionToEdit: CompositionModel = .init(), tagToEdit: TagModel = .init()) {
-        self.medicine = medicine
-        self.draftMedicine = medicine.copy()
-        self.activeSheet = nil
-        self.compositionToEdit = compositionToEdit
-        self.tagToEdit = tagToEdit
-    }
+//    init(medicine: MedicineModel) {
+//        self._medicine = State(initialValue: medicine)
+//        self._draftMedicine = State(initialValue: medicine.copy())
+//    }
     
     var body: some View {
         Form {
-            // MARK: - Name
-            Section("Name") {
-                TextField("Name", text: $draftMedicine.name)
-                    .autocorrectionDisabled()
-            }
+            NameSectionView(name: $draftMedicine.name)
             
-            // MARK: - Strength
-            Section("Strength") {
-                StrengthView(strength: $draftMedicine.strength)
-            }
+            StrengthSectionView(strength: $draftMedicine.strength)
             
-            // MARK: - Quantity
-            Section("Quantity") {
-                Stepper(draftMedicine.quantity.description, value: $draftMedicine.quantity, in: 0...100)
-            }
+            QuantitySectionView(medicine: draftMedicine)
             
-            // MARK: - Dates
-            Section("Dates") {
-                DatePickerView(label: "Manufacture Date", date: $draftMedicine.manufacturedDate)
-                DatePickerView(label: "Expiry Date", date: $draftMedicine.expiryDate)
-            }
-
-            // MARK: - Composition
-            Section(content: {
-                CompositionView(composition: $draftMedicine.composition,
-                                compositionToEdit: $compositionToEdit) {
-                    activeSheet = .composition
-                }
-            }, header: {
-                Text("Composition")
-            })
-
-            // MARK: - Custom Fields
-            Section(content: {
-                CustomFieldsView(customFields: $draftMedicine.customFields) {
-                    activeSheet = .customFields
-                }
-            }, header: {
-                Text("Custom Fields")
-            })
-
-            // MARK: - Tags
-            Section(content: {
-                TagsView(tags: $draftMedicine.tags,
-                         tagToEdit: $tagToEdit) {
-                    activeSheet = .tags
-                }
-            }, header: {
-                Text("Tags")
-            })
+//            DatesSectionView(medicine: $draftMedicine)
+//
+//            CompositionSectionView(
+//                compositionList: $draftMedicine.composition,
+//                compositionToEdit: $compositionToEdit,
+//            )
+//        
+//            CustomFieldsSectionView(customFields: $draftMedicine.customFields) {
+//            }
+//
+//            TagsSectionView(tags: $draftMedicine.tags)
             
-            Button("Save") {
-                print(draftMedicine.getJsonString())
-            }
+//            Button("Save") {
+//                medicine = draftMedicine
+////                if modelContext.hasChanges {
+//                    do {
+//                        try modelContext.save()
+//                    } catch (let error) {
+//                        print(error)
+//                    }
+////                }
+//                dismiss()
+//            }
             
             Button("Cancel", role: .destructive) {
-                print(medicine.getJsonString())
+                dismiss()
             }
         }
-        .sheet(item: $activeSheet) { sheet in
-            switch sheet {
-            case .composition:
-                CompositionEntrySheetView(composition: $draftMedicine.composition,
-                                          compositionToEdit: $compositionToEdit)
-            case .customFields:
-                CustomFieldEntrySheetView()
-            case .tags:
-                TagEntrySheetView(tags: $draftMedicine.tags,
-                                  tagToEdit: $tagToEdit)
-            }
-        }
+        .sheet(item: $compositionToEdit, content: { composition in
+            CompositionEntrySheetView(composition: $draftMedicine.composition, compositionToEdit: composition)
+        })
         .scrollDismissesKeyboard(.interactively)
-        .navigationTitle("\(medicine.name.isEmpty ? "New Medicine" : medicine.name)")
+//        .navigationTitle("\(medicine.name.isEmpty ? "New Medicine" : medicine.name)")
     }
 }
 
-#Preview {
-    NavigationStack {
-        MedicineEntryFormView(medicine: sampleMedicines[9],
-                              compositionToEdit: .init())
-    }
-}
+//#Preview {
+//    NavigationStack {
+//        MedicineEntryFormView(
+//            medicine: sampleMedicines[7]
+//        )
+//    }
+//}

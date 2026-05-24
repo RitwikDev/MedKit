@@ -1,0 +1,43 @@
+//
+//  CompositionSectionView.swift
+//  MedKit
+//
+//  Created by Rishik Dev on 20/05/26.
+//
+
+import SwiftUI
+
+struct CompositionSectionView: View {
+    @Binding var compositionList: [CompositionModel]
+    @Binding var compositionToEdit: CompositionModel?
+    
+    var body: some View {
+        Section("Composition") {
+            ForEach(compositionList) { composition in
+                Button(composition.getFullName()) {
+                    compositionToEdit = composition
+                }
+                .foregroundStyle(.primary)
+            }
+            .onDelete(perform: deleteCompositions)
+            
+            Button("Add Composition") {
+                compositionToEdit = .init()
+            }
+        }
+    }
+    
+    private func deleteCompositions(at offsets: IndexSet) {
+        compositionList.remove(atOffsets: offsets)
+    }
+}
+
+#Preview {
+    CompositionSectionView(
+        compositionList: .constant([
+            .init(name: "Ingredient 1", strength: nil),
+            .init(name: "Ingredient 2", strength: StrengthModel(amount: 10, unit: "mg"))
+        ]),
+        compositionToEdit: .constant(.init()),
+    )
+}

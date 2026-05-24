@@ -9,11 +9,11 @@ import SwiftData
 import SwiftUI
 
 struct MedicinesListView: View {
-    @Environment(\.modelContext) var modelContext
-
-//    @Query var medicines: [MedicineModel]
+    @Environment(\.modelContext) private var modelContext
     
-    @State private var medicines = sampleMedicines
+    @Query var medicines: [MedicineModel]
+    
+//    @State private var medicines = sampleMedicines
     @State private var medicineStackPath: [MedicineModel] = []
     
     var body: some View {
@@ -28,17 +28,26 @@ struct MedicinesListView: View {
             .listStyle(.plain)
             .toolbar {
                 ToolbarItem {
-                    Button {
-                        medicineStackPath.append(.init())
+                    Menu {
+                        Button {
+                            let newMedicine: MedicineModel = .init()
+                            modelContext.insert(newMedicine)
+                            medicineStackPath.append(newMedicine)
+                        } label: {
+                            Label("Manual", systemImage: "pencil")
+                        }
+                        
+                        Button {
+                            medicineStackPath.append(.init())
+                        } label: {
+                            Label("Scan", systemImage: "camera.viewfinder")
+                        }
                     } label: {
                         Label("Add", systemImage: "plus")
                     }
                 }
             }
-            .navigationDestination(for: MedicineModel.self) { medicine in
-                MedicineEntryFormView(medicine: medicine)
-            }
-            .navigationLinkIndicatorVisibility(.hidden)
+            .navigationDestination(for: MedicineModel.self, destination: MedicineEntryFormView.init)
             .navigationTitle(Text("MedKit"))
         }
     }

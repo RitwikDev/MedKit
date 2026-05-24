@@ -10,7 +10,7 @@ import SwiftUI
 struct CompositionEntrySheetView: View {
     private let compositionList = sampleCompositions
     @Binding var composition: [CompositionModel]
-    @Binding var compositionToEdit: CompositionModel
+    let compositionToEdit: CompositionModel
     
     @Environment(\.dismiss) private var dismiss
     @State private var draftComposition: CompositionModel = .init()
@@ -24,9 +24,7 @@ struct CompositionEntrySheetView: View {
                     TextField("Composition Name", text: $draftComposition.name)
                 }
                 
-                Section("Strength") {
-                    StrengthView(strength: $draftComposition.strength)
-                }
+                StrengthSectionView(strength: $draftComposition.strength)
                                 
                 Section("Previously Added Compositions") {
                     ForEach(compositionList, id: \.self) { compositionItem in
@@ -99,7 +97,9 @@ struct CompositionEntrySheetView: View {
 
 #Preview {
     NavigationStack {
-        CompositionEntrySheetView(composition: .constant([.init(name: "Composition", strength: .init(amount: 10.75, unit: "ml"))]),
-                                  compositionToEdit: .constant(.init()))
+        CompositionEntrySheetView(
+            composition: .constant([.init(name: "Composition", strength: .init(amount: 10.75, unit: "ml"))]),
+            compositionToEdit: .init()
+        )
     }
 }

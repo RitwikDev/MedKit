@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct RoundedTintedButtonView: View {
+    var title: String = "Delete"
+    var systemImage: String = "xmark"
+    var tintColor: Color = .red
     let buttonAction: () -> Void
-    let title: String
-    let systemImage: String
-    let tintColor: Color
     
     var body: some View {
         Button {
@@ -27,8 +27,8 @@ struct RoundedTintedButtonView: View {
 }
 
 #Preview {
-    RoundedTintedButtonView(buttonAction: { },
-                            title: "Title",
+    RoundedTintedButtonView(title: "Title",
                             systemImage: "plus",
-                            tintColor: .blue)
+                            tintColor: .blue,
+                            buttonAction: {})
 }

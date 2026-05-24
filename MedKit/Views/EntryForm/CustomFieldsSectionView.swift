@@ -1,5 +1,5 @@
 //
-//  CustomFieldsView.swift
+//  CustomFieldsSectionView.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 20/05/26.
@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct CustomFieldsView: View {
+struct CustomFieldsSectionView: View {
     @Binding var customFields: [CustomFieldModel]
     let buttonAction: () -> Void
     
     var body: some View {
-        List {
+        Section("Custom Fields") {
             ForEach($customFields) { $customField in
                 switch customField.value {
                 case .date(let dateValue):
@@ -75,8 +75,8 @@ struct CustomFieldsView: View {
 }
 
 #Preview {
-    CustomFieldsView(customFields: .constant([
+    CustomFieldsSectionView(customFields: .constant([
         CustomFieldModel(label: "Storage Method", value: .text("Store in a cool, dry place"))
     ]),
-                     buttonAction: { })
+                            buttonAction: { })
 }

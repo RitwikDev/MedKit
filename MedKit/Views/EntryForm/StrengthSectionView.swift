@@ -1,5 +1,5 @@
 //
-//  StrengthView.swift
+//  StrengthSectionView.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 20/05/26.
@@ -11,7 +11,7 @@ private enum AlertAction {
     case add, edit
 }
 
-struct StrengthView: View {
+struct StrengthSectionView: View {
     @Binding var strength: StrengthModel?
     
     @State private var showAlert: Bool = false
@@ -21,7 +21,7 @@ struct StrengthView: View {
     @State private var strengthUnit: String = ""
     
     var body: some View {
-        Group {
+        Section("Strength") {
             if let strength = strength {
                 HStack {
                     Button("\(strength.amount.formatted(.number.precision(.fractionLength(2)))) \(strength.unit)") {
@@ -34,10 +34,9 @@ struct StrengthView: View {
                     
                     Spacer()
                     
-                    RoundedTintedButtonView(buttonAction: { showDeleteConfirmation.toggle() },
-                                            title: "Delete",
-                                            systemImage: "xmark",
-                                            tintColor: .red)
+                    RoundedTintedButtonView() {
+                        showDeleteConfirmation.toggle()
+                    }
                 }
             } else {
                 Button("Add Strength") {
@@ -93,5 +92,5 @@ struct StrengthView: View {
 }
 
 #Preview {
-    StrengthView(strength: .constant(.init(amount: 20, unit: "mg")))
+    StrengthSectionView(strength: .constant(.init(amount: 20, unit: "mg")))
 }

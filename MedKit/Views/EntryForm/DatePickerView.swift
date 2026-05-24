@@ -23,12 +23,10 @@ struct DatePickerView: View {
                                 set: { self.date = $0 }
                                ),
                                displayedComponents: .date)
-
                     
-                    RoundedTintedButtonView(buttonAction: { showDeleteConfirmation.toggle() },
-                                            title: "Delete \(label)?",
-                                            systemImage: "xmark",
-                                            tintColor: .red)
+                    RoundedTintedButtonView(title: "Delete \(label)") {
+                        showDeleteConfirmation.toggle()
+                    }
                 }
             } else {
                 Button("Add \(label)") {
