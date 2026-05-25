@@ -30,9 +30,8 @@ struct MedicinesListView: View {
                 ToolbarItem {
                     Menu {
                         Button {
-                            let newMedicine: MedicineModel = .init()
-                            modelContext.insert(newMedicine)
-                            medicineStackPath.append(newMedicine)
+                            let newBlankMedicine: MedicineModel = .init()
+                            medicineStackPath.append(newBlankMedicine)
                         } label: {
                             Label("Manual", systemImage: "pencil")
                         }
@@ -47,7 +46,12 @@ struct MedicinesListView: View {
                     }
                 }
             }
-            .navigationDestination(for: MedicineModel.self, destination: MedicineEntryFormView.init)
+            .navigationDestination(for: MedicineModel.self) { medicine in
+                MedicineEntryFormView(
+                    container: modelContext.container,
+                    medicine: medicine,
+                )
+            }
             .navigationTitle(Text("MedKit"))
         }
     }
@@ -55,11 +59,9 @@ struct MedicinesListView: View {
 
 #Preview {
     do {
-        let configuration = ModelConfiguration (isStoredInMemoryOnly: true)
-        let container = try ModelContainer(for: MedicineModel.self, configurations: configuration)
+        let container = try PreviewContainerHelper.getMedicineContainer()
         
-        return MedicinesListView()
-            .modelContainer(container)
+        return MedicinesListView().modelContainer(container)
     } catch {
         fatalError("Failed")
     }

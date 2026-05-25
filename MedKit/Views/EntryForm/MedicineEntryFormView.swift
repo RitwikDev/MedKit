@@ -5,69 +5,100 @@
 //  Created by Rishik Dev on 19/05/26.
 //
 
+import SwiftData
 import SwiftUI
 
 struct MedicineEntryFormView: View {
-    @Environment(\.modelContext) private var modelContext
+    @Environment(\.modelContext) private var mainModelContext // Rename for clarity
     @Environment(\.dismiss) private var dismiss
     
-//    @State var medicine: MedicineModel
-    @Bindable var draftMedicine: MedicineModel
+    @Bindable var medicine: MedicineModel
     @State private var compositionToEdit: CompositionModel? = nil
     
-//    init(medicine: MedicineModel) {
-//        self._medicine = State(initialValue: medicine)
-//        self._draftMedicine = State(initialValue: medicine.copy())
-//    }
+    private let editingContext: ModelContext
+    private let isNew: Bool
+    
+    init(container: ModelContainer, medicine: MedicineModel? = nil) {
+        let context = ModelContext(container)
+        context.autosaveEnabled = false
+        self.editingContext = context
+        
+        if let medicine, medicine.persistentModelID.storeIdentifier != nil {
+            let editableMedicine = context.model(for: medicine.persistentModelID) as! MedicineModel
+            self._medicine = Bindable(editableMedicine)
+            self.isNew = false
+        } else {
+            let newMedicine = MedicineModel()
+            context.insert(newMedicine)
+            self._medicine = Bindable(newMedicine)
+            self.isNew = true
+        }
+    }
     
     var body: some View {
         Form {
-            NameSectionView(name: $draftMedicine.name)
+            NameSectionView(name: $medicine.name)
             
-            StrengthSectionView(strength: $draftMedicine.strength)
+            StrengthSectionView(strength: $medicine.strength)
             
-            QuantitySectionView(medicine: draftMedicine)
+            QuantitySectionView(quantity: $medicine.quantity)
             
-//            DatesSectionView(medicine: $draftMedicine)
-//
-//            CompositionSectionView(
-//                compositionList: $draftMedicine.composition,
-//                compositionToEdit: $compositionToEdit,
-//            )
-//        
-//            CustomFieldsSectionView(customFields: $draftMedicine.customFields) {
-//            }
-//
-//            TagsSectionView(tags: $draftMedicine.tags)
+            DatesSectionView(manufacturedDate: $medicine.manufacturedDate, expiryDate: $medicine.expiryDate)
+
+            CompositionSectionView(
+                compositionList: $medicine.composition,
+                compositionToEdit: $compositionToEdit
+            )
+        
+            CustomFieldsSectionView(customFields: $medicine.customFields) {}
             
-//            Button("Save") {
-//                medicine = draftMedicine
-////                if modelContext.hasChanges {
-//                    do {
-//                        try modelContext.save()
-//                    } catch (let error) {
-//                        print(error)
-//                    }
-////                }
-//                dismiss()
-//            }
+            TagsSectionView(tags: $medicine.tags)
+            
+            Button("Save") {
+                do {
+                    try editingContext.save()
+                    
+                    if isNew {
+                        mainModelContext.insert(medicine)
+                    }
+                    
+                    try mainModelContext.save()
+                } catch {
+                    print("Failed to save: \(error)")
+                }
+                dismiss()
+            }
             
             Button("Cancel", role: .destructive) {
                 dismiss()
             }
         }
-        .sheet(item: $compositionToEdit, content: { composition in
-            CompositionEntrySheetView(composition: $draftMedicine.composition, compositionToEdit: composition)
-        })
+        .sheet(item: $compositionToEdit) { composition in
+            CompositionEntrySheetView(
+                medicine: medicine,
+                compositionToEdit: composition,
+                modelContext: editingContext
+            )
+        }
         .scrollDismissesKeyboard(.interactively)
-//        .navigationTitle("\(medicine.name.isEmpty ? "New Medicine" : medicine.name)")
+        .navigationTitle("\(medicine.name.isEmpty ? "New Medicine" : medicine.name)")
     }
 }
 
-//#Preview {
-//    NavigationStack {
-//        MedicineEntryFormView(
-//            medicine: sampleMedicines[7]
-//        )
-//    }
-//}
+#Preview {
+    do {
+        let container = try PreviewContainerHelper.getMedicineContainer()
+        let medicine: MedicineModel = sampleMedicines[7]
+        
+        container.mainContext.insert(medicine)
+        
+        return NavigationStack {
+            MedicineEntryFormView(
+                container: container,
+                medicine: medicine
+            )
+        }
+    } catch {
+        fatalError("Error")
+    }
+}

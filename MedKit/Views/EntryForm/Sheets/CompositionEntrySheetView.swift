@@ -5,27 +5,35 @@
 //  Created by Rishik Dev on 20/05/26.
 //
 
+import SwiftData
 import SwiftUI
 
 struct CompositionEntrySheetView: View {
     private let compositionList = sampleCompositions
-    @Binding var composition: [CompositionModel]
+    
+    let medicine: MedicineModel
     let compositionToEdit: CompositionModel
+    let modelContext: ModelContext
     
     @Environment(\.dismiss) private var dismiss
     @State private var draftComposition: CompositionModel = .init()
     @State private var showError: Bool = false
     @State private var errorMessage: String = ""
+    
+    // If the object isn't committed to a context store yet, it's in Add Mode
+    private var isNewComposition: Bool {
+        compositionToEdit.persistentModelID.storeIdentifier == nil
+    }
  
     var body: some View {
         NavigationStack {
             List {
-                Section(compositionToEdit.name.isEmpty ? "New Composition" : "Edit Composition") {
+                Section(isNewComposition ? "New Composition" : "Edit Composition") {
                     TextField("Composition Name", text: $draftComposition.name)
                 }
                 
                 StrengthSectionView(strength: $draftComposition.strength)
-                                
+                
                 Section("Previously Added Compositions") {
                     ForEach(compositionList, id: \.self) { compositionItem in
                         Button(compositionItem.getFullName()) {
@@ -38,8 +46,7 @@ struct CompositionEntrySheetView: View {
             .onAppear {
                 draftComposition = compositionToEdit.copy()
             }
-            .alert("Something went wrong",
-                   isPresented: $showError) {
+            .alert("Something went wrong", isPresented: $showError) {
                 Button("Dismiss") { }
             } message: {
                 Text(errorMessage)
@@ -51,11 +58,7 @@ struct CompositionEntrySheetView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
-                        if (compositionToEdit.name.isEmpty) {
-                            addComposition()
-                        } else {
-                            replaceComposition()
-                        }
+                        saveChanges()
                         dismiss()
                     } label: {
                         Label("Done", systemImage: "checkmark")
@@ -70,36 +73,55 @@ struct CompositionEntrySheetView: View {
         }
     }
     
-    private func addComposition() {
-        draftComposition.name = draftComposition.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        composition.append(draftComposition)
-    }
-    
-    private func replaceComposition() {
-        var indexOfCompositionToReplace = -1
+    private func saveChanges() {
+        let cleanedName = draftComposition.name.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        for (index, composition) in self.composition.enumerated() {
-            if (composition.id == compositionToEdit.id) {
-                indexOfCompositionToReplace = index
-                break
+        if isNewComposition {
+            // 1. Configure the brand new target instance inside the context
+            compositionToEdit.name = cleanedName
+            modelContext.insert(compositionToEdit)
+            
+            if let targetStrength = draftComposition.strength {
+                let newStrength = StrengthModel(amount: targetStrength.amount, unit: targetStrength.unit)
+                modelContext.insert(newStrength)
+                compositionToEdit.strength = newStrength
             }
-        }
-        
-        if (indexOfCompositionToReplace != -1) {
-            draftComposition.name = draftComposition.name.trimmingCharacters(in: .whitespacesAndNewlines)
-            composition[indexOfCompositionToReplace] = draftComposition
+            
+            // 2. Append directly to the parent relationship array
+            medicine.composition.append(compositionToEdit)
+            
         } else {
-            errorMessage = "Could not replace \(compositionToEdit.getFullName())."
-            showError = true
+            // EDIT MODE: Update existing values in-place on the tracking instance
+            compositionToEdit.name = cleanedName
+            
+            if let draftStrength = draftComposition.strength {
+                if let existingStrength = compositionToEdit.strength {
+                    existingStrength.amount = draftStrength.amount
+                    existingStrength.unit = draftStrength.unit
+                } else {
+                    let newStrength = StrengthModel(amount: draftStrength.amount, unit: draftStrength.unit)
+                    modelContext.insert(newStrength)
+                    compositionToEdit.strength = newStrength
+                }
+            } else {
+                compositionToEdit.strength = nil
+            }
         }
     }
 }
 
 #Preview {
-    NavigationStack {
-        CompositionEntrySheetView(
-            composition: .constant([.init(name: "Composition", strength: .init(amount: 10.75, unit: "ml"))]),
-            compositionToEdit: .init()
-        )
+    do {
+        let container = try PreviewContainerHelper.getMedicineContainer()
+        
+        return NavigationStack {
+            CompositionEntrySheetView(
+                medicine: sampleMedicines[7],
+                compositionToEdit: .init(),
+                modelContext: container.mainContext
+            )
+        }
+    } catch {
+        fatalError("Error building preview for CompositionEntrySheetView")
     }
 }

@@ -8,16 +8,17 @@
 import SwiftUI
 
 struct DatesSectionView: View {
-    @Binding var medicine: MedicineModel
+    @Binding var manufacturedDate: Date?
+    @Binding var expiryDate: Date?
     
     var body: some View {
         Section("Dates") {
-            DatePickerView(label: "Manufacture Date", date: $medicine.manufacturedDate)
-            DatePickerView(label: "Expiry Date", date: $medicine.expiryDate)
+            DatePickerView(label: "Manufacture Date", date: $manufacturedDate)
+            DatePickerView(label: "Expiry Date", date: $expiryDate)
         }
     }
 }
 
 #Preview {
-    DatesSectionView(medicine: .constant(.init()))
+    DatesSectionView(manufacturedDate: .constant(.now), expiryDate: .constant(.now))
 }

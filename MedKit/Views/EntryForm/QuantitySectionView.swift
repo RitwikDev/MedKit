@@ -8,15 +8,15 @@
 import SwiftUI
 
 struct QuantitySectionView: View {
-    @Bindable var medicine: MedicineModel
+    @Binding var quantity: Float
     
     var body: some View {
         Section("Quantity") {
-            Stepper(medicine.quantity.description, value: $medicine.quantity, in: 0...100)
+            Stepper(quantity.description, value: $quantity, in: 0...100)
         }
     }
 }
 
-//#Preview {
-//    QuantitySectionView(medicine: .constant(.init()))
-//}
+#Preview {
+    QuantitySectionView(quantity: .constant(12.5))
+}
