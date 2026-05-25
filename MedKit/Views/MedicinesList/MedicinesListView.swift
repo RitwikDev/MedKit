@@ -52,11 +52,6 @@ struct MedicinesListView: View {
 }
 
 #Preview {
-    do {
-        let container = try PreviewContainerHelper.getMedicineContainer()
-        
-        return MedicinesListView().modelContainer(container)
-    } catch {
-        fatalError("Failed")
-    }
+    let container = PreviewContainerHelper.getMedicineContainer()
+    return MedicinesListView().modelContainer(container)
 }
