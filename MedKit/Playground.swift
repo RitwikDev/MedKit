@@ -8,18 +8,18 @@
 import Foundation
 import SwiftData
 
-func saveOrUpdateMedicine(from uiStruct: Medicine, in context: ModelContext) {
-    if let dbID = uiStruct.persistentIdentifier {
+func saveOrUpdateMedicine(from medicineStruct: Medicine, in context: ModelContext) {
+    if let persistentId = medicineStruct.persistentIdentifier {
         // SCENARIO A: EDITING AN EXISTING RECORD
-        guard let existingModel = context.model(for: dbID) as? MedicineModel else { return }
+        guard let existingModel = context.model(for: persistentId) as? MedicineModel else { return }
         
         // 1. Update basic fields
-        existingModel.name = uiStruct.name
-        existingModel.quantity = uiStruct.quantity
-        existingModel.manufacturedDate = uiStruct.manufacturedDate
-        existingModel.expiryDate = uiStruct.expiryDate
-        existingModel.strengthAmount = uiStruct.strengthAmount
-        existingModel.strengthUnit = uiStruct.strengthUnit
+        existingModel.name = medicineStruct.name
+        existingModel.quantity = medicineStruct.quantity
+        existingModel.manufacturedDate = medicineStruct.manufacturedDate
+        existingModel.expiryDate = medicineStruct.expiryDate
+        existingModel.strengthAmount = medicineStruct.strengthAmount
+        existingModel.strengthUnit = medicineStruct.strengthUnit
         
         // 2. Clear old child compositions out completely (Cascade delete handles cleanup)
         for composition in existingModel.composition {
@@ -28,32 +28,32 @@ func saveOrUpdateMedicine(from uiStruct: Medicine, in context: ModelContext) {
         existingModel.composition.removeAll()
         
         // 3. Insert updated child compositions from the UI struct
-        existingModel.composition = uiStruct.composition.map {
+        existingModel.composition = medicineStruct.composition.map {
             CompositionModel(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit)
         }
         
         // 4. Re-sync many-to-many unique tags safely
-        syncTags(for: existingModel, with: uiStruct.tags, in: context)
+        syncTags(for: existingModel, with: medicineStruct.tags, in: context)
         
     } else {
         // SCENARIO B: CREATING A BRAND NEW RECORD
         let newMedicineModel = MedicineModel(
-            name: uiStruct.name,
-            quantity: uiStruct.quantity,
-            manufacturedDate: uiStruct.manufacturedDate,
-            expiryDate: uiStruct.expiryDate,
-            strengthAmount: uiStruct.strengthAmount,
-            strengthUnit: uiStruct.strengthUnit
+            name: medicineStruct.name,
+            quantity: medicineStruct.quantity,
+            manufacturedDate: medicineStruct.manufacturedDate,
+            expiryDate: medicineStruct.expiryDate,
+            strengthAmount: medicineStruct.strengthAmount,
+            strengthUnit: medicineStruct.strengthUnit
         )
         
-        newMedicineModel.composition = uiStruct.composition.map {
+        newMedicineModel.composition = medicineStruct.composition.map {
             CompositionModel(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit)
         }
         
         context.insert(newMedicineModel)
         
         // Link unique tags on a freshly inserted model instance
-        syncTags(for: newMedicineModel, with: uiStruct.tags, in: context)
+        syncTags(for: newMedicineModel, with: medicineStruct.tags, in: context)
     }
     
     // Save your context safely to disk

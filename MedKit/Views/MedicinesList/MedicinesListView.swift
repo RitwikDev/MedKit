@@ -14,13 +14,13 @@ struct MedicinesListView: View {
     @Query var medicines: [MedicineModel]
     
 //    @State private var medicines = sampleMedicines
-    @State private var medicineStackPath: [MedicineModel] = []
+    @State private var medicineStackPath: [Medicine] = []
     
     var body: some View {
         NavigationStack(path: $medicineStackPath) {
             List {
                 ForEach(medicines) { medicine in
-                    NavigationLink(value: medicine) {
+                    NavigationLink(value: Medicine(from: medicine)) {
                         Text(medicine.name)
                     }
                 }
@@ -30,8 +30,7 @@ struct MedicinesListView: View {
                 ToolbarItem {
                     Menu {
                         Button {
-                            let newBlankMedicine: MedicineModel = .init()
-                            medicineStackPath.append(newBlankMedicine)
+                            medicineStackPath.append(.init())
                         } label: {
                             Label("Manual", systemImage: "pencil")
                         }
@@ -46,12 +45,7 @@ struct MedicinesListView: View {
                     }
                 }
             }
-            .navigationDestination(for: MedicineModel.self) { medicine in
-                MedicineEntryFormView(
-                    container: modelContext.container,
-                    medicine: medicine,
-                )
-            }
+            .navigationDestination(for: Medicine.self, destination: MedicineEntryFormView.init)
             .navigationTitle(Text("MedKit"))
         }
     }

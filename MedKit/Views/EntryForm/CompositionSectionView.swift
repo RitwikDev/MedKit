@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct CompositionSectionView: View {
-    @Binding var compositionList: [CompositionModel]
-    @Binding var compositionToEdit: CompositionModel?
+    @Binding var compositionList: [Composition]
+    @Binding var compositionToEdit: Composition?
     
     var body: some View {
         Section("Composition") {
@@ -35,8 +35,8 @@ struct CompositionSectionView: View {
 #Preview {
     CompositionSectionView(
         compositionList: .constant([
-            .init(name: "Ingredient 1", strength: nil),
-            .init(name: "Ingredient 2", strength: StrengthModel(amount: 10, unit: "mg"))
+            .init(name: "Ingredient 1"),
+            .init(name: "Ingredient 2", strengthAmount: 10, strengthUnit: "mg")
         ]),
         compositionToEdit: .constant(.init()),
     )

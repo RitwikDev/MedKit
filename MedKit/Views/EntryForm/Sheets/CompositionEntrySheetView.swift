@@ -5,24 +5,21 @@
 //  Created by Rishik Dev on 20/05/26.
 //
 
-import SwiftData
 import SwiftUI
 
 struct CompositionEntrySheetView: View {
-    private let compositionList = sampleCompositions
+    private let sampleList: [CompositionModel] = sampleCompositions
+
+    let medicineCompositionList: [Composition]
+    let compositionToEdit: Composition
     
-    let medicine: MedicineModel
-    let compositionToEdit: CompositionModel
-    let modelContext: ModelContext
+    var onSave: (Composition) -> Void
     
     @Environment(\.dismiss) private var dismiss
-    @State private var draftComposition: CompositionModel = .init()
-    @State private var showError: Bool = false
-    @State private var errorMessage: String = ""
+    @State private var draftComposition: Composition = .init()
     
-    // If the object isn't committed to a context store yet, it's in Add Mode
     private var isNewComposition: Bool {
-        compositionToEdit.persistentModelID.storeIdentifier == nil
+        compositionToEdit.persistentIdentifier == nil
     }
  
     var body: some View {
@@ -32,24 +29,24 @@ struct CompositionEntrySheetView: View {
                     TextField("Composition Name", text: $draftComposition.name)
                 }
                 
-                StrengthSectionView(strength: $draftComposition.strength)
+                StrengthSectionView(strengthAmount: $draftComposition.strengthAmount, strengthUnit: $draftComposition.strengthUnit)
                 
-                Section("Previously Added Compositions") {
-                    ForEach(compositionList, id: \.self) { compositionItem in
-                        Button(compositionItem.getFullName()) {
-                            draftComposition = compositionItem.copy()
+                if !sampleList.isEmpty {
+                    Section("Previously Added Compositions") {
+                        ForEach(sampleList) { sampleItem in
+                            Button(sampleItem.getFullName()) {
+                                // Explicitly preserve the existing ID/passport while applying sample data templates
+                                draftComposition.name = sampleItem.name
+                                draftComposition.strengthAmount = sampleItem.strengthAmount
+                                draftComposition.strengthUnit = sampleItem.strengthUnit
+                            }
+                            .foregroundStyle(.primary)
                         }
-                        .foregroundStyle(.primary)
                     }
                 }
             }
             .onAppear {
-                draftComposition = compositionToEdit.copy()
-            }
-            .alert("Something went wrong", isPresented: $showError) {
-                Button("Dismiss") { }
-            } message: {
-                Text(errorMessage)
+                draftComposition = compositionToEdit
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -58,7 +55,10 @@ struct CompositionEntrySheetView: View {
                 
                 ToolbarItem(placement: .confirmationAction) {
                     Button {
-                        saveChanges()
+                        var finalComposition = draftComposition
+                        finalComposition.name = finalComposition.name.trimmingCharacters(in: .whitespacesAndNewlines)
+                        
+                        onSave(finalComposition)
                         dismiss()
                     } label: {
                         Label("Done", systemImage: "checkmark")
@@ -72,56 +72,14 @@ struct CompositionEntrySheetView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
     }
-    
-    private func saveChanges() {
-        let cleanedName = draftComposition.name.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        if isNewComposition {
-            // 1. Configure the brand new target instance inside the context
-            compositionToEdit.name = cleanedName
-            modelContext.insert(compositionToEdit)
-            
-            if let targetStrength = draftComposition.strength {
-                let newStrength = StrengthModel(amount: targetStrength.amount, unit: targetStrength.unit)
-                modelContext.insert(newStrength)
-                compositionToEdit.strength = newStrength
-            }
-            
-            // 2. Append directly to the parent relationship array
-            medicine.composition.append(compositionToEdit)
-            
-        } else {
-            // EDIT MODE: Update existing values in-place on the tracking instance
-            compositionToEdit.name = cleanedName
-            
-            if let draftStrength = draftComposition.strength {
-                if let existingStrength = compositionToEdit.strength {
-                    existingStrength.amount = draftStrength.amount
-                    existingStrength.unit = draftStrength.unit
-                } else {
-                    let newStrength = StrengthModel(amount: draftStrength.amount, unit: draftStrength.unit)
-                    modelContext.insert(newStrength)
-                    compositionToEdit.strength = newStrength
-                }
-            } else {
-                compositionToEdit.strength = nil
-            }
-        }
-    }
 }
 
 #Preview {
-    do {
-        let container = try PreviewContainerHelper.getMedicineContainer()
-        
-        return NavigationStack {
-            CompositionEntrySheetView(
-                medicine: sampleMedicines[7],
-                compositionToEdit: .init(),
-                modelContext: container.mainContext
-            )
-        }
-    } catch {
-        fatalError("Error building preview for CompositionEntrySheetView")
+    NavigationStack {
+        CompositionEntrySheetView(
+            medicineCompositionList: [],
+            compositionToEdit: .init(),
+            onSave: { _ in }
+        )
     }
 }

@@ -12,21 +12,22 @@ private enum AlertAction {
 }
 
 struct StrengthSectionView: View {
-    @Binding var strength: StrengthModel?
+    @Binding var strengthAmount: Float?
+    @Binding var strengthUnit: String?
     
     @State private var showAlert: Bool = false
     @State private var showDeleteConfirmation: Bool = false
     @State private var alertAction: AlertAction = .add
     @State private var strengthAmountString: String = ""
-    @State private var strengthUnit: String = ""
+    @State private var strengthUnitString: String = ""
     
     var body: some View {
         Section("Strength") {
-            if let strength = strength {
+            if let amount = strengthAmount, let unit = strengthUnit {
                 HStack {
-                    Button("\(strength.amount.formatted(.number.precision(.fractionLength(2)))) \(strength.unit)") {
-                        strengthAmountString = strength.amount.description
-                        strengthUnit = strength.unit
+                    Button("\(amount.formatted(.number.precision(.fractionLength(2)))) \(unit)") {
+                        strengthAmountString = amount.description
+                        strengthUnitString = unit
                         alertAction = .edit
                         showAlert = true
                     }
@@ -58,7 +59,7 @@ struct StrengthSectionView: View {
             TextField("Amount", text: $strengthAmountString)
                 .keyboardType(.decimalPad)
             
-            TextField("Unit", text: $strengthUnit)
+            TextField("Unit", text: $strengthUnitString)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.never)
             
@@ -69,13 +70,15 @@ struct StrengthSectionView: View {
     }
     
     private func editStrength() {
-        strength = .init(amount: Float(strengthAmountString) ?? 0, unit: strengthUnit)
+        strengthAmount = Float(strengthAmountString) ?? 0
+        strengthUnit = strengthUnitString
     }
     
     private func deleteStrength() {
         strengthAmountString = ""
         strengthUnit = ""
-        strength = nil
+        strengthAmount = nil
+        strengthUnit = nil
     }
     
     private func disableDoneButton() -> Bool {
@@ -85,12 +88,12 @@ struct StrengthSectionView: View {
         
         guard let numericAmount = Double(trimmedStrengthAmountString), numericAmount >= 0 else { return true }
         
-        if strengthUnit.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return true }
+        if strengthUnitString.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return true }
         
         return false
     }
 }
 
 #Preview {
-    StrengthSectionView(strength: .constant(.init(amount: 20, unit: "mg")))
+    StrengthSectionView(strengthAmount: .constant(10), strengthUnit: .constant("mg"))
 }

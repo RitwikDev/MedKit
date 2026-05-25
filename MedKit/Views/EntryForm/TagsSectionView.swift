@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TagsSectionView: View {
-    @Binding var tags: [TagModel]
+    @Binding var tags: [Tag]
     
     @State private var showDeleteConfirmation: Bool = false
     @State private var showError: Bool = false

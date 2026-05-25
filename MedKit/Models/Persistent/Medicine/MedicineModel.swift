@@ -14,9 +14,7 @@ class MedicineModel {
     var quantity: Float
     var manufacturedDate: Date?
     var expiryDate: Date?
-    
     var strengthAmount: Float?
-    
     var strengthUnit: String?
     
     @Relationship(deleteRule: .cascade, inverse: \CompositionModel.medicine)

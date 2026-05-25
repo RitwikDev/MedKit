@@ -8,7 +8,7 @@
 import Foundation
 import SwiftData
 
-struct Medicine: Identifiable, Equatable {
+struct Medicine: Identifiable, Equatable, Hashable {
     // Stable, non-nil identifier dedicated strictly to SwiftUI rendering
     let id: UUID
     

@@ -7,224 +7,92 @@
 
 import Foundation
 
-// MARK: - Date Helper for Realism
-func createDate(monthsFromNow: Int) -> Date {
-    return Calendar.current.date(byAdding: .month, value: monthsFromNow, to: Date()) ?? Date()
+// MARK: - Helper Extension for Clean Mock Dates
+private extension Date {
+    static func monthsAgo(_ count: Int) -> Date? {
+        Calendar.current.date(byAdding: .month, value: -count, to: Date())
+    }
+    
+    static func monthsFromNow(_ count: Int) -> Date? {
+        Calendar.current.date(byAdding: .month, value: count, to: Date())
+    }
+    
+    static func yearsFromNow(_ count: Int) -> Date? {
+        Calendar.current.date(byAdding: .year, value: count, to: Date())
+    }
 }
 
-// MARK: - 11 Sample Medicines
+// MARK: - 11 Sample Medicines Array
 let sampleMedicines: [MedicineModel] = [
-    // 1. Amoxicillin (Antibiotic)
     MedicineModel(
-        name: "Amoxicillin",
-        quantity: 20.0,
-        manufacturedDate: createDate(monthsFromNow: -3),
-        expiryDate: createDate(monthsFromNow: 18),
-        strength: StrengthModel(amount: 500, unit: "mg"),
-        composition: [
-            CompositionModel(name: "Amoxicillin Trihydrate", strength: StrengthModel(amount: 500, unit: "mg"))
-        ],
-        customFields: [
-            CustomFieldModel(label: "Storage Condition", value: .text("Store below 25°C")),
-            CustomFieldModel(label: "Prescription Required", value: .text("Yes"))
-        ],
-        tags: [.init(value: "Antibiotic"),
-            .init(value: "Prescription Only"),
-            .init(value: "Capsule")
-        ]
+        name: "Amoxicillin", quantity: 20,
+        manufacturedDate: .monthsAgo(3), expiryDate: .monthsFromNow(9),
+        strengthAmount: 500, strengthUnit: "mg"
     ),
-    
-    // 2. Paracetamol / Acetaminophen (Analgesic)
     MedicineModel(
-        name: "Paracetamol",
-        quantity: 50.0,
-        manufacturedDate: createDate(monthsFromNow: -6),
-        expiryDate: createDate(monthsFromNow: 24),
-        strength: StrengthModel(amount: 500, unit: "mg"),
-        composition: [
-            CompositionModel(name: "Acetaminophen", strength: StrengthModel(amount: 500, unit: "mg"))
-        ],
-        customFields: [
-            CustomFieldModel(label: "Storage Condition", value: .text("Store in a dry place")),
-            CustomFieldModel(label: "Prescription Required", value: .text("No"))
-        ],
-        tags: [.init(value: "Pain Reliever"),
-            .init(value: "Fever Reducer"),
-            .init(value: "OTC")
-        ]
+        name: "Ibuprofen", quantity: 50,
+        manufacturedDate: .monthsAgo(6), expiryDate: .yearsFromNow(2),
+        strengthAmount: 400, strengthUnit: "mg"
     ),
-    
-    // 3. Ibuprofen (NSAID)
     MedicineModel(
-        name: "Ibuprofen",
-        quantity: 30.0,
-        manufacturedDate: createDate(monthsFromNow: -2),
-        expiryDate: createDate(monthsFromNow: 22),
-        strength: StrengthModel(amount: 400, unit: "mg"),
-        composition: [
-            CompositionModel(name: "Ibuprofen", strength: StrengthModel(amount: 400, unit: "mg"))
-        ],
-        customFields: [
-            CustomFieldModel(label: "Side Effects", value: .list(["Stomach upset", "Nausea", "Dizziness"]))
-        ],
-        tags: [.init(value: "NSAID"),
-            .init(value: "Anti-inflammatory"),
-            .init(value: "OTC")
-        ]
+        name: "Metformin HCl", quantity: 60,
+        manufacturedDate: .monthsAgo(2), expiryDate: .monthsFromNow(18),
+        strengthAmount: 850, strengthUnit: "mg"
     ),
-    
-    // 4. Atorvastatin (Cholesterol)
     MedicineModel(
-        name: "Lipitor",
-        quantity: 90.0,
-        manufacturedDate: createDate(monthsFromNow: -5),
-        expiryDate: createDate(monthsFromNow: 15),
-        strength: StrengthModel(amount: 20, unit: "mg"),
-        composition: [
-            CompositionModel(name: "Atorvastatin Calcium", strength: StrengthModel(amount: 20, unit: "mg"))
-        ],
-        customFields: [
-            CustomFieldModel(label: "Prescription Required", value: .text("Yes"))
-        ],
-        tags: [.init(value: "Statins"),
-            .init(value: "Cholesterol"),
-            .init(value: "Chronic")
-        ]
+        name: "Atorvastatin", quantity: 30,
+        manufacturedDate: .monthsAgo(1), expiryDate: .yearsFromNow(1),
+        strengthAmount: 20, strengthUnit: "mg"
     ),
-    
-    // 5. Metformin (Antidiabetic)
     MedicineModel(
-        name: "Glucophage",
-        quantity: 60.0,
-        manufacturedDate: createDate(monthsFromNow: -4),
-        expiryDate: createDate(monthsFromNow: 20),
-        strength: StrengthModel(amount: 850, unit: "mg"),
-        composition: [
-            CompositionModel(name: "Metformin Hydrochloride", strength: StrengthModel(amount: 850, unit: "mg"))
-        ],
-        customFields: [
-            CustomFieldModel(label: "Storage Condition", value: .text("Protect from light"))
-        ],
-        tags: [.init(value: "Diabetes"),
-            .init(value: "Oral Hypoglycemic")
-        ]
+        name: "Lisinopril", quantity: 90,
+        manufacturedDate: .monthsAgo(5), expiryDate: .monthsFromNow(24),
+        strengthAmount: 10, strengthUnit: "mg"
     ),
-    
-    // 6. Lisinopril (ACE Inhibitor for Blood Pressure)
     MedicineModel(
-        name: "Lisinopril",
-        quantity: 28.0,
-        manufacturedDate: createDate(monthsFromNow: -1),
-        expiryDate: createDate(monthsFromNow: 23),
-        strength: StrengthModel(amount: 10, unit: "mg"),
-        composition: [
-            CompositionModel(name: "Lisinopril Dihydrate", strength: StrengthModel(amount: 10, unit: "mg"))
-        ],
-        customFields: [
-            CustomFieldModel(label: "Side Effects", value: .list(["Dry cough", "Headache"]))
-        ],
-        tags: [.init(value: "Antihypertensive"),
-            .init(value: "ACE Inhibitor"),
-            .init(value: "Prescription Only")
-        ]
+        name: "Omeprazole", quantity: 28,
+        manufacturedDate: .monthsAgo(4), expiryDate: .monthsFromNow(14),
+        strengthAmount: 20, strengthUnit: "mg"
     ),
-    
-    // 7. Cetirizine (Antihistamine)
     MedicineModel(
-        name: "Zyrtec",
-        quantity: 15.0,
-        manufacturedDate: createDate(monthsFromNow: -8),
-        expiryDate: createDate(monthsFromNow: 12),
-        strength: StrengthModel(amount: 10, unit: "mg"),
-        composition: [
-            CompositionModel(name: "Cetirizine Hydrochloride", strength: StrengthModel(amount: 10, unit: "mg"))
-        ],
-        customFields: [
-            CustomFieldModel(label: "Prescription Required", value: .text("No"))
-        ],
-        tags: [.init(value: "Antihistamine"),
-            .init(value: "Allergy"),
-            .init(value: "Non-Drowsy")
-        ]
+        name: "Cetirizine", quantity: 15,
+        manufacturedDate: .monthsAgo(8), expiryDate: .monthsFromNow(4),
+        strengthAmount: 10, strengthUnit: "mg"
     ),
-    
-    // 8. Augmentin (Combination Antibiotic)
     MedicineModel(
-        name: "Augmentin Duo",
-        quantity: 14.0,
-        manufacturedDate: createDate(monthsFromNow: -2),
-        expiryDate: createDate(monthsFromNow: 10),
-        strength: StrengthModel(amount: 625, unit: "mg"),
-        composition: [
-            CompositionModel(name: "Amoxicillin", strength: StrengthModel(amount: 500, unit: "mg")),
-            CompositionModel(name: "Clavulanic Acid", strength: StrengthModel(amount: 125, unit: "mg"))
-        ],
-        customFields: [
-            CustomFieldModel(label: "Storage Condition", value: .text("Store in airtight container"))
-        ],
-        tags: [.init(value: "Antibiotic"),
-            .init(value: "Combination Drug"),
-            .init(value: "Prescription Only")
-        ]
+        name: "Paracetamol Syrup", quantity: 1,
+        manufacturedDate: .monthsAgo(2), expiryDate: .monthsFromNow(10),
+        strengthAmount: 250, strengthUnit: "mg/5mL"
     ),
-    
-    // 9. Salbutamol / Albuterol (Bronchodilator Inhaler)
     MedicineModel(
-        name: "Ventolin Inhaler",
-        quantity: 1.0,
-        manufacturedDate: createDate(monthsFromNow: -7),
-        expiryDate: createDate(monthsFromNow: 17),
-        strength: StrengthModel(amount: 100, unit: "mcg/actuation"),
-        composition: [
-            CompositionModel(name: "Salbutamol Sulfate", strength: StrengthModel(amount: 100, unit: "mcg"))
-        ],
-        customFields: [
-            CustomFieldModel(label: "Storage Condition", value: .text("Do not puncture or incinerate canister"))
-        ],
-        tags: [.init(value: "Asthma"),
-            .init(value: "Bronchodilator"),
-            .init(value: "Inhaler")
-        ]
+        name: "Albuterol Inhaler", quantity: 2,
+        manufacturedDate: .monthsAgo(12), expiryDate: .monthsFromNow(12),
+        strengthAmount: 90, strengthUnit: "mcg/actuation"
     ),
-    
-    // 10. Omeprazole (Antacid / PPI)
     MedicineModel(
-        name: "Prilosec",
-        quantity: 28.0,
-        manufacturedDate: createDate(monthsFromNow: -3),
-        expiryDate: createDate(monthsFromNow: 21),
-        strength: StrengthModel(amount: 20, unit: "mg"),
-        composition: [
-            CompositionModel(name: "Omeprazole Magnesium", strength: StrengthModel(amount: 20, unit: "mg"))
-        ],
-        customFields: [
-            CustomFieldModel(label: "Prescription Required", value: .text("No"))
-        ],
-        tags: [.init(value: "Antacid"),
-            .init(value: "PPI"),
-            .init(value: "Acid Reflux")
-        ]
+        name: "Prednisone", quantity: 10,
+        manufacturedDate: .monthsAgo(1), expiryDate: .monthsFromNow(5),
+        strengthAmount: 5, strengthUnit: "mg"
     ),
-    
-    // 11. Nux Vomica
     MedicineModel(
-        name: "Nux Vomica",
-        quantity: 2
+        name: "Gabapentin", quantity: 100,
+        manufacturedDate: .monthsAgo(7), expiryDate: .yearsFromNow(3),
+        strengthAmount: 300, strengthUnit: "mg"
     )
 ]
 
 let sampleCompositions: [CompositionModel] = [
-    CompositionModel(name: "Amoxicillin Trihydrate", strength: StrengthModel(amount: 500, unit: "mg")),
-    CompositionModel(name: "Acetaminophen", strength: StrengthModel(amount: 500, unit: "mg")),
-    CompositionModel(name: "Ibuprofen", strength: StrengthModel(amount: 400, unit: "mg")),
-    CompositionModel(name: "Atorvastatin Calcium", strength: StrengthModel(amount: 20, unit: "mg")),
-    CompositionModel(name: "Metformin Hydrochloride", strength: StrengthModel(amount: 850, unit: "mg")),
-    CompositionModel(name: "Lisinopril Dihydrate", strength: StrengthModel(amount: 10, unit: "mg")),
-    CompositionModel(name: "Cetirizine Hydrochloride", strength: StrengthModel(amount: 10, unit: "mg")),
-    CompositionModel(name: "Amoxicillin", strength: StrengthModel(amount: 500, unit: "mg")),
-    CompositionModel(name: "Clavulanic Acid", strength: StrengthModel(amount: 125, unit: "mg")),
-    CompositionModel(name: "Salbutamol Sulfate", strength: StrengthModel(amount: 100, unit: "mcg")),
-    CompositionModel(name: "Omeprazole Magnesium", strength: StrengthModel(amount: 20, unit: "mg"))
+    CompositionModel(name: "Amoxicillin Trihydrate", strengthAmount: 500, strengthUnit: "mg"),
+    CompositionModel(name: "Ibuprofen Sodium", strengthAmount: 400, strengthUnit: "mg"),
+    CompositionModel(name: "Metformin Hydrochloride", strengthAmount: 850, strengthUnit: "mg"),
+    CompositionModel(name: "Atorvastatin Calcium", strengthAmount: 20, strengthUnit: "mg"),
+    CompositionModel(name: "Lisinopril Dihydrate", strengthAmount: 10, strengthUnit: "mg"),
+    CompositionModel(name: "Omeprazole Magnesium", strengthAmount: 20, strengthUnit: "mg"),
+    CompositionModel(name: "Cetirizine Dihydrochloride", strengthAmount: 10, strengthUnit: "mg"),
+    CompositionModel(name: "Paracetamol", strengthAmount: 250, strengthUnit: "mg"),
+    CompositionModel(name: "Albuterol Sulfate", strengthAmount: 90, strengthUnit: "mcg"),
+    CompositionModel(name: "Prednisone Anhydrous", strengthAmount: 5, strengthUnit: "mg"),
+    CompositionModel(name: "Gabapentin Crystalline", strengthAmount: 300, strengthUnit: "mg")
 ]
 
 let sampleTags: [TagModel] = [

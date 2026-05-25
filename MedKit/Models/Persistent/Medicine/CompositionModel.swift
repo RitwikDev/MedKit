@@ -13,20 +13,20 @@ class CompositionModel {
     #Unique<CompositionModel>([\.name, \.strengthAmount, \.strengthUnit])
 
     var name: String
-    var strengthAmount: Float
-    var strengthUnit: String
+    var strengthAmount: Float?
+    var strengthUnit: String?
     
     var medicine: MedicineModel?
     
-    init(name: String = "", strengthAmount: Float = 0, strengthUnit: String = "") {
+    init(name: String = "", strengthAmount: Float? = nil, strengthUnit: String? = nil) {
         self.name = name
         self.strengthAmount = strengthAmount
         self.strengthUnit = strengthUnit
     }
     
     func getFullName() -> String {
-        if strengthAmount > 0 {
-            return "\(name) \(strengthAmount) \(strengthUnit)"
+        if let amount = strengthAmount, let unit = strengthUnit {
+            return "\(name) \(amount) \(unit)"
         } else {
             return name
         }
