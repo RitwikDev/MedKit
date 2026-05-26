@@ -57,14 +57,10 @@ struct MedicineEntryFormView: View {
 }
 
 #Preview {
-    do {
-        let container = try PreviewContainerHelper.getMedicineContainer()
-
-        return NavigationStack {
-            MedicineEntryFormView(medicine: .init())
-        }
-        .modelContainer(container)
-    } catch {
-        fatalError("Error")
+    let container = PreviewContainerHelper.getMedicineContainer()
+    
+    return NavigationStack {
+        MedicineEntryFormView(medicine: .init())
     }
+    .modelContainer(container)
 }
