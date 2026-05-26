@@ -12,19 +12,37 @@ struct CompositionSectionView: View {
     @Binding var compositionToEdit: Composition?
     
     var body: some View {
-        Section("Composition") {
-            ForEach(compositionList) { composition in
-                Button(composition.getFullName()) {
-                    compositionToEdit = composition
+        Section(
+            content: {
+                if compositionList.isEmpty {
+                    EmptyEntryView(text: "No composition added")
+                } else {
+                    ForEach(compositionList) { composition in
+                        Button(composition.getFullName()) {
+                            compositionToEdit = composition
+                        }
+                        .foregroundStyle(.primary)
+                    }
+                    .onDelete(perform: deleteCompositions)
                 }
-                .foregroundStyle(.primary)
-            }
-            .onDelete(perform: deleteCompositions)
-            
-            Button("Add Composition") {
-                compositionToEdit = .init()
-            }
-        }
+            },
+            header: {
+                HStack {
+                    Text("Composition")
+                    Spacer()
+                    RoundedTintedButtonView(
+                        title: "Add",
+                        systemImage: "plus",
+                        tintColor: .blue,
+                        buttonAction: addNewComposition,
+                    )
+                }
+            },
+        )
+    }
+    
+    private func addNewComposition() {
+        compositionToEdit = .init()
     }
     
     private func deleteCompositions(at offsets: IndexSet) {

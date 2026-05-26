@@ -10,10 +10,10 @@ import SwiftUI
 
 struct CompositionEntrySheetView: View {
     @Query private var availableCompositions: [CompositionModel]
-
+    
     @Binding var medicineCompositionList: [Composition]
     let compositionToEdit: Composition
-        
+    
     @Environment(\.dismiss) private var dismiss
     @State private var draftComposition: Composition = .init()
     @State private var showAlert: Bool = false
@@ -21,7 +21,7 @@ struct CompositionEntrySheetView: View {
     private var isNewComposition: Bool {
         compositionToEdit.persistentIdentifier == nil
     }
- 
+    
     var body: some View {
         NavigationStack {
             List {
@@ -29,10 +29,12 @@ struct CompositionEntrySheetView: View {
                     TextField("Composition Name", text: $draftComposition.name)
                 }
                 
-                StrengthSectionView(strengthAmount: $draftComposition.strengthAmount, strengthUnit: $draftComposition.strengthUnit)
+                StrengthSectionView(strengthAmount: $draftComposition.strengthAmount,
+                                    strengthUnit: $draftComposition.strengthUnit
+                )
                 
-                if !availableCompositions.isEmpty {
-                    Section("Previously Added Compositions") {
+                Section("Other Compositions") {
+                    if !availableCompositions.isEmpty {
                         ForEach(availableCompositions) { availableComposition in
                             Button(availableComposition.getFullName()) {
                                 // Explicitly preserve the existing ID/passport while applying sample data templates
@@ -42,6 +44,8 @@ struct CompositionEntrySheetView: View {
                             }
                             .foregroundStyle(.primary)
                         }
+                    } else {
+                        EmptyEntryView(text: "No other compositions added")
                     }
                 }
             }
@@ -69,8 +73,9 @@ struct CompositionEntrySheetView: View {
                 }
             }
             .alert("Error", isPresented: $showAlert) {
-                Text("Same composition already exists for this medicine")
                 Button("Dismiss") { }
+            } message: {
+                Text("Same composition already exists for this medicine")
             }
             .interactiveDismissDisabled()
             .scrollDismissesKeyboard(.interactively)

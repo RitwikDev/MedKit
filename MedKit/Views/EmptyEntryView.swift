@@ -8,11 +8,15 @@
 import SwiftUI
 
 struct EmptyEntryView: View {
+    let text: String
+    
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        Text(text)
+            .foregroundStyle(.secondary)
+            .italic()
     }
 }
 
 #Preview {
-    EmptyEntryView()
+    EmptyEntryView(text: "Text")
 }

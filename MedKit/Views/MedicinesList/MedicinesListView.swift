@@ -27,6 +27,13 @@ struct MedicinesListView: View {
             .listStyle(.plain)
             .toolbar {
                 ToolbarItem {
+                    Button {
+                        deleteAllData(from: modelContext)
+                    } label: {
+                        Label("Delete All", systemImage: "trash")
+                    }
+                }
+                ToolbarItem {
                     Menu {
                         Button {
                             medicineStackPath.append(.init())

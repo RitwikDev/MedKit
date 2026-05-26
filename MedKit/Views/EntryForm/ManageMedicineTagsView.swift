@@ -5,83 +5,36 @@
 //  Created by Rishik Dev on 24/05/26.
 //
 
+import SwiftData
 import SwiftUI
 
 struct ManageMedicineTagsView: View {
-    @Binding var medicineTags: [TagModel]
-    
     @Environment(\.dismiss) private var dismiss
     
-    @State private var filteredTags: [TagModel] = []
-    @State private var allTags = sampleTags
+    @Binding var medicineTags: [Tag]
+    @State var allTags: [Tag]
+    
+    @State private var filteredTags: [Tag] = []
     @State private var text: String = ""
     
-    init(medicineTags: Binding<[TagModel]>) {
+    init(medicineTags: Binding<[Tag]>, allTags: [Tag]) {
         self._medicineTags = medicineTags
         let excluded = Set(medicineTags.wrappedValue)
-        let initialFiltered = sampleTags.filter { !excluded.contains($0) }
+        let initialFiltered = allTags.filter { !excluded.contains($0) }
         self._filteredTags = State(initialValue: initialFiltered)
+        self._allTags = State(initialValue: allTags)
     }
     
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
                 Form {
-                    Section("Current Tags") {
-                        ForEach(medicineTags) { tag in
-                            Text(tag.value)
-                                .swipeActions(edge: .trailing) {
-                                    Button(role: .destructive) {
-                                        remove(tag: tag)
-                                    } label: {
-                                        Label("Remove", systemImage: "trash")
-                                    }
-                                }
-                        }
-                    }
-                    
-                    Section("Other Tags") {
-                        if (!filteredTags.isEmpty) {
-                            ForEach(filteredTags) { tag in
-                                Text(tag.value)
-                                    .swipeActions(edge: .trailing) {
-                                        Button {
-                                            add(tag: tag)
-                                        } label: {
-                                            Label("Add", systemImage: "plus")
-                                        }
-                                        .tint(.blue)
-                                    }
-                            }
-                        } else {
-                            Text(text.isEmpty ? "No other tags available" : "No results found")
-                                .foregroundStyle(.secondary)
-                                .italic()
-                        }
-                    }
+                    currentTagsView
+                    otherTagsView
                 }
                 .contentMargins(.bottom, 125)
                 
-                HStack {
-                    TextField("Tag", text: $text)
-                        .task(id: text) {
-                            try? await Task.sleep(nanoseconds: 500_000_000)
-                            
-                            withAnimation {
-                                filteredTags = filterTags()
-                            }
-                        }
-                    
-                    RoundedTintedButtonView(title: "Add", systemImage: "plus", tintColor: .blue) {
-                        addNewCustomTag()
-                    }
-                    .disabled(disableAddButton())
-                }
-                .padding(15)
-                .background(Color(uiColor: .secondarySystemGroupedBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .padding()
-                .background(.ultraThinMaterial)
+                addTagView
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -99,12 +52,76 @@ struct ManageMedicineTagsView: View {
                     }
                 }
             }
+            .interactiveDismissDisabled()
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Tags")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
     
-    private func add(tag: TagModel) {
+    private var currentTagsView: some View {
+        Section("Current Tags") {
+            if (!medicineTags.isEmpty) {
+                ForEach(medicineTags) { tag in
+                    Text(tag.value)
+                        .swipeActions(edge: .trailing) {
+                            Button(role: .destructive) {
+                                remove(tag: tag)
+                            } label: {
+                                Label("Remove", systemImage: "trash")
+                            }
+                        }
+                }
+            } else {
+                EmptyEntryView(text: "No tags added")
+            }
+        }
+    }
+    
+    private var otherTagsView: some View {
+        Section("Other Tags") {
+            if (!filteredTags.isEmpty) {
+                ForEach(filteredTags) { tag in
+                    Text(tag.value)
+                        .swipeActions(edge: .trailing) {
+                            Button {
+                                add(tag: tag)
+                            } label: {
+                                Label("Add", systemImage: "plus")
+                            }
+                            .tint(.blue)
+                        }
+                }
+            } else {
+                EmptyEntryView(text: text.isEmpty ? "No other tags added" : "No results found")
+            }
+        }
+    }
+    
+    private var addTagView: some View {
+        HStack {
+            TextField("Tag", text: $text)
+                .task(id: text) {
+                    try? await Task.sleep(nanoseconds: 500_000_000)
+                    
+                    withAnimation {
+                        filteredTags = filterTags()
+                    }
+                }
+            
+            RoundedTintedButtonView(title: "Add", systemImage: "plus", tintColor: .blue) {
+                addNewCustomTag()
+            }
+            .disabled(disableAddButton())
+        }
+        .padding(15)
+        .background(Color(uiColor: .secondarySystemGroupedBackground))
+        .clipShape(Capsule())
+        .padding()
+        .background(Color(uiColor: .systemBackground))
+    }
+    
+    private func add(tag: Tag) {
         withAnimation {
             medicineTags.append(tag)
             filteredTags.removeAll { $0.id == tag.id }
@@ -112,7 +129,7 @@ struct ManageMedicineTagsView: View {
         }
     }
     
-    private func remove(tag: TagModel) {
+    private func remove(tag: Tag) {
         withAnimation {
             medicineTags.removeAll { $0.id == tag.id }
             filteredTags.append(tag)
@@ -129,14 +146,14 @@ struct ManageMedicineTagsView: View {
                 add(tag: existingTag)
             }
         } else {
-            let newTag = TagModel(value: cleanedText)
+            let newTag = Tag(value: cleanedText)
             allTags.append(newTag)
             add(tag: newTag)
         }
         text = ""
     }
     
-    private func filterTags() -> [TagModel] {
+    private func filterTags() -> [Tag] {
         let excludedTags = Set(medicineTags)
         
         if (text.trimmed().isEmpty) {
@@ -161,5 +178,5 @@ struct ManageMedicineTagsView: View {
 }
 
 #Preview {
-    ManageMedicineTagsView(medicineTags: .constant(sampleMedicines[8].tags))
+    ManageMedicineTagsView(medicineTags: .constant([]), allTags: [])
 }

@@ -76,3 +76,22 @@ private func syncTags(for model: MedicineModel, with uiTags: [Tag], in context: 
         }
     }
 }
+
+@MainActor
+func deleteAllData(from context: ModelContext) {
+    print("Initiating complete database wipe...")
+    
+    do {
+        // Run batch deletes on concrete types so the #Predicate macro can resolve them perfectly
+        try context.delete(model: MedicineModel.self, where: #Predicate<MedicineModel> { _ in true })
+        try context.delete(model: CompositionModel.self, where: #Predicate<CompositionModel> { _ in true })
+        try context.delete(model: TagModel.self, where: #Predicate<TagModel> { _ in true })
+        
+        // Push the changes instantly to the underlying SQLite database file
+        try context.save()
+        print("Database cleared successfully.")
+        
+    } catch {
+        print("Failed to clear database: \(error.localizedDescription)")
+    }
+}
