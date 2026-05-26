@@ -35,21 +35,21 @@ struct MedicineEntryFormView: View {
             )
             
             TagsSectionView(tags: $medicine.tags)
-            
-            Button("Save") {
-                dismiss()
-            }
-            
-            Button("Cancel", role: .destructive) {
-                dismiss()
-            }
         }
         .sheet(item: $compositionToEdit) { composition in
             CompositionEntrySheetView(
-                medicineCompositionList: medicine.composition,
+                medicineCompositionList: $medicine.composition,
                 compositionToEdit: composition,
-                onSave: { composition in }
             )
+        }
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    saveOrUpdateMedicine(from: medicine, in: modelContext)
+                    dismiss()
+                }
+                .tint(.blue)
+            }
         }
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle("\(medicine.name.isEmpty ? "New Medicine" : medicine.name)")

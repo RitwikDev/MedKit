@@ -5,18 +5,18 @@
 //  Created by Rishik Dev on 20/05/26.
 //
 
+import SwiftData
 import SwiftUI
 
 struct CompositionEntrySheetView: View {
-    private let sampleList: [CompositionModel] = sampleCompositions
+    @Query private var availableCompositions: [CompositionModel]
 
-    let medicineCompositionList: [Composition]
+    @Binding var medicineCompositionList: [Composition]
     let compositionToEdit: Composition
-    
-    var onSave: (Composition) -> Void
-    
+        
     @Environment(\.dismiss) private var dismiss
     @State private var draftComposition: Composition = .init()
+    @State private var showAlert: Bool = false
     
     private var isNewComposition: Bool {
         compositionToEdit.persistentIdentifier == nil
@@ -31,14 +31,14 @@ struct CompositionEntrySheetView: View {
                 
                 StrengthSectionView(strengthAmount: $draftComposition.strengthAmount, strengthUnit: $draftComposition.strengthUnit)
                 
-                if !sampleList.isEmpty {
+                if !availableCompositions.isEmpty {
                     Section("Previously Added Compositions") {
-                        ForEach(sampleList) { sampleItem in
-                            Button(sampleItem.getFullName()) {
+                        ForEach(availableCompositions) { availableComposition in
+                            Button(availableComposition.getFullName()) {
                                 // Explicitly preserve the existing ID/passport while applying sample data templates
-                                draftComposition.name = sampleItem.name
-                                draftComposition.strengthAmount = sampleItem.strengthAmount
-                                draftComposition.strengthUnit = sampleItem.strengthUnit
+                                draftComposition.name = availableComposition.name
+                                draftComposition.strengthAmount = availableComposition.strengthAmount
+                                draftComposition.strengthUnit = availableComposition.strengthUnit
                             }
                             .foregroundStyle(.primary)
                         }
@@ -58,13 +58,19 @@ struct CompositionEntrySheetView: View {
                         var finalComposition = draftComposition
                         finalComposition.name = finalComposition.name.trimmingCharacters(in: .whitespacesAndNewlines)
                         
-                        onSave(finalComposition)
-                        dismiss()
+                        let isSuccessful = onSave(composition: finalComposition)
+                        if isSuccessful {
+                            dismiss()
+                        }
                     } label: {
                         Label("Done", systemImage: "checkmark")
                     }
                     .disabled(draftComposition.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
+            }
+            .alert("Error", isPresented: $showAlert) {
+                Text("Same composition already exists for this medicine")
+                Button("Dismiss") { }
             }
             .interactiveDismissDisabled()
             .scrollDismissesKeyboard(.interactively)
@@ -72,14 +78,31 @@ struct CompositionEntrySheetView: View {
             .navigationBarTitleDisplayMode(.inline)
         }
     }
+    
+    private func onSave(composition: Composition) -> Bool {
+        // Duplicate composition
+        if medicineCompositionList.first(where: { composition.isDuplicate(of: $0) }) != nil {
+            showAlert = true
+            return false
+        }
+        
+        if let index = medicineCompositionList.firstIndex(where: { composition.id == $0.id }) {
+            medicineCompositionList[index].name = composition.name
+            medicineCompositionList[index].strengthAmount = composition.strengthAmount
+            medicineCompositionList[index].strengthUnit = composition.strengthUnit
+        } else {
+            medicineCompositionList.append(composition)
+        }
+        
+        return true
+    }
 }
 
 #Preview {
     NavigationStack {
         CompositionEntrySheetView(
-            medicineCompositionList: [],
+            medicineCompositionList: .constant([]),
             compositionToEdit: .init(),
-            onSave: { _ in }
         )
     }
 }

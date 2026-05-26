@@ -13,7 +13,6 @@ struct MedicinesListView: View {
     
     @Query var medicines: [MedicineModel]
     
-//    @State private var medicines = sampleMedicines
     @State private var medicineStackPath: [Medicine] = []
     
     var body: some View {

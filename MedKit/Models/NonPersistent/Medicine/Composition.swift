@@ -11,7 +11,6 @@ import SwiftData
 struct Composition: Identifiable, Equatable, Hashable {
     let id: UUID
     let persistentIdentifier: PersistentIdentifier?
-    
     var name: String
     var strengthAmount: Float?
     var strengthUnit: String?
@@ -36,5 +35,12 @@ struct Composition: Identifiable, Equatable, Hashable {
         } else {
             return name
         }
+    }
+    
+    func isDuplicate(of other: Composition) -> Bool {
+        return self.id != other.id
+        && self.name == other.name
+        && self.strengthAmount == other.strengthAmount
+        && self.strengthUnit == other.strengthUnit
     }
 }
