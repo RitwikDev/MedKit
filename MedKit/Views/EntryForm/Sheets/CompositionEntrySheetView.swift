@@ -24,7 +24,7 @@ struct CompositionEntrySheetView: View {
     
     var body: some View {
         NavigationStack {
-            List {
+            Form {
                 Section(isNewComposition ? "New Composition" : "Edit Composition") {
                     TextField("Composition Name", text: $draftComposition.name)
                 }

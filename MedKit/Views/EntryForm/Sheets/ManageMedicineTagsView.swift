@@ -1,5 +1,5 @@
 //
-//  ManageMedicineTagsView.swift
+//  ManageMedicineTagsSheetView.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 24/05/26.
@@ -8,47 +8,64 @@
 import SwiftData
 import SwiftUI
 
-struct ManageMedicineTagsView: View {
+struct ManageMedicineTagsSheetView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     
-    @Binding var medicineTags: [Tag]
+    @State var currentTags: [Tag]
     @State var allTags: [Tag]
+    let onSave: ([Tag]) -> Void
     
     @State private var filteredTags: [Tag] = []
     @State private var text: String = ""
     
-    init(medicineTags: Binding<[Tag]>, allTags: [Tag]) {
-        self._medicineTags = medicineTags
-        let excluded = Set(medicineTags.wrappedValue)
-        let initialFiltered = allTags.filter { !excluded.contains($0) }
-        self._filteredTags = State(initialValue: initialFiltered)
-        self._allTags = State(initialValue: allTags)
+    private var dynamicHeight: CGFloat {
+        switch dynamicTypeSize {
+        case .xSmall, .small, .medium, .large, .xLarge, .xxLarge, .xxxLarge:
+            return 125
+        case .accessibility1:
+            return 150
+        case .accessibility2, .accessibility3:
+            return 175
+        case .accessibility4, .accessibility5:
+            return 200
+        @unknown default:
+            return 125
+        }
     }
     
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
                 Form {
                     currentTagsView
                     otherTagsView
                 }
-                .contentMargins(.bottom, 125)
                 
-                addTagView
+                Form {
+                    Section("New Tag") {
+                        addTagView
+                    }
+                }
+                .frame(maxHeight: dynamicHeight)
+                .scrollDisabled(true)
+            }
+            .onAppear {
+                let excluded = Set(currentTags.map { $0.value.lowercasedTrimmed() })
+                let initialFiltered = allTags.filter { !excluded.contains($0.value.lowercasedTrimmed()) }
+                self.filteredTags = initialFiltered
             }
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button { dismiss() } label: {
-                        Label("Cancel", systemImage: "xmark")
+                ToolbarItemGroup(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
                     }
                 }
                 
                 ToolbarItemGroup(placement: .confirmationAction) {
-                    Button {
-                        medicineTags.forEach { print($0.value) }
+                    Button("Done") {
+                        onSave(currentTags)
                         dismiss()
-                    } label: {
-                        Label("Done", systemImage: "checkmark")
                     }
                 }
             }
@@ -61,14 +78,15 @@ struct ManageMedicineTagsView: View {
     
     private var currentTagsView: some View {
         Section("Current Tags") {
-            if (!medicineTags.isEmpty) {
-                ForEach(medicineTags) { tag in
+            if (!currentTags.isEmpty) {
+                ForEach(currentTags) { tag in
                     Text(tag.value)
                         .swipeActions(edge: .trailing) {
                             Button(role: .destructive) {
                                 remove(tag: tag)
                             } label: {
-                                Label("Remove", systemImage: "trash")
+                                Label("Remove", systemImage: "minus")
+                                    .labelStyle(.iconOnly)
                             }
                         }
                 }
@@ -88,6 +106,7 @@ struct ManageMedicineTagsView: View {
                                 add(tag: tag)
                             } label: {
                                 Label("Add", systemImage: "plus")
+                                    .labelStyle(.iconOnly)
                             }
                             .tint(.blue)
                         }
@@ -114,16 +133,11 @@ struct ManageMedicineTagsView: View {
             }
             .disabled(disableAddButton())
         }
-        .padding(15)
-        .background(Color(uiColor: .secondarySystemGroupedBackground))
-        .clipShape(Capsule())
-        .padding()
-        .background(Color(uiColor: .systemBackground))
     }
     
     private func add(tag: Tag) {
         withAnimation {
-            medicineTags.append(tag)
+            currentTags.append(tag)
             filteredTags.removeAll { $0.id == tag.id }
             filteredTags = filterTags()
         }
@@ -131,7 +145,7 @@ struct ManageMedicineTagsView: View {
     
     private func remove(tag: Tag) {
         withAnimation {
-            medicineTags.removeAll { $0.id == tag.id }
+            currentTags.removeAll { $0.id == tag.id }
             filteredTags.append(tag)
             filteredTags = filterTags()
         }
@@ -142,7 +156,7 @@ struct ManageMedicineTagsView: View {
         guard !cleanedText.isEmpty else { return }
         
         if let existingTag = allTags.first(where: { $0.value.localizedCaseInsensitiveCompare(cleanedText) == .orderedSame }) {
-            if (!medicineTags.contains(existingTag)) {
+            if (!currentTags.contains(existingTag)) {
                 add(tag: existingTag)
             }
         } else {
@@ -154,14 +168,14 @@ struct ManageMedicineTagsView: View {
     }
     
     private func filterTags() -> [Tag] {
-        let excludedTags = Set(medicineTags)
+        let excludedTags = Set(currentTags.map { $0.value.lowercasedTrimmed() })
         
         if (text.trimmed().isEmpty) {
-            return allTags.filter { !excludedTags.contains($0) }
+            return allTags.filter { !excludedTags.contains($0.value.lowercasedTrimmed()) }
         } else {
             return allTags.filter { tag in
                 tag.value.localizedCaseInsensitiveContains(text.trimmed()) &&
-                !excludedTags.contains(tag)
+                !excludedTags.contains(tag.value.lowercasedTrimmed())
             }
         }
     }
@@ -169,7 +183,7 @@ struct ManageMedicineTagsView: View {
     private func disableAddButton() -> Bool {
         let rawText = text.lowercasedTrimmed()
         
-        let isTagPresent = medicineTags.contains { tag in
+        let isTagPresent = currentTags.contains { tag in
             tag.value.localizedCaseInsensitiveCompare(rawText) == .orderedSame
         }
         
@@ -178,5 +192,9 @@ struct ManageMedicineTagsView: View {
 }
 
 #Preview {
-    ManageMedicineTagsView(medicineTags: .constant([]), allTags: [])
+    ManageMedicineTagsSheetView(
+        currentTags: [],
+        allTags: [],
+        onSave: { _ in }
+    )
 }

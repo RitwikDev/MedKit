@@ -56,10 +56,12 @@ struct MedicineEntryFormView: View {
             )
         }
         .sheet(isPresented: $isManagingTags) {
-            ManageMedicineTagsView(
-                medicineTags: $medicine.tags,
-                allTags: allTagStructs
-            )
+            ManageMedicineTagsSheetView(
+                currentTags: medicine.tags,
+                allTags: allTagStructs,
+            ) { medicineTags in
+                self.medicine.tags = medicineTags
+            }
         }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
