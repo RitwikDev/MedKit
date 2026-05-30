@@ -10,8 +10,6 @@ import SwiftData
 
 @Model
 class CompositionModel {
-    #Unique<CompositionModel>([\.name, \.strengthAmount, \.strengthUnit])
-
     var id: UUID
     var name: String
     var strengthAmount: Float?

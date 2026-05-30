@@ -62,6 +62,9 @@ struct SettingsView: View {
                 }
             }
             .navigationTitle("Settings")
+            .onAppear {
+                print(modelContext.sqliteCommand)
+            }
         }
     }
 }
