@@ -31,7 +31,6 @@ struct ManageMedicineCompositionSheetView: View {
         NavigationStack {
             Form {
                 addCompositionView
-                currentCompositionView
             }
             .onAppear { handleOnAppear(draftComposition: &draftComposition, otherCompositions: &otherCompositions) }
             .toolbar { toolbarItems }
@@ -48,7 +47,6 @@ struct ManageMedicineCompositionSheetView: View {
                     otherCompositions: $otherCompositions,
                     selectedComposition: $draftComposition
                 )
-//                .id(otherCompositions.count)
             }
             .sheetModifier(titled: title)
         }

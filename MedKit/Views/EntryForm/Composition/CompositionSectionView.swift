@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct CompositionSectionView: View {
+    @Environment(NavigationRouter.self) private var router
+    
     @Binding var medicineComposition: [Composition]
     @Binding var compositionToEdit: Composition?
     
@@ -21,7 +23,7 @@ struct CompositionSectionView: View {
             }
             .onDelete(perform: deleteCompositions)
             
-            Button("Add Composition", action: addNewComposition) 
+            Button("Add Composition") {}
         }
     }
 }

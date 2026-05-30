@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State private var router = NavigationRouter()
+    
     var body: some View {
         TabView {
-            MedicinesListView()
+            MedicineListView()
                 .tabItem {
                     Label("Medicines", systemImage: "pills")
                 }
@@ -25,6 +27,7 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gear")
                 }
         }
+        .environment(router)
     }
 }
 

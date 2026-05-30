@@ -1,5 +1,5 @@
 //
-//  MedicineEntryFormView.swift
+//  MedicineFormView.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 19/05/26.
@@ -8,7 +8,7 @@
 import SwiftData
 import SwiftUI
 
-struct MedicineEntryFormView: View {
+struct MedicineFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
@@ -82,6 +82,7 @@ struct MedicineEntryFormView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle("\(medicine.name.trimmedIsEmpty ? "New Medicine" : medicine.name)")
+        .toolbar(.hidden, for: .tabBar)
     }
 }
 
@@ -89,7 +90,8 @@ struct MedicineEntryFormView: View {
     let container = PreviewContainerHelper.getMedicineContainer()
     
     return NavigationStack {
-        MedicineEntryFormView(medicine: .init())
+        MedicineFormView(medicine: .init())
     }
     .modelContainer(container)
+    .environment(NavigationRouter())
 }
