@@ -13,4 +13,8 @@ extension Tag {
         self.persistentIdentifier = model.id
         self.value = model.value
     }
+    
+    func equals(_ otherTag: Tag) -> Bool {
+        return self.value == otherTag.value
+    }
 }

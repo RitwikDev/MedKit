@@ -28,19 +28,4 @@ struct Composition: Identifiable, Equatable, Hashable {
         self.strengthAmount = strengthAmount
         self.strengthUnit = strengthUnit
     }
-    
-    func getFullName() -> String {
-        if let amount = strengthAmount, let unit = strengthUnit {
-            return "\(name) \(amount) \(unit)"
-        } else {
-            return name
-        }
-    }
-    
-    func isDuplicate(of other: Composition) -> Bool {
-        return self.id != other.id
-        && self.name == other.name
-        && self.strengthAmount == other.strengthAmount
-        && self.strengthUnit == other.strengthUnit
-    }
 }

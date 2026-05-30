@@ -12,11 +12,16 @@ struct MedicineEntryFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     
-    @Query var allTagModels: [TagModel]
+    @Query private var allCompositions: [CompositionModel]
+    @Query private var allTagModels: [TagModel]
     
     @State var medicine: Medicine
     @State private var compositionToEdit: Composition? = nil
     @State private var isManagingTags: Bool = false
+    
+    private var allCompositionStructs: [Composition] {
+        allCompositions.map { Composition(from: $0) }
+    }
     
     private var allTagStructs: [Tag] {
         allTagModels.map { Tag(from: $0) }
@@ -43,21 +48,24 @@ struct MedicineEntryFormView: View {
             )
 
             CompositionSectionView(
-                compositionList: $medicine.composition,
+                medicineComposition: $medicine.composition,
                 compositionToEdit: $compositionToEdit
             )
             
             TagsSectionView(tags: $medicine.tags) { isManagingTags.toggle() }
         }
         .sheet(item: $compositionToEdit) { composition in
-            CompositionEntrySheetView(
-                medicineCompositionList: $medicine.composition,
+            ManageMedicineCompositionSheetView(
+                medicineComposition: medicine.composition,
+                allCompositions: allCompositionStructs,
                 compositionToEdit: composition,
-            )
+            ) { medicineComposition in
+                self.medicine.composition = medicineComposition
+            }
         }
         .sheet(isPresented: $isManagingTags) {
             ManageMedicineTagsSheetView(
-                currentTags: medicine.tags,
+                medicineTags: medicine.tags,
                 allTags: allTagStructs,
             ) { medicineTags in
                 self.medicine.tags = medicineTags
@@ -73,7 +81,7 @@ struct MedicineEntryFormView: View {
             }
         }
         .scrollDismissesKeyboard(.interactively)
-        .navigationTitle("\(medicine.name.isEmpty ? "New Medicine" : medicine.name)")
+        .navigationTitle("\(medicine.name.trimmedIsEmpty ? "New Medicine" : medicine.name)")
     }
 }
 

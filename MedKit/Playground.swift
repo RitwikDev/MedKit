@@ -8,6 +8,10 @@
 import Foundation
 import SwiftData
 
+enum DatabaseTypeEnum {
+    case all, medicines, compositions, tags
+}
+
 func saveOrUpdateMedicine(from medicineStruct: Medicine, in context: ModelContext) {
     if let persistentId = medicineStruct.persistentIdentifier {
         // SCENARIO A: EDITING AN EXISTING RECORD
@@ -78,20 +82,30 @@ private func syncTags(for model: MedicineModel, with uiTags: [Tag], in context: 
 }
 
 @MainActor
-func deleteAllData(from context: ModelContext) {
+func deleteAllData(from context: ModelContext, of type: DatabaseTypeEnum = .all) {
     print("Initiating complete database wipe...")
     
     do {
         // Run batch deletes on concrete types so the #Predicate macro can resolve them perfectly
-        try context.delete(model: MedicineModel.self, where: #Predicate<MedicineModel> { _ in true })
-        try context.delete(model: CompositionModel.self, where: #Predicate<CompositionModel> { _ in true })
-        try context.delete(model: TagModel.self, where: #Predicate<TagModel> { _ in true })
+        
+        if (type == .all || type == .medicines) {
+            try context.delete(model: MedicineModel.self, where: #Predicate<MedicineModel> { _ in true })
+        }
+        
+        if (type == .all || type == .compositions) {
+            // TODO: This delete operation is throwing an error
+            try context.delete(model: CompositionModel.self, where: #Predicate<CompositionModel> { _ in true })
+        }
+        
+        if (type == .all || type == .tags) {
+            try context.delete(model: TagModel.self, where: #Predicate<TagModel> { _ in true })
+        }
         
         // Push the changes instantly to the underlying SQLite database file
         try context.save()
         print("Database cleared successfully.")
         
     } catch {
-        print("Failed to clear database: \(error.localizedDescription)")
+        print("Failed to clear database of type \(type): \(error.localizedDescription)")
     }
 }

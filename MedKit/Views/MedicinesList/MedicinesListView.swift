@@ -8,32 +8,32 @@
 import SwiftData
 import SwiftUI
 
-struct MedicinesListView: View {
-    @Environment(\.modelContext) private var modelContext
-    
+struct MedicinesListView: View {    
     @Query var medicines: [MedicineModel]
     
     @State private var medicineStackPath: [Medicine] = []
     
     var body: some View {
         NavigationStack(path: $medicineStackPath) {
-            List {
-                ForEach(medicines) { medicine in
-                    NavigationLink(value: Medicine(from: medicine)) {
-                        Text(medicine.name)
+            VStack {
+                if (medicines.isEmpty) {
+                    EmptyEntryView(text: "No Medicines Added")
+                        .foregroundStyle(.secondary)
+                        .font(.title3)
+                        .fontWeight(.black)
+                } else {
+                    List {
+                        ForEach(medicines) { medicine in
+                            NavigationLink(value: Medicine(from: medicine)) {
+                                Text(medicine.name)
+                            }
+                        }
                     }
                 }
             }
             .listStyle(.plain)
             .toolbar {
-                ToolbarItem {
-                    Button {
-                        deleteAllData(from: modelContext)
-                    } label: {
-                        Label("Delete All", systemImage: "trash")
-                    }
-                }
-                ToolbarItem {
+                ToolbarItem(placement: .confirmationAction) {
                     Menu {
                         Button {
                             medicineStackPath.append(.init())
@@ -46,6 +46,14 @@ struct MedicinesListView: View {
                         } label: {
                             Label("Scan", systemImage: "camera.viewfinder")
                         }
+                    } label: {
+                        Label("Add", systemImage: "ellipsis")
+                    }
+                }
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        medicineStackPath.append(.init())
                     } label: {
                         Label("Add", systemImage: "plus")
                     }

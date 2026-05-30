@@ -12,19 +12,26 @@ import SwiftData
 class CompositionModel {
     #Unique<CompositionModel>([\.name, \.strengthAmount, \.strengthUnit])
 
+    var id: UUID
     var name: String
     var strengthAmount: Float?
     var strengthUnit: String?
     
     var medicine: MedicineModel?
     
-    init(name: String = "", strengthAmount: Float? = nil, strengthUnit: String? = nil) {
+    init(
+        id: UUID = UUID(),
+        name: String = "",
+        strengthAmount: Float? = nil,
+        strengthUnit: String? = nil
+    ) {
+        self.id = id
         self.name = name
         self.strengthAmount = strengthAmount
         self.strengthUnit = strengthUnit
     }
     
-    func getFullName() -> String {
+    var fullName: String {
         if let amount = strengthAmount, let unit = strengthUnit {
             return "\(name) \(amount) \(unit)"
         } else {

@@ -11,8 +11,8 @@ struct StrengthSectionView: View {
     @Binding var strengthAmount: Float?
     @Binding var strengthUnit: String?
     
-    @State private var strengthAmountString: String = ""
-    @State private var strengthUnitString: String = ""
+    @State var strengthAmountString: String = ""
+    @State var strengthUnitString: String = ""
     
     var body: some View {
         Section("Strength (Optional)") {
@@ -20,13 +20,7 @@ struct StrengthSectionView: View {
                 TextField("Amount", text: $strengthAmountString)
                     .keyboardType(.decimalPad)
                     .onChange(of: strengthAmountString) { oldValue, newValue in
-                        let components = newValue.description.split(separator: ".")
-                        
-                        if components.count > 1 && components[1].count > 2 {
-                            strengthAmountString = oldValue
-                        }
-                        
-                        strengthAmount = Float(strengthAmountString) ?? nil
+                        handleOnChange(oldValue: oldValue, newValue: newValue)
                     }
                 
                 Divider()
@@ -38,19 +32,16 @@ struct StrengthSectionView: View {
                         strengthUnit = newValue
                     }
             }
-            .onAppear {
-                if let amount = strengthAmount {
-                    strengthAmountString = String(format: "%g", amount)
-                } else {
-                    strengthAmountString = ""
-                }
-                
-                strengthUnitString = strengthUnit ?? ""
+            .onAppear(perform: handleStrengthChange)
+            .onChange(of: [strengthAmount, strengthUnit] as [AnyHashable]) {
+                handleStrengthChange()
             }
         }
     }
 }
 
 #Preview {
-    StrengthSectionView(strengthAmount: .constant(10), strengthUnit: .constant("mg"))
+    Form {
+        StrengthSectionView(strengthAmount: .constant(10), strengthUnit: .constant("mg"))
+    }
 }

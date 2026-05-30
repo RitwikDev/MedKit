@@ -8,11 +8,15 @@
 import Foundation
 
 extension String {
-    func lowercasedTrimmed() -> String {
-        self.lowercased().trimmed()
-    }
-
-    func trimmed() -> String {
+    var trimmed: String {
         self.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
+    var lowercasedAndTrimmed: String {
+        self.lowercased().trimmed
+    }
+    
+    var trimmedIsEmpty: Bool {
+        self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 }

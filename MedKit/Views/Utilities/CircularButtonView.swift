@@ -1,5 +1,5 @@
 //
-//  RoundedTintedButtonView.swift
+//  CircularButtonView.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 22/05/26.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct RoundedTintedButtonView: View {
+struct CircularButtonView: View {
     var title: String = "Delete"
     var systemImage: String = "xmark"
     var tintColor: Color = .red
@@ -27,7 +27,7 @@ struct RoundedTintedButtonView: View {
 }
 
 #Preview {
-    RoundedTintedButtonView(title: "Title",
+    CircularButtonView(title: "Title",
                             systemImage: "plus",
                             tintColor: .blue,
                             buttonAction: {})
