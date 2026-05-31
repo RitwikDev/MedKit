@@ -8,27 +8,27 @@
 import SwiftUI
 
 struct TagsSectionView: View {
-    @Binding var tags: [Tag]
-    let buttonAction: () -> Void
+    @Environment(MedicineViewModel.self) private var medicineViewModel
+    @Environment(NavigationRouter.self) private var router
     
     var body: some View {
         Section("Tags") {
-            ForEach($tags) { $tag in
+            ForEach(medicineViewModel.medicine.tags) { tag in
                 Text(tag.value)
                     .foregroundStyle(.secondary)
             }
-            .onDelete(perform: removeTags)
+            .onDelete(perform: medicineViewModel.removeTags)
             
-            Button("Add Tag", action: buttonAction)
+            Button("Manage Tags") {
+                router.navigate(to: .manageMedicineTags)
+            }
         }
     }
 }
 
 #Preview {
     Form {
-        TagsSectionView(
-            tags: .constant([.init(value:"Tag 1"), .init(value: "Tag 2")]),
-            buttonAction: { },
-        )
+        TagsSectionView()
     }
+    .environment(MedicineViewModel())
 }

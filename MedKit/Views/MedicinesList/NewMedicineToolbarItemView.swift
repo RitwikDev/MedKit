@@ -13,13 +13,13 @@ struct NewMedicineToolbarItemView: View {
     var body: some View {
         Menu {
             Button {
-                router.navigate(to: .MedicineForm(for: .init()))
+                router.navigate(to: .medicineForm)
             } label: {
                 Label("Manual", systemImage: "pencil")
             }
             
             Button {
-                router.navigate(to: .MedicineForm(for: .init()))
+                router.navigate(to: .medicineForm)
             } label: {
                 Label("Scan", systemImage: "camera.viewfinder")
             }

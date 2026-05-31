@@ -8,22 +8,24 @@
 import Foundation
 import SwiftUI
 
-extension ManageMedicineTagsSheetView {
+extension ManageMedicineTagsView {
     func handleOnAppear(otherTags: inout [Tag]) {
-        let excluded = Set(medicineTags.map { $0.value.lowercasedAndTrimmed })
-        otherTags = allTags.filter { !excluded.contains($0.value.lowercasedAndTrimmed) }
+        let medicineTagsSet = Set(self.medicineViewModel.medicine.tags.map { $0.value.lowercasedAndTrimmed })
+        otherTags = allTags.filter { !medicineTagsSet.contains($0.value.lowercasedAndTrimmed) }
+        self.allTagsState = allTags
+        self.medicineTags = self.medicineViewModel.medicine.tags
     }
     
     func add(newTagValue: inout String, tag: Tag, otherTags: inout [Tag]) {
         withAnimation {
-            medicineTags.append(tag)
+            self.medicineTags.append(tag)
             filterTags(newTagValue: &newTagValue, otherTags: &otherTags)
         }
     }
     
     func remove(newTagValue: inout String, tag: Tag, otherTags: inout [Tag]) {
         withAnimation {
-            medicineTags.removeAll { $0.equals(tag) }
+            self.medicineTags.removeAll { $0.equals(tag) }
             otherTags.append(tag)
             filterTags(newTagValue: &newTagValue, otherTags: &otherTags)
         }
@@ -34,12 +36,12 @@ extension ManageMedicineTagsSheetView {
         guard !cleanedNewTagValue.isEmpty else { return }
         
         if let existingTag = allTags.first(where: { $0.value.localizedCaseInsensitiveCompare(cleanedNewTagValue) == .orderedSame }) {
-            if (!medicineTags.contains(existingTag)) {
+            if (!self.medicineTags.contains(existingTag)) {
                 add(newTagValue: &newTagValue, tag: existingTag, otherTags: &otherTags)
             }
         } else {
             let newTag = Tag(value: cleanedNewTagValue)
-            allTags.append(newTag)
+            self.allTagsState.append(newTag)
             add(newTagValue: &newTagValue, tag: newTag, otherTags: &otherTags)
         }
         
@@ -47,7 +49,7 @@ extension ManageMedicineTagsSheetView {
     }
     
     func filterTags(newTagValue: inout String, otherTags: inout [Tag]) {
-        let excludedTags = Set(medicineTags.map { $0.value.lowercasedAndTrimmed })
+        let excludedTags = Set(self.medicineTags.map { $0.value.lowercasedAndTrimmed })
         
         if (newTagValue.trimmedIsEmpty) {
             otherTags = allTags.filter { !excludedTags.contains($0.value.lowercasedAndTrimmed) }
@@ -62,10 +64,14 @@ extension ManageMedicineTagsSheetView {
     func disableAddButton(newTagValue: String) -> Bool {
         let cleanedNewTagValue = newTagValue.lowercasedAndTrimmed
         
-        let isTagPresent = medicineTags.contains { tag in
+        let isTagPresent = self.medicineTags.contains { tag in
             tag.value.localizedCaseInsensitiveCompare(cleanedNewTagValue) == .orderedSame
         }
         
         return cleanedNewTagValue.isEmpty || isTagPresent
+    }
+    
+    func handleSave() {
+        self.medicineViewModel.medicine.tags = self.medicineTags
     }
 }

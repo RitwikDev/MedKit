@@ -8,12 +8,16 @@
 import SwiftUI
 
 struct MedicineListItemView: View {
+    @Environment(NavigationRouter.self) private var router
+    @Environment(MedicineViewModel.self) private var medicineViewModel
+    
     let medicine: Medicine
     
     var body: some View {
-        NavigationLink(
-            value: NavigationPathEnum.MedicineForm(for: medicine)
-        ) {
+        Button {
+            medicineViewModel.medicine = medicine
+            router.navigate(to: .medicineForm)
+        } label: {
             Text(medicine.name)
         }
     }
@@ -21,6 +25,6 @@ struct MedicineListItemView: View {
 
 #Preview {
     MedicineListItemView(
-        medicine: Medicine()
+        medicine: Medicine(name: "Medicine Name", quantity: 10)
     )
 }

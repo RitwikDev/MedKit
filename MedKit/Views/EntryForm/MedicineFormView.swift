@@ -10,78 +10,42 @@ import SwiftUI
 
 struct MedicineFormView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(MedicineViewModel.self) private var medicineViewModel
     @Environment(\.dismiss) private var dismiss
     
-    @Query private var allCompositions: [CompositionModel]
-    @Query private var allTagModels: [TagModel]
-    
-    @State var medicine: Medicine
-    @State private var compositionToEdit: Composition? = nil
-    @State private var isManagingTags: Bool = false
-    
-    private var allCompositionStructs: [Composition] {
-        allCompositions.map { Composition(from: $0) }
-    }
-    
-    private var allTagStructs: [Tag] {
-        allTagModels.map { Tag(from: $0) }
-    }
-    
-    init(medicine: Medicine) {
-        self._medicine = State(initialValue: medicine)
-    }
-    
     var body: some View {
+        @Bindable var bindableViewModel = medicineViewModel
+        
         Form {
-            NameSectionView(name: $medicine.name)
+            NameSectionView(name: $bindableViewModel.medicine.name)
             
             StrengthSectionView(
-                strengthAmount: $medicine.strengthAmount,
-                strengthUnit: $medicine.strengthUnit,
+                strengthAmount: $bindableViewModel.medicine.strengthAmount,
+                strengthUnit: $bindableViewModel.medicine.strengthUnit,
             )
             
-            QuantitySectionView(quantity: $medicine.quantity)
+            QuantitySectionView(quantity: $bindableViewModel.medicine.quantity)
             
             DatesSectionView(
-                manufacturedDate: $medicine.manufacturedDate,
-                expiryDate: $medicine.expiryDate,
+                manufacturedDate: $bindableViewModel.medicine.manufacturedDate,
+                expiryDate: $bindableViewModel.medicine.expiryDate,
             )
 
-            CompositionSectionView(
-                medicineComposition: $medicine.composition,
-                compositionToEdit: $compositionToEdit
-            )
-            
-            TagsSectionView(tags: $medicine.tags) { isManagingTags.toggle() }
-        }
-        .sheet(item: $compositionToEdit) { composition in
-            ManageMedicineCompositionSheetView(
-                medicineComposition: medicine.composition,
-                allCompositions: allCompositionStructs,
-                compositionToEdit: composition,
-            ) { medicineComposition in
-                self.medicine.composition = medicineComposition
-            }
-        }
-        .sheet(isPresented: $isManagingTags) {
-            ManageMedicineTagsSheetView(
-                medicineTags: medicine.tags,
-                allTags: allTagStructs,
-            ) { medicineTags in
-                self.medicine.tags = medicineTags
-            }
+            CompositionSectionView()
+
+            TagsSectionView()
         }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
-                    saveOrUpdateMedicine(from: medicine, in: modelContext)
+                    saveOrUpdateMedicine(from: medicineViewModel.medicine, in: modelContext)
                     dismiss()
                 }
                 .tint(.blue)
             }
         }
         .scrollDismissesKeyboard(.interactively)
-        .navigationTitle("\(medicine.name.trimmedIsEmpty ? "New Medicine" : medicine.name)")
+        .navigationTitle("\(medicineViewModel.medicine.name.trimmedIsEmpty ? "New Medicine" :  medicineViewModel.medicine.name)")
         .toolbar(.hidden, for: .tabBar)
     }
 }
@@ -90,8 +54,9 @@ struct MedicineFormView: View {
     let container = PreviewContainerHelper.getMedicineContainer()
     
     return NavigationStack {
-        MedicineFormView(medicine: .init())
+        MedicineFormView()
     }
     .modelContainer(container)
     .environment(NavigationRouter())
+    .environment(MedicineViewModel())
 }

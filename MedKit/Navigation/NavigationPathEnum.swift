@@ -9,18 +9,21 @@ import Foundation
 import SwiftUI
 
 enum NavigationPathEnum: Hashable {
-    case MedicineList
-    case MedicineForm(for: Medicine)
-    case MedicineComposition(for: Composition)
-    case MedicineCustomFields
+    case medicineForm
+    case addComposition
+    case editComposition(for: Composition)
+    case manageMedicineTags
+    case medicineCustomFields
     
     @ViewBuilder
     var destination: some View {
         switch self {
-        case .MedicineList:
-            MedicineListView()
-        case .MedicineForm(let medicine):
-            MedicineFormView(medicine: medicine)
+        case .medicineForm:
+            MedicineFormView()
+        case .editComposition(let composition):
+            EditCompositionView(composition: composition)
+        case .manageMedicineTags:
+            ManageMedicineTagsView()
         default: MedicineListView()
         }
     }

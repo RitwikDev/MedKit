@@ -1,5 +1,5 @@
 //
-//  ManageMedicineTagsSheetView.swift
+//  ManageMedicineTagsView.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 24/05/26.
@@ -8,14 +8,19 @@
 import SwiftData
 import SwiftUI
 
-struct ManageMedicineTagsSheetView: View {
-    @State var medicineTags: [Tag]
-    @State var allTags: [Tag]
-    let onSave: ([Tag]) -> Void
+struct ManageMedicineTagsView: View {
+    @Query private var allTagModels: [TagModel]
+    
+    var allTags: [Tag] {
+        allTagModels.map { Tag(from: $0) }
+    }
     
     @Environment(\.dismiss) private var dismiss
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(MedicineViewModel.self) var medicineViewModel
     
+    @State var allTagsState: [Tag] = []
+    @State var medicineTags: [Tag] = []
     @State private var otherTags: [Tag] = []
     @State private var newTagValue: String = ""
     @State private var showUnsavedChangesConfirmationDialog: Bool = false
@@ -42,49 +47,42 @@ struct ManageMedicineTagsSheetView: View {
     }
     
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                Form {
-                    addTagView
-                }
-                .frame(maxHeight: dynamicHeight)
-                .scrollDisabled(true)
-                
-                Form {
-                    currentTagsView
-                    otherTagsView
-                }
+        VStack(spacing: 0) {
+            Form {
+                addTagView
             }
-            .onAppear{ handleOnAppear(otherTags: &otherTags) }
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        if (newTagValue.trimmedIsEmpty) {
-                            onSave(medicineTags)
-                            dismiss()
-                        } else {
-                            showUnsavedChangesConfirmationDialog.toggle()
-                        }
-                    }
-                    .confirmationDialog(
-                        "You have some unsaved changes",
-                        isPresented: $showUnsavedChangesConfirmationDialog,
-                        titleVisibility: .visible
-                    ) {
-                        Button("Discard", role: .destructive) {
-                            onSave(medicineTags)
-                            dismiss()
-                        }
-                    } message: {
-                        Text("Are you sure you do not want to save \(newTagValue)?")
+            .frame(maxHeight: dynamicHeight)
+            .scrollDisabled(true)
+            
+            Form {
+                currentTagsView
+                otherTagsView
+            }
+        }
+        .onAppear{ handleOnAppear(otherTags: &otherTags) }
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Done") {
+                    if (newTagValue.trimmedIsEmpty) {
+                        handleSave()
+                        dismiss()
+                    } else {
+                        showUnsavedChangesConfirmationDialog.toggle()
                     }
                 }
+                .confirmationDialog(
+                    "You have some unsaved changes",
+                    isPresented: $showUnsavedChangesConfirmationDialog,
+                    titleVisibility: .visible
+                ) {
+                    Button("Discard", role: .destructive) {
+                        handleSave()
+                        dismiss()
+                    }
+                } message: {
+                    Text("Are you sure you do not want to save \(newTagValue)?")
+                }
             }
-            .sheetModifier(titled: "Manage Tags")
         }
     }
     
@@ -149,9 +147,6 @@ struct ManageMedicineTagsSheetView: View {
 }
 
 #Preview {
-    ManageMedicineTagsSheetView(
-        medicineTags: [],
-        allTags: [],
-        onSave: { _ in }
-    )
+    ManageMedicineTagsView()
+        .environment(MedicineViewModel())
 }

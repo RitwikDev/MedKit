@@ -9,33 +9,37 @@ import SwiftUI
 
 struct CompositionSectionView: View {
     @Environment(NavigationRouter.self) private var router
-    
-    @Binding var medicineComposition: [Composition]
-    @Binding var compositionToEdit: Composition?
+    @Environment(MedicineViewModel.self) private var medicineViewModel
     
     var body: some View {
-        Section("Composition") {
-            ForEach(medicineComposition) { composition in
+        Section {
+            ForEach(medicineViewModel.medicine.composition) { composition in
                 Button(composition.fullName) {
-                    compositionToEdit = composition
+                    router.navigate(to: .editComposition(for: composition))
                 }
                 .foregroundStyle(.primary)
             }
-            .onDelete(perform: deleteCompositions)
-            
-            Button("Add Composition") {}
+            .onDelete(perform: medicineViewModel.removeComposition)
+        } header: {
+            HStack {
+                Text("Composition")
+                Spacer()
+                CircularButtonView(
+                    title: "Add Composition",
+                    systemImage: "plus",
+                    tintColor: .blue
+                ) {
+                    router.navigate(to: .addComposition)
+                }
+            }
         }
     }
 }
 
 #Preview {
     Form {
-        CompositionSectionView(
-            medicineComposition: .constant([
-                .init(name: "Ingredient 1"),
-                .init(name: "Ingredient 2", strengthAmount: 10, strengthUnit: "mg")
-            ]),
-            compositionToEdit: .constant(.init()),
-        )
+        CompositionSectionView()
     }
+    .environment(NavigationRouter())
+    .environment(MedicineViewModel())
 }

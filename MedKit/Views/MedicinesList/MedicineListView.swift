@@ -12,6 +12,7 @@ struct MedicineListView: View {
     @Query var medicines: [MedicineModel]
 
     @Environment(NavigationRouter.self) private var router
+    private let medicineViewModel = MedicineViewModel()
     
     var body: some View {
         @Bindable var router = router
@@ -41,6 +42,7 @@ struct MedicineListView: View {
             }
             .navigationTitle(Text("Medicines"))
         }
+        .environment(medicineViewModel)
     }
 }
 
@@ -50,4 +52,5 @@ struct MedicineListView: View {
     return MedicineListView()
         .modelContainer(container)
         .environment(NavigationRouter())
+        .environment(MedicineViewModel())
 }
