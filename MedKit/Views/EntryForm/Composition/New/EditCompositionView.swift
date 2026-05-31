@@ -30,15 +30,15 @@ struct EditCompositionView: View {
                 strengthUnit: $draftComposition.strengthUnit
             )
         }
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
-                    medicineViewModel.upsertComposition(draftComposition)
-                    dismiss()
-                }
-                .disabled(!draftComposition.isValid())
-            }
-        }
+//        .toolbar {
+//            ToolbarItem(placement: .confirmationAction) {
+//                Button("Save") {
+//                    medicineViewModel.upsertComposition(draftComposition)
+//                    dismiss()
+//                }
+//                .disabled(!draftComposition.isValid())
+//            }
+//        }
     }
 }
 
