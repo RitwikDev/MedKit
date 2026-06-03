@@ -12,7 +12,7 @@ struct CompositionSectionView: View {
     @Environment(MedicineViewModel.self) private var medicineViewModel
     
     var body: some View {
-        Section {
+        Section("Composition") {
             ForEach(medicineViewModel.medicine.composition) { composition in
                 Button(composition.fullName) {
                     router.navigate(to: .editComposition(for: composition))
@@ -20,17 +20,9 @@ struct CompositionSectionView: View {
                 .foregroundStyle(.primary)
             }
             .onDelete(perform: medicineViewModel.removeComposition)
-        } header: {
-            HStack {
-                Text("Composition")
-                Spacer()
-                CircularButtonView(
-                    title: "Add Composition",
-                    systemImage: "plus",
-                    tintColor: .blue
-                ) {
-                    router.navigate(to: .addComposition)
-                }
+            
+            Button("Add Composition") {
+                router.navigate(to: .addComposition)
             }
         }
     }

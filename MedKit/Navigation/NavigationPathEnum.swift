@@ -20,9 +20,8 @@ enum NavigationPathEnum: Hashable {
         switch self {
         case .medicineForm:
             MedicineFormView()
-//        case .addComposition:
-////            AddCompositionView()
-//            TestAddCompositionView()
+        case .addComposition:
+            AddCompositionView()
         case .editComposition(let composition):
             EditCompositionView(composition: composition)
         case .manageMedicineTags:

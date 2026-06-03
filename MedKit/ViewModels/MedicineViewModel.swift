@@ -42,6 +42,17 @@ class MedicineViewModel {
             medicine.composition.append(composition)
         }
     }
+    
+    func addCompositions(_ compositions: [Composition]) {
+        for (index, composition) in compositions.enumerated() {
+            let isPresent = medicine.composition.contains(where: { $0.equalsName(composition) })
+            if (isPresent) {
+                medicine.composition.remove(at: index)
+            }
+            
+            medicine.composition.append(composition)
+        }
+    }
 
     func removeComposition(at offsets: IndexSet) {
         medicine.composition.remove(atOffsets: offsets)

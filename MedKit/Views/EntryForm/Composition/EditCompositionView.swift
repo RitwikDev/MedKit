@@ -20,25 +20,29 @@ struct EditCompositionView: View {
     }
     
     var body: some View {
-        Form {
-            Section("Name") {
-                TextField("Name", text: $draftComposition.name)
+        CompositionFormView(
+            composition: $draftComposition,
+            compositions: medicineViewModel.medicine.composition,
+            isInputDisabled: false
+        )
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Save") {
+                    medicineViewModel.upsertComposition(draftComposition)
+                    dismiss()
+                }
+                .disabled(!isValid())
             }
-            
-            StrengthSectionView(
-                strengthAmount: $draftComposition.strengthAmount,
-                strengthUnit: $draftComposition.strengthUnit
-            )
         }
-//        .toolbar {
-//            ToolbarItem(placement: .confirmationAction) {
-//                Button("Save") {
-//                    medicineViewModel.upsertComposition(draftComposition)
-//                    dismiss()
-//                }
-//                .disabled(!draftComposition.isValid())
-//            }
-//        }
+    }
+    
+    private func isValid() -> Bool {
+        let isDuplicate = medicineViewModel.medicine.composition.contains { $0.id != draftComposition.id && $0.equalsName(draftComposition) }
+
+        if (!draftComposition.isValid() || isDuplicate) {
+            return false
+        }
+        return true
     }
 }
 

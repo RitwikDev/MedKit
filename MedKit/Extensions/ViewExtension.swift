@@ -24,4 +24,13 @@ extension View {
     func sheetModifier(titled title: String) -> some View {
         modifier(SheetModifier(title: title))
     }
+    
+    @ViewBuilder
+    func clipRoundedRectangleIf(_ condition: Bool, cornerRadius: CGFloat) -> some View {
+        if condition {
+            self.clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+        } else {
+            self
+        }
+    }
 }

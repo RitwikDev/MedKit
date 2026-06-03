@@ -32,6 +32,9 @@ struct MedicineListView: View {
                 }
             }
             .listStyle(.plain)
+            .onAppear {
+                medicineViewModel.medicine = .init()
+            }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     NewMedicineToolbarItemView()
