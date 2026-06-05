@@ -17,7 +17,7 @@ struct ContentView: View {
                     Label("Medicines", systemImage: "pills")
                 }
             
-            ScheduleView()
+            CalendarView()
                 .tabItem {
                     Label("Schedule", systemImage: "calendar")
                 }

@@ -9,7 +9,7 @@ import Foundation
 
 extension Composition {
     init(from model: CompositionModel) {
-        self.id = model.id
+        self.id = UUID()
         self.persistentIdentifier = model.id
         self.name = model.name
         self.strengthAmount = model.strengthAmount

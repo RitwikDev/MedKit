@@ -70,7 +70,7 @@ struct BatchEntryView<Element: Identifiable, Content: View>: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItemGroup {
-                Button("Save") {
+                Button("Done") {
                     onSave(items)
                     dismiss()
                 }

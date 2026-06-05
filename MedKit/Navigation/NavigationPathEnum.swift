@@ -12,6 +12,7 @@ enum NavigationPathEnum: Hashable {
     case medicineForm
     case addComposition
     case editComposition(for: Composition)
+    case medicineSchedule(for: Schedule)
     case manageMedicineTags
     case medicineCustomFields
     
@@ -24,6 +25,8 @@ enum NavigationPathEnum: Hashable {
             AddCompositionView()
         case .editComposition(let composition):
             EditCompositionView(composition: composition)
+        case .medicineSchedule(let schedule):
+            ScheduleView(schedule: schedule)
         case .manageMedicineTags:
             ManageMedicineTagsView()
         default: MedicineListView()

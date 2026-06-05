@@ -20,6 +20,8 @@ class MedicineModel {
     @Relationship(deleteRule: .cascade, inverse: \CompositionModel.medicine)
     var composition: [CompositionModel] = []
     
+    var schedule: ScheduleModel?
+    
     @Relationship(deleteRule: .nullify, inverse: \TagModel.medicines)
     var tags: [TagModel] = []
     
@@ -31,6 +33,7 @@ class MedicineModel {
         strengthAmount: Float? = nil,
         strengthUnit: String? = nil,
         composition: [CompositionModel] = [],
+        schedule: ScheduleModel? = nil,
         tags: [TagModel] = []
     ) {
         self.name = name
@@ -40,6 +43,7 @@ class MedicineModel {
         self.strengthAmount = strengthAmount
         self.strengthUnit = strengthUnit
         self.composition = composition
+        self.schedule = schedule
         self.tags = tags
     }
     
@@ -54,6 +58,7 @@ class MedicineModel {
             strengthAmount: self.strengthAmount,
             strengthUnit: self.strengthUnit,
             composition: copiedComposition,
+            schedule: schedule,
             tags: self.tags
         )
     }

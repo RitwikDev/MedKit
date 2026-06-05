@@ -27,13 +27,14 @@ struct EditCompositionView: View {
         )
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") {
+                Button("Done") {
                     medicineViewModel.upsertComposition(draftComposition)
                     dismiss()
                 }
                 .disabled(!isValid())
             }
         }
+        .navigationTitle("Edit \(composition.name)")
     }
     
     private func isValid() -> Bool {

@@ -23,6 +23,7 @@ struct Medicine: Identifiable, Equatable, Hashable {
     var strengthUnit: String?
     
     var composition: [Composition]
+    var schedule: Schedule?
     var tags: [Tag]
     
     init(
@@ -35,6 +36,7 @@ struct Medicine: Identifiable, Equatable, Hashable {
         strengthAmount: Float? = nil,
         strengthUnit: String? = nil,
         composition: [Composition] = [],
+        schedule: Schedule? = nil,
         tags: [Tag] = []
     ) {
         self.id = id
@@ -46,6 +48,7 @@ struct Medicine: Identifiable, Equatable, Hashable {
         self.strengthAmount = strengthAmount
         self.strengthUnit = strengthUnit
         self.composition = composition
+        self.schedule = schedule
         self.tags = tags
     }
 }

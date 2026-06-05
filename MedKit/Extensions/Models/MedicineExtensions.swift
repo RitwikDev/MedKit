@@ -19,6 +19,7 @@ extension Medicine {
         self.strengthUnit = model.strengthUnit
         
         self.composition = model.composition.map { Composition(from: $0) }
+        self.schedule = Schedule(from: model.schedule ?? .init())
         self.tags = model.tags.map { Tag(from: $0) }
     }
 }

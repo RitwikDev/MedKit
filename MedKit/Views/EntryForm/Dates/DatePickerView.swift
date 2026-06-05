@@ -34,15 +34,23 @@ struct DatePickerView: View {
                     }
                 }
             } else {
-                Button("Add \(label)") {
-                    date = Date()
+                Button(label) {
+                    addDate()
                 }
             }
         }
     }
     
+    private func addDate() {
+        withAnimation {
+            date = Date()
+        }
+    }
+    
     private func deleteDate() {
-        self.date = nil
+        withAnimation {
+            self.date = nil
+        }
     }
 }
 

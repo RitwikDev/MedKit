@@ -10,7 +10,6 @@ import SwiftData
 
 @Model
 class CompositionModel {
-    var id: UUID
     var name: String
     var strengthAmount: Float?
     var strengthUnit: String?
@@ -18,12 +17,10 @@ class CompositionModel {
     var medicine: MedicineModel?
     
     init(
-        id: UUID = UUID(),
         name: String = "",
         strengthAmount: Float? = nil,
         strengthUnit: String? = nil
     ) {
-        self.id = id
         self.name = name
         self.strengthAmount = strengthAmount
         self.strengthUnit = strengthUnit

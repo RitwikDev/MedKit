@@ -84,6 +84,7 @@ struct ManageMedicineTagsView: View {
                 }
             }
         }
+        .navigationTitle("Manage Tags")
     }
     
     private var addTagView: some View {

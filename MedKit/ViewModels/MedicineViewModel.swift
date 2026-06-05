@@ -61,6 +61,10 @@ class MedicineViewModel {
     func removeComposition(_ composition: Composition) {
         medicine.composition.removeAll { $0.id == composition.id }
     }
+    
+    func removeSchedule() {
+        medicine.schedule = nil
+    }
 
     // MARK: - Tag Management
     func addTag(_ tag: Tag) {

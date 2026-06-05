@@ -32,6 +32,6 @@ struct CompositionSectionView: View {
     Form {
         CompositionSectionView()
     }
-    .environment(NavigationRouter())
     .environment(MedicineViewModel())
+    .environment(NavigationRouter())
 }

@@ -31,4 +31,5 @@ struct TagsSectionView: View {
         TagsSectionView()
     }
     .environment(MedicineViewModel())
+    .environment(NavigationRouter())
 }

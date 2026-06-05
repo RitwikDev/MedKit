@@ -54,6 +54,6 @@ struct MedicineListView: View {
     
     return MedicineListView()
         .modelContainer(container)
-        .environment(NavigationRouter())
         .environment(MedicineViewModel())
+        .environment(NavigationRouter())
 }

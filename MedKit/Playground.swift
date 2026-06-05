@@ -36,6 +36,12 @@ func saveOrUpdateMedicine(from medicineStruct: Medicine, in context: ModelContex
             CompositionModel(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit)
         }
         
+        if let schedule = medicineStruct.schedule {
+            existingModel.schedule = ScheduleModel(from: schedule)
+        } else {
+            existingModel.schedule = nil
+        }
+        
         // 4. Re-sync many-to-many unique tags safely
         syncTags(for: existingModel, with: medicineStruct.tags, in: context)
         
@@ -52,6 +58,12 @@ func saveOrUpdateMedicine(from medicineStruct: Medicine, in context: ModelContex
         
         newMedicineModel.composition = medicineStruct.composition.map {
             CompositionModel(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit)
+        }
+        
+        if let schedule = medicineStruct.schedule {
+            newMedicineModel.schedule = ScheduleModel(from: schedule)
+        } else {
+            newMedicineModel.schedule = nil
         }
         
         context.insert(newMedicineModel)

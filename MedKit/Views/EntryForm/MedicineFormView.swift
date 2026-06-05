@@ -32,6 +32,8 @@ struct MedicineFormView: View {
             )
 
             CompositionSectionView()
+            
+            ScheduleSectionView(schedule: $bindableViewModel.medicine.schedule)
 
             TagsSectionView()
         }
@@ -57,6 +59,6 @@ struct MedicineFormView: View {
         MedicineFormView()
     }
     .modelContainer(container)
-    .environment(NavigationRouter())
     .environment(MedicineViewModel())
+    .environment(NavigationRouter())
 }
