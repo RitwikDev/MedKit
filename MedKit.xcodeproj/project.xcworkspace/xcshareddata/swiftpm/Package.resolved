@@ -1,5 +1,5 @@
 {
-  "originHash" : "c63c63846d9c539229e96de38d6af51417e28c0ee9a0bc48bd0f0f19d923c329",
+  "originHash" : "0255c2fb8d5c2672d2bb8c61a1a520211b8a47286158bb4dbf721b238c88ef74",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,6 +17,15 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "dev-kit-ui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RitwikDev/dev-kit-ui.git",
+      "state" : {
+        "revision" : "fba45f3fd6b757aae36d506ae61842a0b4c39566",
+        "version" : "2.0.0"
       }
     },
     {
