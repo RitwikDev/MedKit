@@ -7,7 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		361F7D442FE0FAB300BB70D9 /* SimulatorCameraService in Frameworks */ = {isa = PBXBuildFile; productRef = 361F7D432FE0FAB300BB70D9 /* SimulatorCameraService */; };
+		361F7D472FE0FACF00BB70D9 /* DeviceCameraService in Frameworks */ = {isa = PBXBuildFile; productRef = 361F7D462FE0FACF00BB70D9 /* DeviceCameraService */; };
 		362E637E2FB9525900CFB7AB /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 362E637D2FB9525100CFB7AB /* .gitignore */; };
+		36C011E12FDFC15200403FF9 /* DevKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = 36C011E02FDFC15200403FF9 /* DevKitUI */; };
 		BA9586402FB957750095C2E2 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = BA95863F2FB957750095C2E2 /* FirebaseAILogic */; };
 		BA95866B2FB95CC80095C2E2 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = BA95866A2FB95CC80095C2E2 /* FirebaseAnalytics */; };
 /* End PBXBuildFile section */
@@ -17,9 +20,22 @@
 		362E637D2FB9525100CFB7AB /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		361F7D412FE0FA7E00BB70D9 /* Exceptions for "MedKit" folder in "MedKit" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 362E636B2FB94D5E00CFB7AB /* MedKit */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		362E636E2FB94D5E00CFB7AB /* MedKit */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				361F7D412FE0FA7E00BB70D9 /* Exceptions for "MedKit" folder in "MedKit" target */,
+			);
 			path = MedKit;
 			sourceTree = "<group>";
 		};
@@ -30,7 +46,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				361F7D442FE0FAB300BB70D9 /* SimulatorCameraService in Frameworks */,
+				36C011E12FDFC15200403FF9 /* DevKitUI in Frameworks */,
 				BA95866B2FB95CC80095C2E2 /* FirebaseAnalytics in Frameworks */,
+				361F7D472FE0FACF00BB70D9 /* DeviceCameraService in Frameworks */,
 				BA9586402FB957750095C2E2 /* FirebaseAILogic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -85,6 +104,9 @@
 			packageProductDependencies = (
 				BA95863F2FB957750095C2E2 /* FirebaseAILogic */,
 				BA95866A2FB95CC80095C2E2 /* FirebaseAnalytics */,
+				36C011E02FDFC15200403FF9 /* DevKitUI */,
+				361F7D432FE0FAB300BB70D9 /* SimulatorCameraService */,
+				361F7D462FE0FACF00BB70D9 /* DeviceCameraService */,
 			);
 			productName = MedKit;
 			productReference = 362E636C2FB94D5E00CFB7AB /* MedKit.app */;
@@ -116,6 +138,9 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				BA95863E2FB957750095C2E2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				36C011DF2FDFC15200403FF9 /* XCRemoteSwiftPackageReference "dev-kit-ui" */,
+				361F7D422FE0FAB300BB70D9 /* XCRemoteSwiftPackageReference "simulator-camera-service" */,
+				361F7D452FE0FACF00BB70D9 /* XCRemoteSwiftPackageReference "device-camera-service" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 362E636D2FB94D5E00CFB7AB /* Products */;
@@ -280,13 +305,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MedKit/Preview Content\"";
+				DEVELOPMENT_TEAM = 4BKL74V4YU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Access to camera and photos is required for scanning medicine package.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -308,13 +337,17 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MedKit/Preview Content\"";
+				DEVELOPMENT_TEAM = 4BKL74V4YU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Access to camera and photos is required for scanning medicine package.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -352,6 +385,30 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		361F7D422FE0FAB300BB70D9 /* XCRemoteSwiftPackageReference "simulator-camera-service" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://www.github.com/rishikdev/simulator-camera-service.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.1;
+			};
+		};
+		361F7D452FE0FACF00BB70D9 /* XCRemoteSwiftPackageReference "device-camera-service" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://www.github.com/rishikdev/device-camera-service.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.1;
+			};
+		};
+		36C011DF2FDFC15200403FF9 /* XCRemoteSwiftPackageReference "dev-kit-ui" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RitwikDev/dev-kit-ui.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 		BA95863E2FB957750095C2E2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -363,6 +420,21 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		361F7D432FE0FAB300BB70D9 /* SimulatorCameraService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 361F7D422FE0FAB300BB70D9 /* XCRemoteSwiftPackageReference "simulator-camera-service" */;
+			productName = SimulatorCameraService;
+		};
+		361F7D462FE0FACF00BB70D9 /* DeviceCameraService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 361F7D452FE0FACF00BB70D9 /* XCRemoteSwiftPackageReference "device-camera-service" */;
+			productName = DeviceCameraService;
+		};
+		36C011E02FDFC15200403FF9 /* DevKitUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 36C011DF2FDFC15200403FF9 /* XCRemoteSwiftPackageReference "dev-kit-ui" */;
+			productName = DevKitUI;
+		};
 		BA95863F2FB957750095C2E2 /* FirebaseAILogic */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BA95863E2FB957750095C2E2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

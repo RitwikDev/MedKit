@@ -1,5 +1,5 @@
 {
-  "originHash" : "c63c63846d9c539229e96de38d6af51417e28c0ee9a0bc48bd0f0f19d923c329",
+  "originHash" : "496790461563247cc85b0cb2913971dc304ba2cdc4d5355e3d07b40d4eb81bf2",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -17,6 +17,24 @@
       "state" : {
         "revision" : "61b85103a1aeed8218f17c794687781505fbbef5",
         "version" : "11.2.0"
+      }
+    },
+    {
+      "identity" : "dev-kit-ui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RitwikDev/dev-kit-ui.git",
+      "state" : {
+        "revision" : "fba45f3fd6b757aae36d506ae61842a0b4c39566",
+        "version" : "2.0.0"
+      }
+    },
+    {
+      "identity" : "device-camera-service",
+      "kind" : "remoteSourceControl",
+      "location" : "https://www.github.com/rishikdev/device-camera-service.git",
+      "state" : {
+        "revision" : "e862e4396c38340bed0867cbb492b3c727b80916",
+        "version" : "2.0.1"
       }
     },
     {
@@ -116,6 +134,15 @@
       "state" : {
         "revision" : "540318ecedd63d883069ae7f1ed811a2df00b6ac",
         "version" : "2.4.0"
+      }
+    },
+    {
+      "identity" : "simulator-camera-service",
+      "kind" : "remoteSourceControl",
+      "location" : "https://www.github.com/rishikdev/simulator-camera-service.git",
+      "state" : {
+        "revision" : "c93e45b550871b3f55e0258139beda67809937d1",
+        "version" : "2.0.1"
       }
     }
   ],
