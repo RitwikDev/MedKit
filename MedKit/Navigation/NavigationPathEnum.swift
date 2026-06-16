@@ -15,7 +15,7 @@ enum NavigationPathEnum: Hashable {
     case editComposition(for: Composition)
     case medicineSchedule(for: Schedule)
     case manageMedicineTags
-    case medicineCustomFields
+    case addCustomFields
     
     @ViewBuilder
     var destination: some View {
@@ -32,7 +32,8 @@ enum NavigationPathEnum: Hashable {
             ScheduleView(schedule: schedule)
         case .manageMedicineTags:
             ManageMedicineTagsView()
-        default: MedicineListView()
+        case .addCustomFields:
+            MedicineCustomFieldStepperView()
         }
     }
 }

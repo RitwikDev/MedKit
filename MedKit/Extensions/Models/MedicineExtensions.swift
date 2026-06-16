@@ -21,5 +21,6 @@ extension Medicine {
         self.composition = model.composition.map { Composition(from: $0) }
         self.schedule = Schedule(from: model.schedule ?? .init())
         self.tags = model.tags.map { Tag(from: $0) }
+        self.customFields = model.customFields.map { CustomFieldValue(from: $0) }
     }
 }

@@ -50,7 +50,6 @@ struct BatchEntryView<Element: Identifiable, Content: View>: View {
                         ) {
                             formContent($item, items, isEditModeEnabled)
                         }
-//                        .padding(1)
                         .containerRelativeFrame(.horizontal, alignment: .center)
                         .id(item.id)
                     }

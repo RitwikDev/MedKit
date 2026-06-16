@@ -49,11 +49,9 @@ struct MedicineListView: View {
     }
 }
 
-#Preview {
-    let container = PreviewContainerHelper.getMedicineContainer()
-    
+#Preview {    
     return MedicineListView()
-        .modelContainer(container)
+        .modelContainer(PreviewData.container)
         .environment(MedicineViewModel())
         .environment(NavigationRouter())
 }

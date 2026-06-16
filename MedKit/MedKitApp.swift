@@ -29,10 +29,10 @@ struct MedKitApp: App {
         .modelContainer(for: [
             MedicineModel.self,
             CompositionModel.self,
-            MedicineCustomFieldModel.self,
-            CustomFieldModel.self,
             ScheduleModel.self,
-            TagModel.self
+            TagModel.self,
+            CustomFieldModel.self,
+            CustomFieldValueModel.self,
         ])
     }
 }

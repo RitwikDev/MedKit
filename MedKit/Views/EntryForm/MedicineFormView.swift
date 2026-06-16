@@ -12,6 +12,8 @@ struct MedicineFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(MedicineViewModel.self) private var medicineViewModel
     @Environment(NavigationRouter.self) private var router
+    @Environment(\.dismiss) private var dismiss
+    @State private var medicineRepository: MedicineWriteRepository?
     
     var body: some View {
         @Bindable var bindableViewModel = medicineViewModel
@@ -36,14 +38,22 @@ struct MedicineFormView: View {
             ScheduleSectionView(schedule: $bindableViewModel.medicine.schedule)
 
             TagsSectionView()
+            
+            CustomFieldsSectionView()
         }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
-                    saveOrUpdateMedicine(from: medicineViewModel.medicine, in: modelContext)
                     router.popToRoot()
+                    _ = try? self.medicineRepository?.save(medicine: medicineViewModel.medicine)
+                    dismiss()
                 }
                 .tint(.blue)
+            }
+        }
+        .onAppear {
+            if self.medicineRepository == nil {
+                self.medicineRepository = MedicineWriteRepository(modelContext: self.modelContext)
             }
         }
         .scrollDismissesKeyboard(.interactively)
@@ -59,6 +69,6 @@ struct MedicineFormView: View {
         MedicineFormView()
     }
     .modelContainer(container)
-    .environment(MedicineViewModel())
+    .environment(PreviewData.medicineViewModels[0])
     .environment(NavigationRouter())
 }

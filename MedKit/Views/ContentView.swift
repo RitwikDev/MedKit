@@ -33,5 +33,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .environment(NavigationRouter())
+        .modelContainer(PreviewData.container)
 }

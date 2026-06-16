@@ -58,6 +58,10 @@ struct SettingsView: View {
                         Button("Delete All Tags", role: .destructive) {
                             deleteAllData(from: modelContext, of: .tags)
                         }
+
+                        Button("Delete All Custom Fields", role: .destructive) {
+                            deleteAllData(from: modelContext, of: .customFields)
+                        }
                     }
                 }
             }

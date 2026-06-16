@@ -25,6 +25,9 @@ class MedicineModel {
     @Relationship(deleteRule: .nullify, inverse: \TagModel.medicines)
     var tags: [TagModel] = []
     
+    @Relationship(deleteRule: .cascade, inverse: \CustomFieldValueModel.medicine)
+    var customFields: [CustomFieldValueModel] = []
+    
     init(
         name: String = "",
         quantity: Float = 0,
@@ -34,7 +37,8 @@ class MedicineModel {
         strengthUnit: String? = nil,
         composition: [CompositionModel] = [],
         schedule: ScheduleModel? = nil,
-        tags: [TagModel] = []
+        tags: [TagModel] = [],
+        customFields: [CustomFieldValueModel] = [],
     ) {
         self.name = name
         self.quantity = quantity
@@ -45,10 +49,12 @@ class MedicineModel {
         self.composition = composition
         self.schedule = schedule
         self.tags = tags
+        self.customFields = customFields
     }
     
     func copy() -> MedicineModel {
         let copiedComposition = composition.map { $0.copy() }
+        let copiedCustomFields = customFields.map { $0.copy() }
         
         return MedicineModel(
             name: self.name,
@@ -59,7 +65,8 @@ class MedicineModel {
             strengthUnit: self.strengthUnit,
             composition: copiedComposition,
             schedule: schedule,
-            tags: self.tags
+            tags: self.tags,
+            customFields: copiedCustomFields,
         )
     }
 }

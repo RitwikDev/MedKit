@@ -25,6 +25,7 @@ struct Medicine: Identifiable, Equatable, Hashable {
     var composition: [Composition]
     var schedule: Schedule?
     var tags: [Tag]
+    var customFields: [CustomFieldValue]
     
     init(
         id: UUID = UUID(),
@@ -37,7 +38,8 @@ struct Medicine: Identifiable, Equatable, Hashable {
         strengthUnit: String? = nil,
         composition: [Composition] = [],
         schedule: Schedule? = nil,
-        tags: [Tag] = []
+        tags: [Tag] = [],
+        customFields: [CustomFieldValue] = [],
     ) {
         self.id = id
         self.persistentIdentifier = persistentIdentifier
@@ -50,5 +52,10 @@ struct Medicine: Identifiable, Equatable, Hashable {
         self.composition = composition
         self.schedule = schedule
         self.tags = tags
+        self.customFields = customFields
+    }
+    
+    public func getCustomFieldsSortedByLabel() -> [CustomFieldValue] {
+        self.customFields.sorted { $0.getLabel().localizedCaseInsensitiveCompare($1.getLabel()) == .orderedAscending }
     }
 }

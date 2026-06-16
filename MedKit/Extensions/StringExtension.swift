@@ -19,4 +19,8 @@ extension String {
     var trimmedIsEmpty: Bool {
         self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
+    
+    func trimmedLocalisedEquals(_ other: String) -> Bool {
+        self.trimmed.localizedCaseInsensitiveCompare(other.trimmed) == .orderedSame
+    }
 }

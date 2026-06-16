@@ -103,4 +103,31 @@ class MedicineViewModel {
         medicine.manufacturedDate = manufactured
         medicine.expiryDate = expiry
     }
+    
+    // MARK: - Custom fields
+    func addCustomField(_ customField: CustomFieldValue) {
+        medicine.customFields.append(customField)
+    }
+    
+    func addCustomListItem(to customField: CustomFieldValue, value: String) {
+        guard let fieldIndex = medicine.customFields.firstIndex(where: { $0.id == customField.id }) else {
+            return
+        }
+        
+        var updatedList = medicine.customFields[fieldIndex].listValue ?? []
+        updatedList.append(value)
+        
+        medicine.customFields[fieldIndex].listValue = updatedList
+    }
+    
+    func deleteCustomListItem(from customField: CustomFieldValue, at indexSet: IndexSet) {
+        guard let fieldIndex = medicine.customFields.firstIndex(where: { $0.id == customField.id }) else {
+            return
+        }
+        
+        var updatedList = medicine.customFields[fieldIndex].listValue ?? []
+        updatedList.remove(atOffsets: indexSet)
+        
+        medicine.customFields[fieldIndex].listValue = updatedList
+    }
 }
