@@ -17,6 +17,17 @@ class MedicineViewModel {
     init(medicine: Medicine = .init()) {
         self.medicine = medicine
     }
+    
+    func getMedicineFromCodableMedicineModel(cMedicineModel: CodableMedicineModel) {
+        self.medicine = Medicine(
+            name: cMedicineModel.name,
+            manufacturedDate: cMedicineModel.manufacturedDate,
+            expiryDate: cMedicineModel.expiryDate,
+            strengthAmount: cMedicineModel.strengthAmount,
+            strengthUnit: cMedicineModel.strengthUnit,
+            composition: cMedicineModel.composition.map { Composition(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit) },
+        )
+    }
 
     // MARK: - Basic Info
     func updateName(_ name: String) {
