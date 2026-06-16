@@ -26,12 +26,12 @@ struct PhotoPreviewView: View {
     var body: some View {
         ZStack {
             ZoomablePhotoView(photo: photo)
-                .disabled(shouldDisableView)
              
             if (geminiManager.analysisStatus == .loading) {
                 loadingView
             }
         }
+        .disabled(shouldDisableView)
         .onChange(of: geminiManager.analysisStatus) { oldValue, newValue in
             switch newValue {
             case .reset, .loading:
@@ -57,12 +57,14 @@ struct PhotoPreviewView: View {
                 Button(action: dismissButtonAction) {
                     Label("Cancel", systemImage: "xmark")
                 }
+                .disabled(shouldDisableView)
             }
             
             ToolbarItem(placement: .confirmationAction) {
                 Button("Analyse") {
                     geminiManager.analyseImage(photo)
                 }
+                .disabled(shouldDisableView)
             }
         }
         .onAppear {

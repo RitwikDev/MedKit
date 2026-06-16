@@ -9,145 +9,142 @@ import SwiftData
 import SwiftUI
 
 struct ManageMedicineTagsView: View {
-    @Query private var allTagModels: [TagModel]
+    @Query(sort: \TagModel.value) private var allTagModels: [TagModel]
     
-    var allTags: [Tag] {
+    private var allTags: [Tag] {
         allTagModels.map { Tag(from: $0) }
     }
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(MedicineViewModel.self) var medicineViewModel
     
-    @State var allTagsState: [Tag] = []
-    @State var medicineTags: [Tag] = []
-    @State private var otherTags: [Tag] = []
+    @State private var allTagsState: [Tag] = []
+    @State private var filteredTags: [Tag] = []
+    @State private var medicineTags: [Tag] = []
     @State private var newTagValue: String = ""
     @State private var showUnsavedChangesConfirmationDialog: Bool = false
-    
-    private var dynamicHeight: CGFloat {
-        switch dynamicTypeSize {
-        case .xSmall, .small, .medium, .large:
-            return 200
-        case .xLarge, .xxLarge, .xxxLarge:
-            return 225
-        case .accessibility1:
-            return 235
-        case .accessibility2:
-            return 260
-        case .accessibility3:
-            return 285
-        case .accessibility4:
-            return 325
-        case .accessibility5:
-            return 345
-        @unknown default:
-            return 200
-        }
-    }
     
     var body: some View {
         VStack(spacing: 0) {
             Form {
-                addTagView
-            }
-            .frame(maxHeight: dynamicHeight)
-            .scrollDisabled(true)
-            
-            Form {
-                currentTagsView
-                otherTagsView
+                tagTextField
+                allTagsView
             }
         }
-        .onAppear{ handleOnAppear(otherTags: &otherTags) }
+        .onAppear{
+            handleOnAppear(
+                allTags: allTags,
+                allTagsState: &allTagsState,
+                filteredTags: &filteredTags,
+                medicineTags: &medicineTags
+            )
+        }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Done") {
-                    if (newTagValue.trimmedIsEmpty) {
-                        handleSave()
-                        dismiss()
-                    } else {
-                        showUnsavedChangesConfirmationDialog.toggle()
-                    }
-                }
-                .confirmationDialog(
-                    "You have some unsaved changes",
-                    isPresented: $showUnsavedChangesConfirmationDialog,
-                    titleVisibility: .visible
-                ) {
-                    Button("Discard", role: .destructive) {
-                        handleSave()
-                        dismiss()
-                    }
-                } message: {
-                    Text("Are you sure you do not want to save \(newTagValue)?")
-                }
+                confirmationToolbarItem
             }
         }
         .navigationTitle("Manage Tags")
     }
     
-    private var addTagView: some View {
-        Group {
-            Section("New Tag") {
-                TextField("Tag", text: $newTagValue)
-                    .task(id: newTagValue) {
-                        try? await Task.sleep(nanoseconds: 500_000_000)
-                        
-                        withAnimation {
-                            filterTags(newTagValue: &newTagValue, otherTags: &otherTags)
-                        }
+    private var tagTextField: some View {
+        Section("New Tag") {
+            TextField("Tag", text: $newTagValue)
+                .onChange(of: newTagValue) { oldValue, newValue in
+                    withAnimation {
+                        filterIn(
+                            allTagsState: &allTagsState,
+                            filteredTags: &filteredTags,
+                            newTagValue: newValue.trimmed,
+                        )
                     }
-            }
-            
-            Button("Add") {
-                addNewCustomTag(newTagValue: &newTagValue, otherTags: &otherTags)
-            }
-            .disabled(disableAddButton(newTagValue: newTagValue))
+                }
         }
     }
     
-    private var currentTagsView: some View {
-        Section("This Medicine's Tags") {
-            if (!medicineTags.isEmpty) {
-                ForEach(medicineTags) { tag in
-                    Text(tag.value)
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                remove(newTagValue: &newTagValue, tag: tag, otherTags: &otherTags)
-                            } label: {
-                                Label("Remove", systemImage: "minus.circle")
-                            }
-                        }
+    private var allTagsView: some View {
+        Section("All Tags") {
+            if (filteredTags.isEmpty) {
+                Button("Add \(newTagValue)") {
+                    withAnimation {
+                        addNewTag(
+                            allTagsState: &allTagsState,
+                            medicineTags: &medicineTags,
+                            newTagValue: &newTagValue
+                        )
+                    }
                 }
             } else {
-                EmptyEntryView(text: "No Tags Added")
+                ForEach(filteredTags) { tag in
+                    if (self.medicineTags.firstIndex { $0.equals(tag) } != nil) {
+                        tagExistsInMedicineView(tag: tag)
+                    } else {
+                        tagDoesNotExistInMedicineView(tag: tag)
+                    }
+                }
             }
         }
     }
     
-    private var otherTagsView: some View {
-        Section("Other Tags") {
-            if (!otherTags.isEmpty) {
-                ForEach(otherTags) { tag in
-                    Text(tag.value)
-                        .swipeActions(edge: .trailing) {
-                            Button {
-                                add(newTagValue: &newTagValue, tag: tag, otherTags: &otherTags)
-                            } label: {
-                                Label("Add", systemImage: "plus.circle")
-                            }
-                            .tint(.blue)
-                        }
+    private func tagExistsInMedicineView(tag: Tag) -> some View {
+        Button {
+            removeTag(medicineTags: &medicineTags, tagToRemove: tag)
+        } label: {
+            HStack {
+                Text(tag.value)
+                
+                if (self.medicineTags.firstIndex { $0.equals(tag) } != nil) {
+                    Spacer()
+                    Image(systemName: "checkmark")
+                        .tint(.blue)
                 }
-            } else {
-                EmptyEntryView(text: newTagValue.isEmpty ? "No Other Tags Added" : "No Results Found")
             }
+        }
+        .tint(.primary)
+    }
+    
+    private func tagDoesNotExistInMedicineView(tag: Tag) -> some View {
+        Button {
+            addExistingTag(
+                allTagsState: &allTagsState,
+                medicineTags: &medicineTags,
+                tag: tag,
+                newTagValue: &newTagValue
+            )
+        } label: {
+            Text(tag.value)
+        }
+        .tint(.primary)
+    }
+    
+    private var confirmationToolbarItem: some View {
+        Button("Done") {
+            if (newTagValue.trimmedIsEmpty) {
+                handleSave(medicineTags: medicineTags)
+                dismiss()
+            } else {
+                showUnsavedChangesConfirmationDialog.toggle()
+            }
+        }
+        .confirmationDialog(
+            "You have some unsaved changes",
+            isPresented: $showUnsavedChangesConfirmationDialog,
+            titleVisibility: .visible
+        ) {
+            Button("Discard", role: .destructive) {
+                handleSave(medicineTags: medicineTags)
+                dismiss()
+            }
+        } message: {
+            Text("Are you sure you do not want to save \(newTagValue)?")
         }
     }
 }
 
 #Preview {
-    ManageMedicineTagsView()
-        .environment(MedicineViewModel())
+    NavigationStack {
+        ManageMedicineTagsView()
+            .modelContainer(PreviewData.container)
+            .environment(MedicineViewModel())
+    }
 }

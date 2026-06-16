@@ -9,69 +9,65 @@ import Foundation
 import SwiftUI
 
 extension ManageMedicineTagsView {
-    func handleOnAppear(otherTags: inout [Tag]) {
-        let medicineTagsSet = Set(self.medicineViewModel.medicine.tags.map { $0.value.lowercasedAndTrimmed })
-        otherTags = allTags.filter { !medicineTagsSet.contains($0.value.lowercasedAndTrimmed) }
-        self.allTagsState = allTags
-        self.medicineTags = self.medicineViewModel.medicine.tags
+    func handleOnAppear(
+        allTags: [Tag],
+        allTagsState: inout [Tag],
+        filteredTags: inout [Tag],
+        medicineTags: inout [Tag]
+    ) {
+        allTagsState = allTags
+        filteredTags = allTags
+        medicineTags = self.medicineViewModel.medicine.tags
     }
     
-    func add(newTagValue: inout String, tag: Tag, otherTags: inout [Tag]) {
-        withAnimation {
-            self.medicineTags.append(tag)
-            filterTags(newTagValue: &newTagValue, otherTags: &otherTags)
-        }
-    }
-    
-    func remove(newTagValue: inout String, tag: Tag, otherTags: inout [Tag]) {
-        withAnimation {
-            self.medicineTags.removeAll { $0.equals(tag) }
-            otherTags.append(tag)
-            filterTags(newTagValue: &newTagValue, otherTags: &otherTags)
-        }
-    }
-    
-    func addNewCustomTag(newTagValue: inout String, otherTags: inout [Tag]) {
-        let cleanedNewTagValue = newTagValue.trimmed
-        guard !cleanedNewTagValue.isEmpty else { return }
+    func addNewTag(
+        allTagsState: inout [Tag],
+        medicineTags: inout [Tag],
+        newTagValue: inout String
+    ) {
+        guard !newTagValue.trimmedIsEmpty else { return }
         
-        if let existingTag = allTags.first(where: { $0.value.localizedCaseInsensitiveCompare(cleanedNewTagValue) == .orderedSame }) {
-            if (!self.medicineTags.contains(existingTag)) {
-                add(newTagValue: &newTagValue, tag: existingTag, otherTags: &otherTags)
-            }
-        } else {
-            let newTag = Tag(value: cleanedNewTagValue)
-            self.allTagsState.append(newTag)
-            add(newTagValue: &newTagValue, tag: newTag, otherTags: &otherTags)
-        }
+        let trimmedNewTag = newTagValue.trimmed
+        let newTag = Tag(value: trimmedNewTag)
+
+        allTagsState.append(newTag)
+        medicineTags.append(newTag)
+        
+        allTagsState.sort { $0.value < $1.value }
         
         newTagValue = ""
     }
     
-    func filterTags(newTagValue: inout String, otherTags: inout [Tag]) {
-        let excludedTags = Set(self.medicineTags.map { $0.value.lowercasedAndTrimmed })
-        
+    func addExistingTag(
+        allTagsState: inout [Tag],
+        medicineTags: inout [Tag],
+        tag: Tag,
+        newTagValue: inout String
+    ) {
+        medicineTags.append(tag)
+        newTagValue = ""
+    }
+    
+    func removeTag(
+        medicineTags: inout [Tag],
+        tagToRemove: Tag
+    ) {
+        medicineTags.removeAll { $0.equals(tagToRemove) }
+    }
+    
+    func filterIn(
+        allTagsState: inout [Tag],
+        filteredTags: inout [Tag],
+        newTagValue: String
+    ) {
         if (newTagValue.trimmedIsEmpty) {
-            otherTags = allTags.filter { !excludedTags.contains($0.value.lowercasedAndTrimmed) }
+            filteredTags = allTagsState
         } else {
-            otherTags = allTags.filter { tag in
-                tag.value.localizedCaseInsensitiveContains(newTagValue.trimmed) &&
-                !excludedTags.contains(tag.value.lowercasedAndTrimmed)
-            }
+            filteredTags = allTagsState.filter { $0.value.localizedCaseInsensitiveContains(newTagValue) }
         }
     }
     
-    func disableAddButton(newTagValue: String) -> Bool {
-        let cleanedNewTagValue = newTagValue.lowercasedAndTrimmed
-        
-        let isTagPresent = self.medicineTags.contains { tag in
-            tag.value.localizedCaseInsensitiveCompare(cleanedNewTagValue) == .orderedSame
-        }
-        
-        return cleanedNewTagValue.isEmpty || isTagPresent
-    }
-    
-    func handleSave() {
-        self.medicineViewModel.medicine.tags = self.medicineTags
+    func handleSave(medicineTags: [Tag]) {
+        self.medicineViewModel.medicine.tags = medicineTags
     }
 }

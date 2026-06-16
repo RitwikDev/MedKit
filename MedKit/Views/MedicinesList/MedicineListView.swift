@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 
 struct MedicineListView: View {    
-    @Query var medicines: [MedicineModel]
+    @Query(sort: \MedicineModel.name) var medicines: [MedicineModel]
 
     @Environment(NavigationRouter.self) private var router    
     private let medicineViewModel = MedicineViewModel()
@@ -32,8 +32,10 @@ struct MedicineListView: View {
                 }
             }
             .listStyle(.plain)
-            .onAppear {
-                medicineViewModel.medicine = .init()
+            .onChange(of: router.path) { _, newValue in
+                if (newValue.count == 0) {
+                    medicineViewModel.medicine = .init()
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
