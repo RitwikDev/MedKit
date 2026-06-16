@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 
 enum NavigationPathEnum: Hashable {
+    case cameraAndImagePicker
     case medicineForm
     case addComposition
     case editComposition(for: Composition)
@@ -19,6 +20,8 @@ enum NavigationPathEnum: Hashable {
     @ViewBuilder
     var destination: some View {
         switch self {
+        case .cameraAndImagePicker:
+            CameraAndPhotoPickerView()
         case .medicineForm:
             MedicineFormView()
         case .addComposition:

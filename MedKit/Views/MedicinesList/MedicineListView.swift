@@ -11,7 +11,7 @@ import SwiftUI
 struct MedicineListView: View {    
     @Query var medicines: [MedicineModel]
 
-    @Environment(NavigationRouter.self) private var router
+    @Environment(NavigationRouter.self) private var router    
     private let medicineViewModel = MedicineViewModel()
     
     var body: some View {

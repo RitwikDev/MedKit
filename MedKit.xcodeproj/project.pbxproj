@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		362E637E2FB9525900CFB7AB /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 362E637D2FB9525100CFB7AB /* .gitignore */; };
+		BA8C15AA2FE0F1EF008F8A78 /* SimulatorCameraService in Frameworks */ = {isa = PBXBuildFile; productRef = BA8C15A92FE0F1EF008F8A78 /* SimulatorCameraService */; };
+		BA8C15AD2FE0F206008F8A78 /* DeviceCameraService in Frameworks */ = {isa = PBXBuildFile; productRef = BA8C15AC2FE0F206008F8A78 /* DeviceCameraService */; };
 		BA9586402FB957750095C2E2 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = BA95863F2FB957750095C2E2 /* FirebaseAILogic */; };
 		BA95866B2FB95CC80095C2E2 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = BA95866A2FB95CC80095C2E2 /* FirebaseAnalytics */; };
 /* End PBXBuildFile section */
@@ -17,9 +19,22 @@
 		362E637D2FB9525100CFB7AB /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		BAC82EDF2FDAF3C40016F60A /* Exceptions for "MedKit" folder in "MedKit" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 362E636B2FB94D5E00CFB7AB /* MedKit */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		362E636E2FB94D5E00CFB7AB /* MedKit */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				BAC82EDF2FDAF3C40016F60A /* Exceptions for "MedKit" folder in "MedKit" target */,
+			);
 			path = MedKit;
 			sourceTree = "<group>";
 		};
@@ -30,6 +45,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BA8C15AA2FE0F1EF008F8A78 /* SimulatorCameraService in Frameworks */,
+				BA8C15AD2FE0F206008F8A78 /* DeviceCameraService in Frameworks */,
 				BA95866B2FB95CC80095C2E2 /* FirebaseAnalytics in Frameworks */,
 				BA9586402FB957750095C2E2 /* FirebaseAILogic in Frameworks */,
 			);
@@ -85,6 +102,8 @@
 			packageProductDependencies = (
 				BA95863F2FB957750095C2E2 /* FirebaseAILogic */,
 				BA95866A2FB95CC80095C2E2 /* FirebaseAnalytics */,
+				BA8C15A92FE0F1EF008F8A78 /* SimulatorCameraService */,
+				BA8C15AC2FE0F206008F8A78 /* DeviceCameraService */,
 			);
 			productName = MedKit;
 			productReference = 362E636C2FB94D5E00CFB7AB /* MedKit.app */;
@@ -116,6 +135,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				BA95863E2FB957750095C2E2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				BA8C15A82FE0F1EF008F8A78 /* XCRemoteSwiftPackageReference "simulator-camera-service" */,
+				BA8C15AB2FE0F206008F8A78 /* XCRemoteSwiftPackageReference "device-camera-service" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 362E636D2FB94D5E00CFB7AB /* Products */;
@@ -283,7 +304,9 @@
 				DEVELOPMENT_TEAM = 4BKL74V4YU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MedKit/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is needed to take photos of medicine packages. The image will be analysed by AI to extract key product details.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -313,7 +336,9 @@
 				DEVELOPMENT_TEAM = 4BKL74V4YU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MedKit/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Camera access is needed to take photos of medicine packages. The image will be analysed by AI to extract key product details.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -356,6 +381,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		BA8C15A82FE0F1EF008F8A78 /* XCRemoteSwiftPackageReference "simulator-camera-service" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rishikdev/simulator-camera-service.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.1;
+			};
+		};
+		BA8C15AB2FE0F206008F8A78 /* XCRemoteSwiftPackageReference "device-camera-service" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/rishikdev/device-camera-service.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.1;
+			};
+		};
 		BA95863E2FB957750095C2E2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -367,6 +408,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		BA8C15A92FE0F1EF008F8A78 /* SimulatorCameraService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA8C15A82FE0F1EF008F8A78 /* XCRemoteSwiftPackageReference "simulator-camera-service" */;
+			productName = SimulatorCameraService;
+		};
+		BA8C15AC2FE0F206008F8A78 /* DeviceCameraService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA8C15AB2FE0F206008F8A78 /* XCRemoteSwiftPackageReference "device-camera-service" */;
+			productName = DeviceCameraService;
+		};
 		BA95863F2FB957750095C2E2 /* FirebaseAILogic */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BA95863E2FB957750095C2E2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

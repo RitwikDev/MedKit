@@ -11,7 +11,7 @@ import SwiftUI
 struct MedicineFormView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(MedicineViewModel.self) private var medicineViewModel
-    @Environment(\.dismiss) private var dismiss
+    @Environment(NavigationRouter.self) private var router
     
     var body: some View {
         @Bindable var bindableViewModel = medicineViewModel
@@ -41,7 +41,7 @@ struct MedicineFormView: View {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Save") {
                     saveOrUpdateMedicine(from: medicineViewModel.medicine, in: modelContext)
-                    dismiss()
+                    router.popToRoot()
                 }
                 .tint(.blue)
             }
