@@ -1,5 +1,5 @@
 //
-//  CompositionExtensions.swift
+//  IngredientExtensions.swift
 //  MedKit
 //
 //  Created by Ritwik Dev on 25/05/26.
@@ -7,8 +7,8 @@
 
 import Foundation
 
-extension Composition {
-    init(from model: CompositionModel) {
+extension Ingredient {
+    init(from model: IngredientModel) {
         self.id = UUID()
         self.persistentIdentifier = model.id
         self.name = model.name
@@ -24,23 +24,27 @@ extension Composition {
         }
     }
     
-    func isDuplicate(of other: Composition) -> Bool {
+    func isDuplicate(of other: Ingredient) -> Bool {
         return self.id != other.id
         && self.name == other.name
         && self.strengthAmount == other.strengthAmount
         && self.strengthUnit == other.strengthUnit
     }
     
-    func equalsId(_ otherComposition: Composition) -> Bool {
-        self.id == otherComposition.id
+    func equalsId(_ otherIngredient: Ingredient) -> Bool {
+        self.id == otherIngredient.id
     }
     
-    func equalsName(_ otherComposition: Composition) -> Bool {
-        self.name.lowercasedAndTrimmed == otherComposition.name.lowercasedAndTrimmed
+    func equalsPersistentId(_ otherIngredient: Ingredient) -> Bool {
+        self.persistentIdentifier == otherIngredient.persistentIdentifier
     }
     
-    func equalsFullName(_ otherComposition: Composition) -> Bool {
-        self.fullName.lowercasedAndTrimmed == otherComposition.fullName.lowercasedAndTrimmed
+    func equalsName(_ otherIngredient: Ingredient) -> Bool {
+        self.name.lowercasedAndTrimmed == otherIngredient.name.lowercasedAndTrimmed
+    }
+    
+    func equalsFullName(_ otherIngredient: Ingredient) -> Bool {
+        self.fullName.lowercasedAndTrimmed == otherIngredient.fullName.lowercasedAndTrimmed
     }
     
     func isValid() -> Bool {

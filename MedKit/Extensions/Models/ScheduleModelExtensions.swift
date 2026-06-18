@@ -14,7 +14,7 @@ extension ScheduleModel {
             endDate: schedule.endDate,
             reminderTimes: schedule.reminderTimes,
             repeatType: schedule.repeatType,
-            selectedDay: schedule.selectedDay,
+            selectedDays: schedule.selectedDays,
             selectedDates: schedule.selectedDates,
         )
     }

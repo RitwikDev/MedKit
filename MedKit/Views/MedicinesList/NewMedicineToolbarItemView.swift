@@ -31,5 +31,6 @@ struct NewMedicineToolbarItemView: View {
 
 #Preview {
     NewMedicineToolbarItemView()
+        .environment(MedicineViewModel())
         .environment(NavigationRouter())
 }

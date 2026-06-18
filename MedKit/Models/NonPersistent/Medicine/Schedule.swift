@@ -13,23 +13,23 @@ struct Schedule: Identifiable, Equatable, Hashable {
     var endDate: Date?
     var reminderTimes: [ReminderTime]
     var repeatType: RepeatType
-    var selectedDay: SelectedDay?
-    var selectedDates: Set<DateComponents>
+    var selectedDays: [Day]
+    var selectedDates: [DateComponents]
     
     init(id: UUID = UUID(),
          startDate: Date? = nil,
          endDate: Date? = nil,
          reminderTimes: [ReminderTime] = [],
          repeatType: RepeatType = .never,
-         selectedDay: SelectedDay? = nil,
-         selectedDates: Set<DateComponents> = []
+         selectedDays: [Day] = [],
+         selectedDates: [DateComponents] = []
     ) {
         self.id = id
         self.startDate = startDate
         self.endDate = endDate
         self.reminderTimes = reminderTimes
         self.repeatType = repeatType
-        self.selectedDay = selectedDay
+        self.selectedDays = selectedDays
         self.selectedDates = selectedDates
     }
 }
@@ -37,10 +37,7 @@ struct Schedule: Identifiable, Equatable, Hashable {
 enum RepeatType: String, CaseIterable, Identifiable, Codable {
     var id: Self { self }
     case never = "Never"
-    case daily = "Daily"
-    case weekdays = "Weekdays"
-    case weekends = "Weekends"
-    case weekly = "Weekly"
+    case selectDays = "Select Days"
     case fortnightly = "Fortnightly"
     case monthly = "Monthly"
     case quarterly = "Quarterly"
@@ -49,7 +46,7 @@ enum RepeatType: String, CaseIterable, Identifiable, Codable {
     case custom = "Custom"
 }
 
-enum SelectedDay: String, CaseIterable, Identifiable, Codable {
+enum Day: String, CaseIterable, Identifiable, Codable {
     var id: Self { self }
     case sunday = "Sunday"
     case monday = "Monday"

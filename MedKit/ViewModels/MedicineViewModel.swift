@@ -25,7 +25,7 @@ class MedicineViewModel {
             expiryDate: cMedicineModel.expiryDate,
             strengthAmount: cMedicineModel.strengthAmount,
             strengthUnit: cMedicineModel.strengthUnit,
-            composition: cMedicineModel.composition.map { Composition(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit) },
+            composition: cMedicineModel.composition.map { Ingredient(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit) },
         )
     }
 
@@ -43,34 +43,34 @@ class MedicineViewModel {
         medicine.quantity = quantity
     }
 
-    // MARK: - Composition Management
-    func upsertComposition(_ composition: Composition) {
-        if let index = medicine.composition.firstIndex(where: { $0.id == composition.id }) {
+    // MARK: - Ingredient Management
+    func upsertIngredient(_ ingredient: Ingredient) {
+        if let index = medicine.composition.firstIndex(where: { $0.id == ingredient.id }) {
             // Update existing
-            medicine.composition[index] = composition
+            medicine.composition[index] = ingredient
         } else {
             // Add new
-            medicine.composition.append(composition)
+            medicine.composition.append(ingredient)
         }
     }
     
-    func addCompositions(_ compositions: [Composition]) {
-        for (index, composition) in compositions.enumerated() {
-            let isPresent = medicine.composition.contains(where: { $0.equalsName(composition) })
+    func addComposition(_ composition: [Ingredient]) {
+        for (index, ingredient) in composition.enumerated() {
+            let isPresent = medicine.composition.contains(where: { $0.equalsName(ingredient) })
             if (isPresent) {
                 medicine.composition.remove(at: index)
             }
             
-            medicine.composition.append(composition)
+            medicine.composition.append(ingredient)
         }
     }
 
-    func removeComposition(at offsets: IndexSet) {
+    func removeIngredient(at offsets: IndexSet) {
         medicine.composition.remove(atOffsets: offsets)
     }
 
-    func removeComposition(_ composition: Composition) {
-        medicine.composition.removeAll { $0.id == composition.id }
+    func removeIngredient(_ ingredient: Ingredient) {
+        medicine.composition.removeAll { $0.id == ingredient.id }
     }
     
     func removeSchedule() {

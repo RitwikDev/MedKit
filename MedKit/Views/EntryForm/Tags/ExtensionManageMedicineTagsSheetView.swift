@@ -6,18 +6,18 @@
 //
 
 import Foundation
-import SwiftUI
 
 extension ManageMedicineTagsView {
     func handleOnAppear(
-        allTags: [Tag],
+        medicineViewModel: MedicineViewModel,
+        allTagModels: [TagModel],
         allTagsState: inout [Tag],
         filteredTags: inout [Tag],
         medicineTags: inout [Tag]
     ) {
-        allTagsState = allTags
-        filteredTags = allTags
-        medicineTags = self.medicineViewModel.medicine.tags
+        allTagsState = allTagModels.map { Tag(from: $0) }
+        filteredTags = allTagsState
+        medicineTags = medicineViewModel.medicine.tags
     }
     
     func addNewTag(
@@ -67,7 +67,12 @@ extension ManageMedicineTagsView {
         }
     }
     
-    func handleSave(medicineTags: [Tag]) {
-        self.medicineViewModel.medicine.tags = medicineTags
+    func handleSave(medicineViewModel: MedicineViewModel, medicineTags: [Tag]) {
+        medicineViewModel.medicine.tags = medicineTags
+    }
+    
+    func isAddButtonDisabled(allTagsState: [Tag], newTagValue: String) -> Bool {
+        allTagsState.first { $0.value.lowercasedAndTrimmed == newTagValue.lowercasedAndTrimmed } != nil
+        || newTagValue.trimmedIsEmpty
     }
 }

@@ -13,10 +13,10 @@ struct CodableMedicineModel: Codable {
     var expiryDate: Date?
     var strengthAmount: Float?
     var strengthUnit: String?
-    var composition: [CodableCompositionModel]
+    var composition: [CodableIngredientModel]
 }
 
-struct CodableCompositionModel: Codable {
+struct CodableIngredientModel: Codable {
     var name: String
     var strengthAmount: Float?
     var strengthUnit: String?

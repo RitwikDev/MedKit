@@ -8,13 +8,13 @@
 import SwiftUI
 
 struct OtherCompositionsSheetView: View {
-    @Binding var otherCompositions: [Composition]
-    @Binding var selectedComposition: Composition
+    @Binding var otherCompositions: [Ingredient]
+    @Binding var selectedComposition: Ingredient
     
     @Environment(\.dismiss) private var dismiss
     @State private var searchText: String = ""
     
-    private var searchResults: [Composition] {
+    private var searchResults: [Ingredient] {
         if (searchText.trimmedIsEmpty) {
             return otherCompositions
         } else {
@@ -30,7 +30,7 @@ struct OtherCompositionsSheetView: View {
                 } else {
                     ForEach(searchResults, id: \.self) { composition in
                         Button(composition.fullName) {
-                            selectedComposition = Composition(
+                            selectedComposition = Ingredient(
                                 name: composition.name,
                                 strengthAmount: composition.strengthAmount,
                                 strengthUnit: composition.strengthUnit

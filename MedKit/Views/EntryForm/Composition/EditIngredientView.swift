@@ -1,5 +1,5 @@
 //
-//  EditCompositionView.swift
+//  EditIngredientView.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 30/05/26.
@@ -7,34 +7,38 @@
 
 import SwiftUI
 
-struct EditCompositionView: View {
-    let composition: Composition
+struct EditIngredientView: View {
+    let ingredient: Ingredient
     
     @Environment(\.dismiss) private var dismiss
     @Environment(MedicineViewModel.self) private var medicineViewModel
-    @State private var draftComposition: Composition
+    @State private var draftComposition: Ingredient
     
-    init(composition: Composition) {
-        self.composition = composition
-        self._draftComposition = State(initialValue: composition)
+    init(ingredient: Ingredient) {
+        self.ingredient = ingredient
+        self._draftComposition = State(initialValue: ingredient)
     }
     
     var body: some View {
-        CompositionFormView(
-            composition: $draftComposition,
-            compositions: medicineViewModel.medicine.composition,
-            isInputDisabled: false
-        )
+        Form {
+            IngredientEntryView(
+                ingredient: $draftComposition,
+                composition: medicineViewModel.medicine.composition,
+                isInputDisabled: false
+            )
+        }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done") {
-                    medicineViewModel.upsertComposition(draftComposition)
+                    medicineViewModel.upsertIngredient(draftComposition)
                     dismiss()
                 }
                 .disabled(!isValid())
             }
         }
-        .navigationTitle("Edit \(composition.name)")
+        .scrollDismissesKeyboard(.interactively)
+        .navigationTitle("Edit \(ingredient.name)")
+        .navigationBarTitleDisplayMode(.inline)
     }
     
     private func isValid() -> Bool {
@@ -49,8 +53,8 @@ struct EditCompositionView: View {
 
 #Preview {
     NavigationStack {
-        EditCompositionView(
-            composition: Composition(
+        EditIngredientView(
+            ingredient: Ingredient(
                 name: "Composition Name",
                 strengthAmount: 500,
                 strengthUnit: "mcg"

@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Query private var tags: [TagModel]
-    @Query private var compositions: [CompositionModel]
+    @Query private var ingredients: [IngredientModel]
     @Environment(\.modelContext) private var modelContext
     @State private var enableNotifications: Bool = false
     
@@ -22,12 +22,12 @@ struct SettingsView: View {
                         Toggle("Enable Notifications", isOn: $enableNotifications)
                     }
                     
-                    Section("Compositions") {
-                        if (compositions.isEmpty) {
-                            EmptyEntryView(text: "No Compositions Added")
+                    Section("Ingredients") {
+                        if (ingredients.isEmpty) {
+                            EmptyEntryView(text: "No Ingrediets Added")
                         } else {
-                            ForEach(compositions) { composition in
-                                Text(composition.fullName)
+                            ForEach(ingredients) { ingredient in
+                                Text(ingredient.fullName)
                             }
                         }
                     }
@@ -51,8 +51,8 @@ struct SettingsView: View {
                             deleteAllData(from: modelContext, of: .medicines)
                         }
                         
-                        Button("Delete All Compositions", role: .destructive) {
-                            deleteAllData(from: modelContext, of: .compositions)
+                        Button("Delete All Ingredients", role: .destructive) {
+                            deleteAllData(from: modelContext, of: .ingredients)
                         }
 
                         Button("Delete All Tags", role: .destructive) {

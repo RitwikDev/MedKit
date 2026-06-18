@@ -176,5 +176,9 @@ extension CameraAndPhotoPickerView {
 }
 
 #Preview {
-    CameraAndPhotoPickerView()
+    NavigationStack {
+        CameraAndPhotoPickerView()
+            .environment(MedicineViewModel())
+            .environment(NavigationRouter())
+    }
 }

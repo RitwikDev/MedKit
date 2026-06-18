@@ -34,7 +34,9 @@ struct PhotoPreviewView: View {
         .disabled(shouldDisableView)
         .onChange(of: geminiManager.analysisStatus) { oldValue, newValue in
             switch newValue {
-            case .reset, .loading:
+            case .reset:
+                shouldDisableView = false
+            case .loading:
                 shouldDisableView = true
             case .success:
                 if let cMedicineModel = geminiManager.medicine {
@@ -48,7 +50,9 @@ struct PhotoPreviewView: View {
             }
         }
         .alert("Analysis failed", isPresented: $showAlert) {
-            Button("Dismiss") { geminiManager.analysisStatus = .reset }
+            Button("Dismiss") {
+                geminiManager.analysisStatus = .reset
+            }
         } message: {
             Text(geminiManager.errorMessage)
         }
@@ -61,8 +65,24 @@ struct PhotoPreviewView: View {
             }
             
             ToolbarItem(placement: .confirmationAction) {
-                Button("Analyse") {
-                    geminiManager.analyseImage(photo)
+                Menu {
+                    Button("Analyse") {
+                        geminiManager.analyseImage(photo)
+                    }
+                                        
+                    Menu {
+                        Button("Analyse") {
+                            geminiManager.analyseImage(photo, isMock: true)
+                        }
+                        
+                        Button("Fail") {
+                            geminiManager.analyseImage(photo, isMock: true, shouldFail: true)
+                        }
+                    } label: {
+                        Text("Mock")
+                    }
+                } label: {
+                    Label("Analysis Menu", systemImage: "ellipsis")
                 }
                 .disabled(shouldDisableView)
             }

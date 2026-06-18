@@ -14,22 +14,22 @@ class ScheduleModel {
     var endDate: Date?
     var reminderTimes: [ReminderTime]
     var repeatType: RepeatType
-    var selectedDay: SelectedDay?
-    var selectedDates: Set<DateComponents>
+    var selectedDays: [Day]
+    var selectedDates: [DateComponents]
     
     init(
          startDate: Date? = nil,
          endDate: Date? = nil,
          reminderTimes: [ReminderTime] = [],
          repeatType: RepeatType = .never,
-         selectedDay: SelectedDay? = nil,
-         selectedDates: Set<DateComponents> = []
+         selectedDays: [Day] = [],
+         selectedDates: [DateComponents] = []
     ) {
         self.startDate = startDate
         self.endDate = endDate
         self.reminderTimes = reminderTimes
         self.repeatType = repeatType
-        self.selectedDay = selectedDay
+        self.selectedDays = selectedDays
         self.selectedDates = selectedDates
     }
 }

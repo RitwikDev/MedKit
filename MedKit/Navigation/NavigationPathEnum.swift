@@ -11,8 +11,8 @@ import SwiftUI
 enum NavigationPathEnum: Hashable {
     case cameraAndImagePicker
     case medicineForm
-    case addComposition
-    case editComposition(for: Composition)
+    case addIngredient
+    case editIngredient(for: Ingredient)
     case medicineSchedule(for: Schedule)
     case manageMedicineTags
     case addCustomFields
@@ -24,10 +24,10 @@ enum NavigationPathEnum: Hashable {
             CameraAndPhotoPickerView()
         case .medicineForm:
             MedicineFormView()
-        case .addComposition:
-            AddCompositionView()
-        case .editComposition(let composition):
-            EditCompositionView(composition: composition)
+        case .addIngredient:
+            AddIngredientView()
+        case .editIngredient(let ingredient):
+            EditIngredientView(ingredient: ingredient)
         case .medicineSchedule(let schedule):
             ScheduleView(schedule: schedule)
         case .manageMedicineTags:

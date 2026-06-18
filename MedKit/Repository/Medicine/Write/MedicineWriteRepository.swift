@@ -71,14 +71,14 @@ class MedicineWriteRepository
     }
     
     private func applyComposition(from medicineStruct: Medicine, to medicineModel: MedicineModel) -> Void {
-        for composition in medicineModel.composition {
-            self.modelContext.delete(composition)
+        for ingredient in medicineModel.composition {
+            self.modelContext.delete(ingredient)
         }
         medicineModel.composition.removeAll()
         
-        // Insert updated child compositions from the UI struct
+        // Insert updated child ingredients from the UI struct
         medicineModel.composition = medicineStruct.composition.map {
-            CompositionModel(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit)
+            IngredientModel(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit)
         }
     }
     

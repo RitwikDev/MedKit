@@ -12,7 +12,7 @@ struct MedicineListView: View {
     @Query(sort: \MedicineModel.name) var medicines: [MedicineModel]
 
     @Environment(NavigationRouter.self) private var router    
-    private let medicineViewModel = MedicineViewModel()
+    @State private var medicineViewModel = MedicineViewModel()
     
     var body: some View {
         @Bindable var router = router

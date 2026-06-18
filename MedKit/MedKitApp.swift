@@ -28,7 +28,7 @@ struct MedKitApp: App {
         }
         .modelContainer(for: [
             MedicineModel.self,
-            CompositionModel.self,
+            IngredientModel.self,
             ScheduleModel.self,
             TagModel.self,
             CustomFieldModel.self,

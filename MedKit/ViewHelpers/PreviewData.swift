@@ -23,8 +23,8 @@ public struct PreviewData {
             // 1. Basic Painkiller
             MedicineModel(
                 name: "Paracetamol", quantity: 50, expiryDate: Calendar.current.date(byAdding: .year, value: 1, to: .now), strengthAmount: 500, strengthUnit: "mg",
-                composition: [CompositionModel(name: "Acetaminophen", strengthAmount: 500, strengthUnit: "mg")],
-                schedule: ScheduleModel(startDate: .now, reminderTimes: [ReminderTime(time: .now)], repeatType: .daily),
+                composition: [IngredientModel(name: "Acetaminophen", strengthAmount: 500, strengthUnit: "mg")],
+                schedule: ScheduleModel(startDate: .now, reminderTimes: [ReminderTime(time: .now)], repeatType: .selectDays, selectedDays: [.monday, .wednesday]),
                 tags: [TagModel(value: "Pain Relief"), TagModel(value: "Fever")],
                 customFields: [
                     CustomFieldValueModel(textValue: "Johnson & Johnson", definition: manufacturerField),
@@ -35,8 +35,8 @@ public struct PreviewData {
             // 2. Antibiotic
             MedicineModel(
                 name: "Amoxicillin", quantity: 21, expiryDate: Calendar.current.date(byAdding: .month, value: 6, to: .now), strengthAmount: 250, strengthUnit: "mg",
-                composition: [CompositionModel(name: "Amoxicillin trihydrate", strengthAmount: 250, strengthUnit: "mg")],
-                schedule: ScheduleModel(startDate: .now, endDate: Calendar.current.date(byAdding: .day, value: 7, to: .now), reminderTimes: [ReminderTime(time: .now)], repeatType: .daily),
+                composition: [IngredientModel(name: "Amoxicillin trihydrate", strengthAmount: 250, strengthUnit: "mg")],
+                schedule: ScheduleModel(startDate: .now, endDate: Calendar.current.date(byAdding: .day, value: 7, to: .now), reminderTimes: [ReminderTime(time: .now)], repeatType: .fortnightly),
                 tags: [TagModel(value: "Antibiotic"), TagModel(value: "Prescription")],
                 customFields: [CustomFieldValueModel(textListValue: ["Nausea", "Dizziness"], definition: sideEffectsField)]
             ),
@@ -44,8 +44,8 @@ public struct PreviewData {
             // 3. Daily Vitamin
             MedicineModel(
                 name: "Multivitamin Plus", quantity: 120,
-                composition: [CompositionModel(name: "Vitamin C", strengthAmount: 100, strengthUnit: "mg"), CompositionModel(name: "Vitamin D3", strengthAmount: 1000, strengthUnit: "IU")],
-                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .daily),
+                composition: [IngredientModel(name: "Vitamin C", strengthAmount: 100, strengthUnit: "mg"), IngredientModel(name: "Vitamin D3", strengthAmount: 1000, strengthUnit: "IU")],
+                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .monthly, selectedDates: [DateComponents(day: 5)]),
                 tags: [TagModel(value: "Supplement"), TagModel(value: "Morning")],
                 customFields: [CustomFieldValueModel(dateValue: Calendar.current.date(byAdding: .day, value: -10, to: .now), definition: openedDateField)]
             ),
@@ -53,38 +53,38 @@ public struct PreviewData {
             // 4. Allergy Medication (As needed)
             MedicineModel(
                 name: "Cetirizine", quantity: 30, strengthAmount: 10, strengthUnit: "mg",
-                composition: [CompositionModel(name: "Cetirizine Hydrochloride", strengthAmount: 10, strengthUnit: "mg")],
+                composition: [IngredientModel(name: "Cetirizine Hydrochloride", strengthAmount: 10, strengthUnit: "mg")],
                 tags: [TagModel(value: "Allergy"), TagModel(value: "Antihistamine")]
             ),
             
             // 5. Weekly Injection
             MedicineModel(
                 name: "Ozempic", quantity: 4, strengthAmount: 2, strengthUnit: "mg/1.5mL",
-                composition: [CompositionModel(name: "Semaglutide", strengthAmount: 2, strengthUnit: "mg")],
-                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .weekly, selectedDay: .sunday),
+                composition: [IngredientModel(name: "Semaglutide", strengthAmount: 2, strengthUnit: "mg")],
+                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .selectDays, selectedDays: [.sunday, .monday, .tuesday, .wednesday, .thursday, .friday, .saturday]),
                 tags: [TagModel(value: "Diabetes"), TagModel(value: "Injection")]
             ),
             
             // 6. Blood Pressure
             MedicineModel(
                 name: "Lisinopril", quantity: 90, strengthAmount: 10, strengthUnit: "mg",
-                composition: [CompositionModel(name: "Lisinopril", strengthAmount: 10, strengthUnit: "mg")],
-                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .daily),
+                composition: [IngredientModel(name: "Lisinopril", strengthAmount: 10, strengthUnit: "mg")],
+                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .quarterly),
                 tags: [TagModel(value: "Heart"), TagModel(value: "Blood Pressure")]
             ),
             
             // 7. Cholesterol
             MedicineModel(
                 name: "Atorvastatin", quantity: 60, strengthAmount: 40, strengthUnit: "mg",
-                composition: [CompositionModel(name: "Atorvastatin Calcium", strengthAmount: 40, strengthUnit: "mg")],
-                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .daily),
+                composition: [IngredientModel(name: "Atorvastatin Calcium", strengthAmount: 40, strengthUnit: "mg")],
+                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .annually, selectedDates: [DateComponents(month: 10, day: 20)]),
                 tags: [TagModel(value: "Cholesterol")]
             ),
             
             // 8. Asthma Inhaler
             MedicineModel(
                 name: "Albuterol Inhaler", quantity: 200, strengthAmount: 90, strengthUnit: "mcg/actuation",
-                composition: [CompositionModel(name: "Albuterol Sulfate", strengthAmount: 90, strengthUnit: "mcg")],
+                composition: [IngredientModel(name: "Albuterol Sulfate", strengthAmount: 90, strengthUnit: "mcg")],
                 tags: [TagModel(value: "Asthma"), TagModel(value: "Rescue Inhaler")],
                 customFields: [CustomFieldValueModel(dateValue: .now, definition: openedDateField)]
             ),
@@ -92,7 +92,7 @@ public struct PreviewData {
             // 9. Bi-annual Treatment
             MedicineModel(
                 name: "Prolia", quantity: 1, strengthAmount: 60, strengthUnit: "mg",
-                composition: [CompositionModel(name: "Denosumab", strengthAmount: 60, strengthUnit: "mg")],
+                composition: [IngredientModel(name: "Denosumab", strengthAmount: 60, strengthUnit: "mg")],
                 schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .biannually),
                 tags: [TagModel(value: "Bone Health")]
             ),
@@ -100,38 +100,38 @@ public struct PreviewData {
             // 10. Migraine Medication
             MedicineModel(
                 name: "Sumatriptan", quantity: 9, strengthAmount: 50, strengthUnit: "mg",
-                composition: [CompositionModel(name: "Sumatriptan Succinate", strengthAmount: 50, strengthUnit: "mg")],
+                composition: [IngredientModel(name: "Sumatriptan Succinate", strengthAmount: 50, strengthUnit: "mg")],
                 tags: [TagModel(value: "Migraine"), TagModel(value: "As Needed")]
             ),
             
             // 11. Acid Reflux
             MedicineModel(
                 name: "Omeprazole", quantity: 42, strengthAmount: 20, strengthUnit: "mg",
-                composition: [CompositionModel(name: "Omeprazole", strengthAmount: 20, strengthUnit: "mg")],
-                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .daily),
+                composition: [IngredientModel(name: "Omeprazole", strengthAmount: 20, strengthUnit: "mg")],
+                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .never),
                 tags: [TagModel(value: "Stomach")]
             ),
             
             // 12. Thyroid Medication
             MedicineModel(
                 name: "Levothyroxine", quantity: 30, strengthAmount: 50, strengthUnit: "mcg",
-                composition: [CompositionModel(name: "Levothyroxine Sodium", strengthAmount: 50, strengthUnit: "mcg")],
-                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .daily),
+                composition: [IngredientModel(name: "Levothyroxine Sodium", strengthAmount: 50, strengthUnit: "mcg")],
+                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .custom, selectedDates: [DateComponents(day: 2), DateComponents(day: 22)]),
                 tags: [TagModel(value: "Thyroid")]
             ),
             
             // 13. Sleep Aid
             MedicineModel(
                 name: "Melatonin", quantity: 100, strengthAmount: 5, strengthUnit: "mg",
-                composition: [CompositionModel(name: "Melatonin", strengthAmount: 5, strengthUnit: "mg")],
-                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .daily),
+                composition: [IngredientModel(name: "Melatonin", strengthAmount: 5, strengthUnit: "mg")],
+                schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .fortnightly),
                 tags: [TagModel(value: "Sleep")]
             ),
             
             // 14. Monthly Preventative
             MedicineModel(
                 name: "Heartworm Preventative", quantity: 6,
-                composition: [CompositionModel(name: "Ivermectin", strengthAmount: 68, strengthUnit: "mcg")],
+                composition: [IngredientModel(name: "Ivermectin", strengthAmount: 68, strengthUnit: "mcg")],
                 schedule: ScheduleModel(reminderTimes: [ReminderTime(time: .now)], repeatType: .monthly),
                 tags: [TagModel(value: "Pet")]
             ),
@@ -166,8 +166,8 @@ public struct PreviewData {
             
             // Map Tags
             let tags = model.tags.map { Tag(persistentIdentifier: $0.persistentModelID, value: $0.value) }
-            // Map Compositions (Using your existing Composition(from:) extension)
-            let comps = model.composition.map { Composition(from: $0) }
+            // Map Ingredients (Using your existing Ingredients(from:) extension)
+            let ingredients = model.composition.map { Ingredient(from: $0) }
             // Map Custom Fields (Using your existing CustomFieldValue(from:) extension)
             let fields = model.customFields.map { CustomFieldValue(from: $0) }
             
@@ -177,7 +177,7 @@ public struct PreviewData {
                 scheduleStruct = Schedule(
                     startDate: schedModel.startDate, endDate: schedModel.endDate,
                     reminderTimes: schedModel.reminderTimes, repeatType: schedModel.repeatType,
-                    selectedDay: schedModel.selectedDay, selectedDates: schedModel.selectedDates
+                    selectedDays: schedModel.selectedDays, selectedDates: schedModel.selectedDates
                 )
             }
             
@@ -190,7 +190,7 @@ public struct PreviewData {
                 expiryDate: model.expiryDate,
                 strengthAmount: model.strengthAmount,
                 strengthUnit: model.strengthUnit,
-                composition: comps,
+                composition: ingredients,
                 schedule: scheduleStruct,
                 tags: tags,
                 customFields: fields

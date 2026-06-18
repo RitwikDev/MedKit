@@ -22,7 +22,7 @@ struct Medicine: Identifiable, Equatable, Hashable {
     var strengthAmount: Float?
     var strengthUnit: String?
     
-    var composition: [Composition]
+    var composition: [Ingredient]
     var schedule: Schedule?
     var tags: [Tag]
     var customFields: [CustomFieldValue]
@@ -36,7 +36,7 @@ struct Medicine: Identifiable, Equatable, Hashable {
         expiryDate: Date? = nil,
         strengthAmount: Float? = nil,
         strengthUnit: String? = nil,
-        composition: [Composition] = [],
+        composition: [Ingredient] = [],
         schedule: Schedule? = nil,
         tags: [Tag] = [],
         customFields: [CustomFieldValue] = [],

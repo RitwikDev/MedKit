@@ -14,7 +14,7 @@ extension Schedule {
         self.endDate = model.endDate
         self.reminderTimes = model.reminderTimes
         self.repeatType = model.repeatType
-        self.selectedDay = model.selectedDay
+        self.selectedDays = model.selectedDays
         self.selectedDates = model.selectedDates
     }
 }

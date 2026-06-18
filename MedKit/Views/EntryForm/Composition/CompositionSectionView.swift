@@ -13,16 +13,16 @@ struct CompositionSectionView: View {
     
     var body: some View {
         Section("Composition") {
-            ForEach(medicineViewModel.medicine.composition) { composition in
-                Button(composition.fullName) {
-                    router.navigate(to: .editComposition(for: composition))
+            ForEach(medicineViewModel.medicine.composition) { ingredient in
+                Button(ingredient.fullName) {
+                    router.navigate(to: .editIngredient(for: ingredient))
                 }
                 .foregroundStyle(.primary)
             }
-            .onDelete(perform: medicineViewModel.removeComposition)
+            .onDelete(perform: medicineViewModel.removeIngredient)
             
-            Button("Add Composition") {
-                router.navigate(to: .addComposition)
+            Button("Add Ingredient") {
+                router.navigate(to: .addIngredient)
             }
         }
     }
