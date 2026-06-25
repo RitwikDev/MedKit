@@ -5,38 +5,31 @@
 //  Created by Rishik Dev on 30/05/26.
 //
 
+import SwiftUI
 
-import Foundation
-import Observation
-
+/// Powers the medicine creation and editing form.
+/// Acts as a temporary scratchpad until the user taps "Save".
 @Observable
-class MedicineViewModel {
-    // The source of truth for the form/view
+class MedicineEditorViewModel {
+    
+    /// The temporary draft being edited on screen.
     var medicine: Medicine
+    var errorMessage: String?
 
+    /// Initialiwes the editor. Pass an existing medicine to edit, or nil to create a new one.
     init(medicine: Medicine = .init()) {
         self.medicine = medicine
     }
-    
-    func getMedicineFromCodableMedicineModel(cMedicineModel: CodableMedicineModel) {
-        self.medicine = Medicine(
-            name: cMedicineModel.name,
-            manufacturedDate: cMedicineModel.manufacturedDate,
-            expiryDate: cMedicineModel.expiryDate,
-            strengthAmount: cMedicineModel.strengthAmount,
-            strengthUnit: cMedicineModel.strengthUnit,
-            composition: cMedicineModel.composition.map { Ingredient(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit) },
-        )
-    }
 
     // MARK: - Basic Info
+    
     func updateName(_ name: String) {
-        medicine.name = name.trimmed
+        medicine.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     func updateStrength(amount: Float?, unit: String?) {
         medicine.strengthAmount = amount
-        medicine.strengthUnit = unit?.trimmed
+        medicine.strengthUnit = unit?.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     func updateQuantity(_ quantity: Float) {
@@ -44,6 +37,7 @@ class MedicineViewModel {
     }
 
     // MARK: - Ingredient Management
+    
     func upsertIngredient(_ ingredient: Ingredient) {
         if let index = medicine.composition.firstIndex(where: { $0.id == ingredient.id }) {
             // Update existing
@@ -55,12 +49,11 @@ class MedicineViewModel {
     }
     
     func addComposition(_ composition: [Ingredient]) {
-        for (index, ingredient) in composition.enumerated() {
-            let isPresent = medicine.composition.contains(where: { $0.equalsName(ingredient) })
-            if (isPresent) {
+        for ingredient in composition {
+            // Replaced equalsName with direct name comparison based on the struct properties
+            if let index = medicine.composition.firstIndex(where: { $0.name == ingredient.name }) {
                 medicine.composition.remove(at: index)
             }
-            
             medicine.composition.append(ingredient)
         }
     }
@@ -73,13 +66,16 @@ class MedicineViewModel {
         medicine.composition.removeAll { $0.id == ingredient.id }
     }
     
+    // MARK: - Schedule Management
+    
     func removeSchedule() {
         medicine.schedule = nil
     }
 
     // MARK: - Tag Management
+    
     func addTag(_ tag: Tag) {
-        let trimmedValue = tag.value.trimmed
+        let trimmedValue = tag.value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedValue.isEmpty else { return }
         
         // Prevent duplicates in the UI state
@@ -99,12 +95,14 @@ class MedicineViewModel {
     }
 
     // MARK: - Dates
+    
     func updateDates(manufactured: Date?, expiry: Date?) {
         medicine.manufacturedDate = manufactured
         medicine.expiryDate = expiry
     }
     
-    // MARK: - Custom fields
+    // MARK: - Custom Fields
+    
     func addCustomField(_ customField: CustomFieldValue) {
         medicine.customFields.append(customField)
     }
@@ -129,5 +127,21 @@ class MedicineViewModel {
         updatedList.remove(atOffsets: indexSet)
         
         medicine.customFields[fieldIndex].listValue = updatedList
+    }
+    
+    // MARK: - Database Handoff
+    
+    /// Validates the draft and hands the finalised pure struct to the Manager for database persistence.
+    func saveToDatabase() {
+        guard !medicine.name.isEmpty else {
+            errorMessage = "Name cannot be empty"
+            return
+        }
+        
+        do {
+            try MedicineManager.shared.save(medicine)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }

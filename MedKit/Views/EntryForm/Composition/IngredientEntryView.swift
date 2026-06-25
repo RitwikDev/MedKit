@@ -2,55 +2,77 @@
 //  IngredientEntryView.swift
 //  MedKit
 //
-//  Created by Rishik Dev on 31/05/26.
+//  Created by Rishik Dev on 30/05/26.
 //
 
 import SwiftUI
 
 struct IngredientEntryView: View {
-    @Binding var ingredient: Ingredient
-    let composition: [Ingredient]
-    let isInputDisabled: Bool
+    let ingredient: Ingredient
     
-    var body: some View {
-        Group {
-            Section(content: {
-                TextField("Name", text: $ingredient.name)
-            }, header: {
-                Text("Name")
-            }, footer: {
-                if (isDuplicate) {
-                    Text("Ingredient already exists")
-                        .foregroundStyle(.red)
-                }
-            })
-            .disabled(isInputDisabled)
-            
-            StrengthSectionView(
-                strengthAmount: $ingredient.strengthAmount,
-                strengthUnit: $ingredient.strengthUnit
-            )
-            .disabled(isInputDisabled)
-        }
-        .scrollDismissesKeyboard(.interactively)
+    @Environment(\.dismiss) private var dismiss
+    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
+    @State private var draftIngredient: Ingredient
+    
+    init(ingredient: Ingredient) {
+        self.ingredient = ingredient
+        self._draftIngredient = State(initialValue: ingredient)
     }
     
-    private var isDuplicate: Bool {
-        composition.contains(where: { $0.id != ingredient.id && $0.equalsName(ingredient) })
+    private var isIngredientAlreadyPresent: Bool {
+        for medicineIngredient in medicineEditorViewModel.medicine.composition {
+            if (draftIngredient.isDuplicate(of: medicineIngredient)) {
+                return true
+            }
+        }
+        return false
+    }
+    
+    var body: some View {
+        Form {
+            Section("Name") {
+                TextField("Name", text: $draftIngredient.name)
+            }
+            
+            StrengthSectionView(
+                strengthAmount: $draftIngredient.strengthAmount,
+                strengthUnit: $draftIngredient.strengthUnit,
+                textColour: draftIngredient.name.trimmedIsEmpty ? .secondary : .primary
+            )
+            .disabled(draftIngredient.name.trimmedIsEmpty)
+            
+            if (isIngredientAlreadyPresent) {
+                Text("This medicine already contains \(draftIngredient.fullName)")
+                    .listRowBackground(Color.clear)
+                    .foregroundStyle(.red)
+                    .font(.footnote)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Done") {
+                    medicineEditorViewModel.upsertIngredient(draftIngredient)
+                    dismiss()
+                }
+                .disabled(!draftIngredient.isValid() || isIngredientAlreadyPresent)
+            }
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .navigationTitle(ingredient.name.trimmedIsEmpty ? "New Ingredient" : "Edit \(ingredient.name)")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    Form {
+    NavigationStack {
         IngredientEntryView(
-            ingredient: .constant(Ingredient(
-                name: "Ingredient Name",
+            ingredient: Ingredient(
+                name: "Composition Name",
                 strengthAmount: 500,
                 strengthUnit: "mcg"
-            )),
-            composition: [],
-            isInputDisabled: false
+            )
         )
     }
-    .environment(MedicineViewModel())
+    .environment(GlobalDataViewModel())
+    .environment(MedicineEditorViewModel())
 }
