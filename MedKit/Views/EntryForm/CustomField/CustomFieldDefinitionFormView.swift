@@ -9,17 +9,19 @@ import SwiftData
 import SwiftUI
 
 struct CustomFieldDefinitionFormView: View {
-    @Query var customFields: [CustomFieldModel]
-    
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
-    @State private var customFieldRepository: CustomFieldWriteRepository?
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     
     @Binding var customField: CustomField
     
     @State private var label: String = ""
     @State private var type: CustomFieldDataType = .text
     @State private var error: String? = nil
+    
+    private var customFields: [CustomField] {
+        globalDataViewModel.allCustomFields
+    }
     
     var body: some View {
         NavigationStack {
@@ -63,43 +65,23 @@ struct CustomFieldDefinitionFormView: View {
                     .disabled(self.label.trimmedIsEmpty)
                 }
             }
+            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("Create Field")
             .navigationBarTitleDisplayMode(.inline)
-            .onAppear {
-                if self.customFieldRepository == nil {
-                    self.customFieldRepository = CustomFieldWriteRepository(modelContext: self.context)
-                }
-            }
         }
     }
     
     private func saveCustomField() -> Void {
         for customField in self.customFields {
-            if customField.label.trimmedLocalisedEquals(self.label) {
+            if customField.label.trimmedLocalizedCaseInsensitiveEquals(self.label) {
                 self.error = "Another field with the same label already exists"
                 return
             }
         }
         
-        do {
-            guard let customFieldModel = try self.customFieldRepository?.save(
-                field: CustomField(
-                    label: self.label.trimmed,
-                    dataType: self.type,
-                )
-            ) else {
-                print("Failed to save custom field")
-                return
-            }
-            
-            self.customField = CustomField(
-                persistentIdentifier: customFieldModel.id,
-                label: customFieldModel.label,
-                dataType: customFieldModel.dataType,
-            )
-        } catch {
-            print("Failed to save custom field: \(error.localizedDescription)")
-        }
+        let newCustomField = CustomField(label: label.trimmed, dataType: type)
+        globalDataViewModel.allCustomFields.append(newCustomField)
+        customField = newCustomField
         
         dismiss()
     }
@@ -110,5 +92,6 @@ struct CustomFieldDefinitionFormView: View {
         CustomFieldDefinitionFormView(
             customField: .constant(.init())
         )
+        .environment(GlobalDataViewModel())
     }
 }

@@ -5,6 +5,7 @@
 //  Created by Ritwik Dev on 17/05/26.
 //
 
+/*
 import Foundation
 import SwiftData
 
@@ -17,8 +18,8 @@ class MedicineModel {
     var strengthAmount: Float?
     var strengthUnit: String?
     
-    @Relationship(deleteRule: .cascade, inverse: \CompositionModel.medicine)
-    var composition: [CompositionModel] = []
+    @Relationship(deleteRule: .cascade, inverse: \IngredientModel.medicine)
+    var composition: [IngredientModel] = []
     
     var schedule: ScheduleModel?
     
@@ -35,7 +36,7 @@ class MedicineModel {
         expiryDate: Date? = nil,
         strengthAmount: Float? = nil,
         strengthUnit: String? = nil,
-        composition: [CompositionModel] = [],
+        composition: [IngredientModel] = [],
         schedule: ScheduleModel? = nil,
         tags: [TagModel] = [],
         customFields: [CustomFieldValueModel] = [],
@@ -70,3 +71,4 @@ class MedicineModel {
         )
     }
 }
+*/

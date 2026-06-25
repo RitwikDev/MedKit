@@ -17,7 +17,7 @@ struct PhotoPreviewView: View {
     let photo: UIImage
     let dismissButtonAction: () -> Void
     
-    @Environment(MedicineViewModel.self) private var medicineViewModel
+    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     @Environment(NavigationRouter.self) private var router
     @State private var geminiManager: GeminiManager = .init()
     @State private var shouldDisableView: Bool = false
@@ -26,19 +26,21 @@ struct PhotoPreviewView: View {
     var body: some View {
         ZStack {
             ZoomablePhotoView(photo: photo)
-                .disabled(shouldDisableView)
              
             if (geminiManager.analysisStatus == .loading) {
                 loadingView
             }
         }
+        .disabled(shouldDisableView)
         .onChange(of: geminiManager.analysisStatus) { oldValue, newValue in
             switch newValue {
-            case .reset, .loading:
+            case .reset:
+                shouldDisableView = false
+            case .loading:
                 shouldDisableView = true
             case .success:
                 if let cMedicineModel = geminiManager.medicine {
-                    medicineViewModel.getMedicineFromCodableMedicineModel(cMedicineModel: cMedicineModel)
+                    medicineEditorViewModel.getMedicineFromCodableMedicineModel(cMedicineModel: cMedicineModel)
                     geminiManager.analysisStatus = .reset
                     dismissButtonAction()
                     router.navigate(to: .medicineForm)
@@ -48,7 +50,9 @@ struct PhotoPreviewView: View {
             }
         }
         .alert("Analysis failed", isPresented: $showAlert) {
-            Button("Dismiss") { geminiManager.analysisStatus = .reset }
+            Button("Dismiss") {
+                geminiManager.analysisStatus = .reset
+            }
         } message: {
             Text(geminiManager.errorMessage)
         }
@@ -57,12 +61,30 @@ struct PhotoPreviewView: View {
                 Button(action: dismissButtonAction) {
                     Label("Cancel", systemImage: "xmark")
                 }
+                .disabled(shouldDisableView)
             }
             
             ToolbarItem(placement: .confirmationAction) {
-                Button("Analyse") {
-                    geminiManager.analyseImage(photo)
+                Menu {
+                    Button("Analyse") {
+                        geminiManager.analyseImage(photo)
+                    }
+                                        
+                    Menu {
+                        Button("Analyse") {
+                            geminiManager.analyseImage(photo, isMock: true)
+                        }
+                        
+                        Button("Fail") {
+                            geminiManager.analyseImage(photo, isMock: true, shouldFail: true)
+                        }
+                    } label: {
+                        Text("Mock")
+                    }
+                } label: {
+                    Label("Analysis Menu", systemImage: "ellipsis")
                 }
+                .disabled(shouldDisableView)
             }
         }
         .onAppear {
@@ -92,7 +114,7 @@ struct PhotoPreviewView: View {
         ) {
             print("Dismiss")
         }
-        .environment(MedicineViewModel())
+        .environment(MedicineEditorViewModel())
         .environment(NavigationRouter())
     }
 }

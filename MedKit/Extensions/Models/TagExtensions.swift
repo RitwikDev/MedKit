@@ -8,13 +8,8 @@
 import Foundation
 
 extension Tag {
-    init(from model: TagModel) {
-        self.id = UUID()
-        self.persistentIdentifier = model.id
-        self.value = model.value
-    }
-    
-    func equals(_ otherTag: Tag) -> Bool {
-        return self.value == otherTag.value
+    func isDuplicate(of other: Tag) -> Bool {
+        return self.id != other.id
+        && self.value.trimmedLocalizedCaseInsensitiveEquals(other.value)
     }
 }

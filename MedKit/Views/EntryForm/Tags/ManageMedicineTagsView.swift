@@ -9,145 +9,126 @@ import SwiftData
 import SwiftUI
 
 struct ManageMedicineTagsView: View {
-    @Query private var allTagModels: [TagModel]
-    
-    var allTags: [Tag] {
-        allTagModels.map { Tag(from: $0) }
-    }
-    
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(MedicineViewModel.self) var medicineViewModel
+    @Environment(GlobalDataViewModel.self) var globalDataViewModel
+    @Environment(MedicineEditorViewModel.self) var medicineEditorViewModel
     
-    @State var allTagsState: [Tag] = []
-    @State var medicineTags: [Tag] = []
-    @State private var otherTags: [Tag] = []
+    @State private var filteredTags: [Tag] = []
+    @State private var medicineTags: Set<Tag> = []
     @State private var newTagValue: String = ""
-    @State private var showUnsavedChangesConfirmationDialog: Bool = false
     
-    private var dynamicHeight: CGFloat {
-        switch dynamicTypeSize {
-        case .xSmall, .small, .medium, .large:
-            return 200
-        case .xLarge, .xxLarge, .xxxLarge:
-            return 225
-        case .accessibility1:
-            return 235
-        case .accessibility2:
-            return 260
-        case .accessibility3:
-            return 285
-        case .accessibility4:
-            return 325
-        case .accessibility5:
-            return 345
-        @unknown default:
-            return 200
-        }
+    private var isDoneButtonDisabled: Bool {
+        globalDataViewModel.allTags.first { $0.value.trimmedLocalizedCaseInsensitiveEquals(newTagValue) } != nil
     }
     
     var body: some View {
-        VStack(spacing: 0) {
-            Form {
-                addTagView
-            }
-            .frame(maxHeight: dynamicHeight)
-            .scrollDisabled(true)
-            
-            Form {
-                currentTagsView
-                otherTagsView
-            }
+        Form {
+            tagTextFieldView
+            allTagsView
         }
-        .onAppear{ handleOnAppear(otherTags: &otherTags) }
+        .onAppear {
+            handleOnAppear(
+                globalDataViewModel: globalDataViewModel,
+                medicineEditorViewModel: medicineEditorViewModel,
+                filteredTags: &filteredTags,
+                medicineTags: &medicineTags
+            )
+        }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Done") {
-                    if (newTagValue.trimmedIsEmpty) {
-                        handleSave()
-                        dismiss()
-                    } else {
-                        showUnsavedChangesConfirmationDialog.toggle()
-                    }
-                }
-                .confirmationDialog(
-                    "You have some unsaved changes",
-                    isPresented: $showUnsavedChangesConfirmationDialog,
-                    titleVisibility: .visible
-                ) {
-                    Button("Discard", role: .destructive) {
-                        handleSave()
-                        dismiss()
-                    }
-                } message: {
-                    Text("Are you sure you do not want to save \(newTagValue)?")
-                }
+                confirmationToolbarItem
             }
         }
+        .scrollDismissesKeyboard(.interactively)
         .navigationTitle("Manage Tags")
+        .navigationBarTitleDisplayMode(.inline)
     }
     
-    private var addTagView: some View {
-        Group {
-            Section("New Tag") {
-                TextField("Tag", text: $newTagValue)
-                    .task(id: newTagValue) {
-                        try? await Task.sleep(nanoseconds: 500_000_000)
-                        
-                        withAnimation {
-                            filterTags(newTagValue: &newTagValue, otherTags: &otherTags)
-                        }
+    private var tagTextFieldView: some View {
+        Section("New Tag") {
+            TextField("Tag", text: $newTagValue)
+                .onChange(of: newTagValue) { oldValue, newValue in
+                    withAnimation {
+                        filterIn(
+                            globalDataViewModel: globalDataViewModel,
+                            filteredTags: &filteredTags,
+                            newTagValue: newValue.trimmed,
+                        )
                     }
+                }
+        }
+    }
+    
+    private var allTagsView: some View {
+        Section("All Tags") {
+            if (filteredTags.isEmpty) {
+                EmptyEntryView(text: globalDataViewModel.allTags.isEmpty ? "No Tags Added" : "No Results Found")
+            } else {
+                ForEach(filteredTags) { tag in
+                    if (self.medicineTags.contains(tag)) {
+                        tagExistsInMedicineView(tag)
+                    } else {
+                        tagDoesNotExistInMedicineView(tag)
+                    }
+                }
             }
+        }
+    }
+    
+    private func tagExistsInMedicineView(_ tag: Tag) -> some View {
+        Button {
+            withAnimation {
+                removeTag(medicineTags: &medicineTags, tagToRemove: tag)
+            }
+        } label: {
+            HStack {
+                Text(tag.value)
+                Spacer()
+                Image(systemName: "checkmark")
+                    .foregroundStyle(.blue)
+            }
+        }
+        .tint(.primary)
+    }
+    
+    private func tagDoesNotExistInMedicineView(_ tag: Tag) -> some View {
+        Button {
+            withAnimation {
+                addExistingTag(
+                    medicineTags: &medicineTags,
+                    tagToAdd: tag,
+                    newTagValue: &newTagValue
+                )                
+            }
+        } label: {
+            Text(tag.value)
+        }
+        .tint(.primary)
+    }
+    
+    private var confirmationToolbarItem: some View {
+        Button("Done") {
+            addNewTag(
+                globalDataViewModel: globalDataViewModel,
+                medicineTags: &medicineTags,
+                newTagValue: &newTagValue
+            )
             
-            Button("Add") {
-                addNewCustomTag(newTagValue: &newTagValue, otherTags: &otherTags)
-            }
-            .disabled(disableAddButton(newTagValue: newTagValue))
+            handleSave(
+                medicineEditorViewModel: medicineEditorViewModel,
+                medicineTags: medicineTags
+            )
+            
+            dismiss()
         }
-    }
-    
-    private var currentTagsView: some View {
-        Section("This Medicine's Tags") {
-            if (!medicineTags.isEmpty) {
-                ForEach(medicineTags) { tag in
-                    Text(tag.value)
-                        .swipeActions(edge: .trailing) {
-                            Button(role: .destructive) {
-                                remove(newTagValue: &newTagValue, tag: tag, otherTags: &otherTags)
-                            } label: {
-                                Label("Remove", systemImage: "minus.circle")
-                            }
-                        }
-                }
-            } else {
-                EmptyEntryView(text: "No Tags Added")
-            }
-        }
-    }
-    
-    private var otherTagsView: some View {
-        Section("Other Tags") {
-            if (!otherTags.isEmpty) {
-                ForEach(otherTags) { tag in
-                    Text(tag.value)
-                        .swipeActions(edge: .trailing) {
-                            Button {
-                                add(newTagValue: &newTagValue, tag: tag, otherTags: &otherTags)
-                            } label: {
-                                Label("Add", systemImage: "plus.circle")
-                            }
-                            .tint(.blue)
-                        }
-                }
-            } else {
-                EmptyEntryView(text: newTagValue.isEmpty ? "No Other Tags Added" : "No Results Found")
-            }
-        }
+        .disabled(isDoneButtonDisabled)
     }
 }
 
 #Preview {
-    ManageMedicineTagsView()
-        .environment(MedicineViewModel())
+    NavigationStack {
+        ManageMedicineTagsView()
+            .environment(GlobalDataViewModel())
+            .environment(MedicineEditorViewModel())
+    }
 }

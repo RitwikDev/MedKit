@@ -9,12 +9,12 @@ import SwiftUI
 
 struct CustomFieldsSectionView: View {
     @Environment(NavigationRouter.self) private var router
-    @Environment(MedicineViewModel.self) private var medicineViewModel
+    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     
     @State private var text: String = ""
     
     var body: some View {
-        @Bindable var bindableViewModel = medicineViewModel
+        @Bindable var bindableViewModel = medicineEditorViewModel
         
         ForEach($bindableViewModel.medicine.customFields) { customField in
             Section(customField.wrappedValue.getLabel()) {
@@ -41,7 +41,7 @@ struct CustomFieldsSectionView: View {
                                 tintColor: .blue
                             ) {
                                 withAnimation {
-                                    medicineViewModel.addCustomListItem(
+                                    medicineEditorViewModel.addCustomListItem(
                                         to: customField.wrappedValue,
                                         value: text.trimmed,
                                     )
@@ -55,7 +55,7 @@ struct CustomFieldsSectionView: View {
                             Text(item)
                         }
                         .onDelete { indexSet in
-                            medicineViewModel.deleteCustomListItem(from: customField.wrappedValue, at: indexSet)
+                            medicineEditorViewModel.deleteCustomListItem(from: customField.wrappedValue, at: indexSet)
                         }
                     }
                     
@@ -75,7 +75,7 @@ struct CustomFieldsSectionView: View {
     Form {
         CustomFieldsSectionView()
     }
-    .environment(MedicineViewModel(
+    .environment(MedicineEditorViewModel(
         medicine: .init(
             customFields: [
                 .init(

@@ -9,8 +9,8 @@ import SwiftData
 import SwiftUI
 
 struct AddCustomFieldsView: View {
-    @Query var customFields: [CustomFieldModel]
-    @Environment(MedicineViewModel.self) private var medicineViewModel
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
+    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     
     @Binding var selectedCustomField: CustomField
     
@@ -18,7 +18,7 @@ struct AddCustomFieldsView: View {
     @State private var searchText = ""
 
     private var customFieldStructs: [CustomField] {
-        customFields.map { CustomField(from: $0) }
+        globalDataViewModel.allCustomFields
     }
     
     var body: some View {
@@ -68,6 +68,7 @@ struct AddCustomFieldsView: View {
 #Preview {
     NavigationStack {
         AddCustomFieldsView(selectedCustomField: .constant(.init()))
-            .environment(MedicineViewModel())
+            .environment(GlobalDataViewModel())
+            .environment(MedicineEditorViewModel())
     }
 }

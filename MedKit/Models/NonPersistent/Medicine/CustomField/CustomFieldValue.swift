@@ -17,8 +17,6 @@ enum CustomFieldValueWrapper: Equatable, Hashable {
 
 struct CustomFieldValue: Identifiable, Equatable, Hashable {
     let id: UUID
-    let persistentIdentifier: PersistentIdentifier?
-    
     var textValue: String?
     var dateValue: Date?
     var listValue: [String]?
@@ -28,14 +26,12 @@ struct CustomFieldValue: Identifiable, Equatable, Hashable {
     
     init(
         id: UUID = UUID(),
-        persistentIdentifier: PersistentIdentifier? = nil,
         textValue: String? = nil,
         dateValue: Date? = nil,
         textListValue: [String]? = nil,
         definition: CustomField? = nil
     ) {
         self.id = id
-        self.persistentIdentifier = persistentIdentifier
         self.textValue = textValue
         self.dateValue = dateValue
         self.listValue = textListValue

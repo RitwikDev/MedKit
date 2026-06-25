@@ -9,7 +9,7 @@ import Foundation
 import SwiftData
 
 enum DatabaseTypeEnum {
-    case all, medicines, compositions, tags, customFields
+    case all, medicines, ingredients, tags, customFields
 }
 
 @MainActor
@@ -18,14 +18,14 @@ func deleteAllData(from context: ModelContext, of type: DatabaseTypeEnum = .all)
     
     do {
         // Run batch deletes on concrete types so the #Predicate macro can resolve them perfectly
-        
+        /*
         if (type == .all || type == .medicines) {
             try context.delete(model: MedicineModel.self, where: #Predicate<MedicineModel> { _ in true })
         }
         
-        if (type == .all || type == .compositions) {
+        if (type == .all || type == .ingredients) {
             // TODO: This delete operation is throwing an error
-            try context.delete(model: CompositionModel.self, where: #Predicate<CompositionModel> { _ in true })
+            try context.delete(model: IngredientModel.self, where: #Predicate<IngredientModel> { _ in true })
         }
         
         if (type == .all || type == .tags) {
@@ -35,6 +35,7 @@ func deleteAllData(from context: ModelContext, of type: DatabaseTypeEnum = .all)
         if (type == .all || type == .customFields) {
             try context.delete(model: CustomFieldModel.self, where: #Predicate<CustomFieldModel> { _ in true })
         }
+        */
         
         // Push the changes instantly to the underlying SQLite database file
         try context.save()

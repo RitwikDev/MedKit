@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var router = NavigationRouter()
-    
     var body: some View {
         TabView {
             MedicineListView()
@@ -27,11 +25,13 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gear")
                 }
         }
-        .environment(router)
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(PreviewData.container)
+        .environment(GlobalDataViewModel())
+        .environment(MedicineEditorViewModel())
+        .environment(MedicineListViewModel())
+        .environment(NavigationRouter())
 }

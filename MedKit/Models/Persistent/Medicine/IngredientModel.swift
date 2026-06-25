@@ -1,15 +1,16 @@
 //
-//  CompositionModel.swift
+//  IngredientModel.swift
 //  MedKit
 //
 //  Created by Ritwik Dev on 17/05/26.
 //
 
+/*
 import Foundation
 import SwiftData
 
 @Model
-class CompositionModel {
+class IngredientModel {
     var name: String
     var strengthAmount: Float?
     var strengthUnit: String?
@@ -34,11 +35,12 @@ class CompositionModel {
         }
     }
     
-    func copy() -> CompositionModel {
-        CompositionModel(
+    func copy() -> IngredientModel {
+        IngredientModel(
             name: self.name,
             strengthAmount: self.strengthAmount,
             strengthUnit: self.strengthUnit
         )
     }
 }
+*/

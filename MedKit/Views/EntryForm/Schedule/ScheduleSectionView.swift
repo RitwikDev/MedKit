@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ScheduleSectionView: View {
-    @Environment(MedicineViewModel.self) private var medicineViewModel
+    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     @Environment(NavigationRouter.self) private var router
     @Binding var schedule: Schedule?
     
@@ -29,7 +29,7 @@ struct ScheduleSectionView: View {
         .swipeActions {
             Button(role: .destructive) {
                 withAnimation {
-                    medicineViewModel.removeSchedule()
+                    medicineEditorViewModel.removeSchedule()
                 }
             } label: {
                 Label("Delete", systemImage: "bin")
@@ -42,6 +42,6 @@ struct ScheduleSectionView: View {
     Form {
         ScheduleSectionView(schedule: .constant(nil))
     }
-    .environment(MedicineViewModel())
+    .environment(MedicineEditorViewModel())
     .environment(NavigationRouter())
 }

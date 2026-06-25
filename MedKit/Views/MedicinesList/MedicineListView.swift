@@ -9,31 +9,42 @@ import SwiftData
 import SwiftUI
 
 struct MedicineListView: View {    
-    @Query var medicines: [MedicineModel]
-
-    @Environment(NavigationRouter.self) private var router    
-    private let medicineViewModel = MedicineViewModel()
+    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
+    @Environment(MedicineListViewModel.self) private var medicineListViewModel
+    @Environment(NavigationRouter.self) private var router
     
     var body: some View {
         @Bindable var router = router
         
         NavigationStack(path: $router.path) {
             VStack {
-                if (medicines.isEmpty) {
-                    EmptyMedicineListView()
+                if (medicineListViewModel.medicines.isEmpty) {
+                    ScrollView {
+                        EmptyMedicineListView()
+                    }
+                    .defaultScrollAnchor(.center)
                 } else {
                     List {
-                        ForEach(medicines) { medicine in
+                        ForEach(medicineListViewModel.medicines) { medicine in
                             MedicineListItemView(
-                                medicine: Medicine(from: medicine)
+                                medicine: medicine
                             )
                         }
+                        .onDelete(perform: deleteMedicine)
                     }
+                    .listStyle(.plain)
                 }
             }
-            .listStyle(.plain)
             .onAppear {
-                medicineViewModel.medicine = .init()
+                medicineListViewModel.fetchAllMedicines()
+            }
+            .onChange(of: router.path) { _, newValue in
+                if (newValue.count == 0) {
+                    medicineEditorViewModel.medicine = .init()
+                }
+            }
+            .refreshable {
+                medicineListViewModel.fetchAllMedicines()
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -43,15 +54,21 @@ struct MedicineListView: View {
             .navigationDestination(for: NavigationPathEnum.self) { route in
                 route.destination
             }
-            .navigationTitle(Text("Medicines"))
+            .navigationTitle("Medicines")
         }
-        .environment(medicineViewModel)
+    }
+    
+    private func deleteMedicine(at offset: IndexSet) {
+        withAnimation {
+            medicineListViewModel.deleteMedicine(at: offset)
+        }
     }
 }
 
 #Preview {    
-    return MedicineListView()
-        .modelContainer(PreviewData.container)
-        .environment(MedicineViewModel())
+    MedicineListView()
+        .environment(GlobalDataViewModel())
+        .environment(MedicineEditorViewModel())
+        .environment(MedicineListViewModel())
         .environment(NavigationRouter())
 }

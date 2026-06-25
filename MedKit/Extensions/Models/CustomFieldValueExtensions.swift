@@ -5,9 +5,11 @@
 //  Created by Ritwik Dev on 06/06/26.
 //
 
+
 import Foundation
 
 extension CustomFieldValue {
+    /*
     init(from model: CustomFieldValueModel) {
         self.id = UUID()
         self.persistentIdentifier = model.id
@@ -21,7 +23,8 @@ extension CustomFieldValue {
             self.definition = nil
         }
     }
-    
+    */
+
     func isValid() -> Bool {
         return (self.textValue != nil && !(self.textValue?.trimmedIsEmpty ?? true))
         || self.dateValue != nil

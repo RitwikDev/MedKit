@@ -22,6 +22,7 @@ private extension Date {
     }
 }
 
+/*
 // MARK: - 11 Sample Medicines Array
 let sampleMedicines: [MedicineModel] = [
     MedicineModel(
@@ -81,18 +82,18 @@ let sampleMedicines: [MedicineModel] = [
     )
 ]
 
-let sampleCompositions: [CompositionModel] = [
-    CompositionModel(name: "Amoxicillin Trihydrate", strengthAmount: 500, strengthUnit: "mg"),
-    CompositionModel(name: "Ibuprofen Sodium", strengthAmount: 400, strengthUnit: "mg"),
-    CompositionModel(name: "Metformin Hydrochloride", strengthAmount: 850, strengthUnit: "mg"),
-    CompositionModel(name: "Atorvastatin Calcium", strengthAmount: 20, strengthUnit: "mg"),
-    CompositionModel(name: "Lisinopril Dihydrate", strengthAmount: 10, strengthUnit: "mg"),
-    CompositionModel(name: "Omeprazole Magnesium", strengthAmount: 20, strengthUnit: "mg"),
-    CompositionModel(name: "Cetirizine Dihydrochloride", strengthAmount: 10, strengthUnit: "mg"),
-    CompositionModel(name: "Paracetamol", strengthAmount: 250, strengthUnit: "mg"),
-    CompositionModel(name: "Albuterol Sulfate", strengthAmount: 90, strengthUnit: "mcg"),
-    CompositionModel(name: "Prednisone Anhydrous", strengthAmount: 5, strengthUnit: "mg"),
-    CompositionModel(name: "Gabapentin Crystalline", strengthAmount: 300, strengthUnit: "mg")
+let sampleComposition: [IngredientModel] = [
+    IngredientModel(name: "Amoxicillin Trihydrate", strengthAmount: 500, strengthUnit: "mg"),
+    IngredientModel(name: "Ibuprofen Sodium", strengthAmount: 400, strengthUnit: "mg"),
+    IngredientModel(name: "Metformin Hydrochloride", strengthAmount: 850, strengthUnit: "mg"),
+    IngredientModel(name: "Atorvastatin Calcium", strengthAmount: 20, strengthUnit: "mg"),
+    IngredientModel(name: "Lisinopril Dihydrate", strengthAmount: 10, strengthUnit: "mg"),
+    IngredientModel(name: "Omeprazole Magnesium", strengthAmount: 20, strengthUnit: "mg"),
+    IngredientModel(name: "Cetirizine Dihydrochloride", strengthAmount: 10, strengthUnit: "mg"),
+    IngredientModel(name: "Paracetamol", strengthAmount: 250, strengthUnit: "mg"),
+    IngredientModel(name: "Albuterol Sulfate", strengthAmount: 90, strengthUnit: "mcg"),
+    IngredientModel(name: "Prednisone Anhydrous", strengthAmount: 5, strengthUnit: "mg"),
+    IngredientModel(name: "Gabapentin Crystalline", strengthAmount: 300, strengthUnit: "mg")
 ]
 
 let sampleTags: [TagModel] = [
@@ -123,3 +124,4 @@ let sampleTags: [TagModel] = [
     .init(value: "Statins"),
 
 ]
+*/

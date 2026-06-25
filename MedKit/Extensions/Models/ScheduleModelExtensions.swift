@@ -5,6 +5,7 @@
 //  Created by Rishik Dev on 04/06/26.
 //
 
+/*
 import Foundation
 
 extension ScheduleModel {
@@ -14,8 +15,9 @@ extension ScheduleModel {
             endDate: schedule.endDate,
             reminderTimes: schedule.reminderTimes,
             repeatType: schedule.repeatType,
-            selectedDay: schedule.selectedDay,
+            selectedDays: schedule.selectedDays,
             selectedDates: schedule.selectedDates,
         )
     }
 }
+*/

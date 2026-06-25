@@ -32,8 +32,7 @@ class GeminiManager {
     }
     
     private func initModel() {
-        // Define your Codable Composition schema using static factory methods
-        let compositionSchema = Schema.object(
+        let ingredientSchema = Schema.object(
             properties: [
                 "name": .string(),
                 "strengthAmount": .float(nullable: true),
@@ -41,7 +40,6 @@ class GeminiManager {
             ]
         )
         
-        // Define your Codable Medicine schema
         let medicineSchema = Schema.object(
             properties: [
                 "name": .string(),
@@ -49,7 +47,7 @@ class GeminiManager {
                 "expiryDate": .string(description: "Format exactly as yyyy-MM-dd", nullable: true),
                 "strengthAmount": .float(nullable: true),
                 "strengthUnit": .string(nullable: true),
-                "composition": .array(items: compositionSchema)
+                "composition": .array(items: ingredientSchema)
             ]
         )
         
@@ -83,10 +81,10 @@ class GeminiManager {
                     let mockJSONString = """
                                         {
                                             "name": "Amoxicillin 500mg",
-                                            "manufacturedDate": "2025-10-12T08:00:00Z",
-                                            "expiryDate": "2027-10-12T08:00:00Z",
+                                            "manufacturedDate": "2025-10-12",
+                                            "expiryDate": "2027-10-12",
                                             "strengthAmount": 500.0,
-                                            "strengthUnit": null,
+                                            "strengthUnit": "mg",
                                             "composition": [
                                                 {
                                                     "name": "Amoxicillin Trihydrate",
@@ -95,8 +93,8 @@ class GeminiManager {
                                                 },
                                                 {
                                                     "name": "Vernimoltan Babchuris",
-                                                    "strengthAmount": 10.5,
-                                                    "strengthUnit": "ml"
+                                                    "strengthAmount": 100.0,
+                                                    "strengthUnit": "mg"
                                                 }
                                             ]
                                         }
