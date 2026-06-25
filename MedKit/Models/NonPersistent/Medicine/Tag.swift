@@ -8,14 +8,16 @@
 import Foundation
 import SwiftData
 
-struct Tag: Identifiable, Equatable, Hashable {
+struct Tag: Identifiable, Equatable, Hashable, Comparable {
     let id: UUID
-    let persistentIdentifier: PersistentIdentifier?
     var value: String
     
-    init(id: UUID = UUID(), persistentIdentifier: PersistentIdentifier? = nil, value: String = "") {
+    init(id: UUID = UUID(), value: String = "") {
         self.id = id
-        self.persistentIdentifier = persistentIdentifier
         self.value = value
+    }
+    
+    static func < (lhs: Tag, rhs: Tag) -> Bool {
+        lhs.value < rhs.value
     }
 }

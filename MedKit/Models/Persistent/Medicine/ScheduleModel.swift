@@ -5,6 +5,7 @@
 //  Created by Rishik Dev on 04/06/26.
 //
 
+/*
 import Foundation
 import SwiftData
 
@@ -33,3 +34,4 @@ class ScheduleModel {
         self.selectedDates = selectedDates
     }
 }
+*/

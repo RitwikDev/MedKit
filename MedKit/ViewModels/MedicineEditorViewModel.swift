@@ -1,5 +1,5 @@
 //
-//  MedicineViewModel.swift
+//  MedicineEditorViewModel.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 30/05/26.
@@ -16,24 +16,20 @@ class MedicineEditorViewModel {
     var medicine: Medicine
     var errorMessage: String?
 
-    /// Initialiwes the editor. Pass an existing medicine to edit, or nil to create a new one.
+    /// Initialises the editor. Pass an existing medicine to edit, or nil to create a new one.
     init(medicine: Medicine = .init()) {
         self.medicine = medicine
     }
-
-    // MARK: - Basic Info
     
-    func updateName(_ name: String) {
-        medicine.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    func updateStrength(amount: Float?, unit: String?) {
-        medicine.strengthAmount = amount
-        medicine.strengthUnit = unit?.trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    func updateQuantity(_ quantity: Float) {
-        medicine.quantity = quantity
+    func getMedicineFromCodableMedicineModel(cMedicineModel: CodableMedicineModel) {
+        self.medicine = Medicine(
+            name: cMedicineModel.name,
+            manufacturedDate: cMedicineModel.manufacturedDate,
+            expiryDate: cMedicineModel.expiryDate,
+            strengthAmount: cMedicineModel.strengthAmount,
+            strengthUnit: cMedicineModel.strengthUnit,
+            composition: cMedicineModel.composition.map { Ingredient(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit) },
+        )
     }
 
     // MARK: - Ingredient Management
@@ -47,23 +43,9 @@ class MedicineEditorViewModel {
             medicine.composition.append(ingredient)
         }
     }
-    
-    func addComposition(_ composition: [Ingredient]) {
-        for ingredient in composition {
-            // Replaced equalsName with direct name comparison based on the struct properties
-            if let index = medicine.composition.firstIndex(where: { $0.name == ingredient.name }) {
-                medicine.composition.remove(at: index)
-            }
-            medicine.composition.append(ingredient)
-        }
-    }
 
     func removeIngredient(at offsets: IndexSet) {
         medicine.composition.remove(atOffsets: offsets)
-    }
-
-    func removeIngredient(_ ingredient: Ingredient) {
-        medicine.composition.removeAll { $0.id == ingredient.id }
     }
     
     // MARK: - Schedule Management
@@ -74,31 +56,8 @@ class MedicineEditorViewModel {
 
     // MARK: - Tag Management
     
-    func addTag(_ tag: Tag) {
-        let trimmedValue = tag.value.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedValue.isEmpty else { return }
-        
-        // Prevent duplicates in the UI state
-        if !medicine.tags.contains(where: { $0.value.lowercased() == trimmedValue.lowercased() }) {
-            var newTag = tag
-            newTag.value = trimmedValue
-            medicine.tags.append(newTag)
-        }
-    }
-
-    func removeTag(_ tag: Tag) {
-        medicine.tags.removeAll { $0.id == tag.id }
-    }
-    
-    func removeTags(at offsets: IndexSet) {
+    func removeTag(at offsets: IndexSet) {
         medicine.tags.remove(atOffsets: offsets)
-    }
-
-    // MARK: - Dates
-    
-    func updateDates(manufactured: Date?, expiry: Date?) {
-        medicine.manufacturedDate = manufactured
-        medicine.expiryDate = expiry
     }
     
     // MARK: - Custom Fields
@@ -132,9 +91,10 @@ class MedicineEditorViewModel {
     // MARK: - Database Handoff
     
     /// Validates the draft and hands the finalised pure struct to the Manager for database persistence.
-    func saveToDatabase() {
+    func saveMedicine() throws {
         guard !medicine.name.isEmpty else {
-            errorMessage = "Name cannot be empty"
+            // TODO: - Add Data Validation Here...
+            errorMessage = "Errors in medicine information."
             return
         }
         
@@ -142,6 +102,7 @@ class MedicineEditorViewModel {
             try MedicineManager.shared.save(medicine)
         } catch {
             errorMessage = error.localizedDescription
+            throw error
         }
     }
 }

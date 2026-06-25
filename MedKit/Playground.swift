@@ -18,7 +18,7 @@ func deleteAllData(from context: ModelContext, of type: DatabaseTypeEnum = .all)
     
     do {
         // Run batch deletes on concrete types so the #Predicate macro can resolve them perfectly
-        
+        /*
         if (type == .all || type == .medicines) {
             try context.delete(model: MedicineModel.self, where: #Predicate<MedicineModel> { _ in true })
         }
@@ -35,6 +35,7 @@ func deleteAllData(from context: ModelContext, of type: DatabaseTypeEnum = .all)
         if (type == .all || type == .customFields) {
             try context.delete(model: CustomFieldModel.self, where: #Predicate<CustomFieldModel> { _ in true })
         }
+        */
         
         // Push the changes instantly to the underlying SQLite database file
         try context.save()

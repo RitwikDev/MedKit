@@ -1,92 +1,127 @@
-import Foundation
-import SwiftUI
-import CoreData
+//
+//  GlobalDataViewModel.swift
+//  MedKit
+//
+//  Created by Rishik Dev on 22/06/26.
+//
 
-/// Powers global autocomplete lists and pickers for shared data dictionaries.
+import SwiftUI
+
 @Observable
-@MainActor
-public final class GlobalDataViewModel {
+class GlobalDataViewModel {
+    var allTags: [Tag] = []
+    var allIngredients: [Ingredient] = []
+    var allCustomFields: [CustomField] = []
+    var errorMessage: String?
     
-    public var availableTags: [Tag] = []
-    public var availableIngredients: [Ingredient] = []
-    public var availableCustomFields: [CustomField] = []
-    
-    @ObservationIgnored
-    private let context: NSManagedObjectContext
-    
-    public init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext) {
-        self.context = context
-        fetchAllGlobalData()
+    init() {
+        fetchAllTags()
+        fetchAllIngredients()
+        fetchAllCustomFields()
     }
     
-    /// Refreshes all global dictionary arrays.
-    public func fetchAllGlobalData() {
-        fetchTags()
-        fetchIngredients()
-        fetchCustomFields()
-    }
+    // MARK: - Fetch All Functions
     
-    private func fetchTags() {
-        let request: NSFetchRequest<TagEntity> = TagEntity.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \TagEntity.value, ascending: true)]
-        
+    /// Asks the Manager to fetch the latest data from the database.
+    func fetchAllTags() {
         do {
-            let entities = try context.fetch(request)
-            self.availableTags = entities.map { Tag(id: $0.id ?? UUID(), value: $0.value ?? "") }
+            self.allTags = try GlobalDataManager.shared.fetchAllTags()
         } catch {
-            print("Failed to fetch tags: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
         }
     }
     
-    private func fetchIngredients() {
-        let request: NSFetchRequest<IngredientEntity> = IngredientEntity.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \IngredientEntity.name, ascending: true)]
-        
+    /// Asks the Manager to fetch the latest data from the database.
+    func fetchAllIngredients() {
         do {
-            let entities = try context.fetch(request)
-            
-            // Map entities and filter out duplicate names to create a clean autocomplete list
-            var uniqueIngredients: [Ingredient] = []
-            var seenNames: Set<String> = []
-            
-            for entity in entities {
-                let name = entity.name ?? ""
-                let lowercasedName = name.lowercased()
-                
-                if !seenNames.contains(lowercasedName) && !name.isEmpty {
-                    seenNames.insert(lowercasedName)
-                    uniqueIngredients.append(
-                        Ingredient(
-                            id: entity.id ?? UUID(),
-                            name: name,
-                            strengthAmount: entity.strengthAmount > 0 ? entity.strengthAmount : nil,
-                            strengthUnit: entity.strengthUnit
-                        )
-                    )
-                }
-            }
-            
-            self.availableIngredients = uniqueIngredients
+            self.allIngredients = try GlobalDataManager.shared.fetchAllIngredients()
         } catch {
-            print("Failed to fetch ingredients: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
         }
     }
     
-    private func fetchCustomFields() {
-        let request: NSFetchRequest<CustomFieldEntity> = CustomFieldEntity.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \CustomFieldEntity.label, ascending: true)]
-        
+    /// Asks the Manager to fetch the latest data from the database.
+    func fetchAllCustomFields() {
         do {
-            let entities = try context.fetch(request)
-            self.availableCustomFields = entities.map { entity in
-                CustomField(
-                    id: entity.id ?? UUID(),
-                    label: entity.label ?? "",
-                    dataType: CustomFieldDataType(rawValue: entity.dataType ?? "") ?? .text
-                )
-            }
+            self.allCustomFields = try GlobalDataManager.shared.fetchAllCustomFields()
         } catch {
-            print("Failed to fetch custom fields: \(error.localizedDescription)")
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    // MARK: - Delete Record at IndexSet Functions
+    
+    /// Asks the Manager to delete a specific record, then refreshes the UI.
+    /// - Parameter offsets: The index set from a SwiftUI `onDelete` modifier.
+    func deleteTag(at offsets: IndexSet) {
+        do {
+            for index in offsets {
+                let tagId = allTags[index].id
+                try GlobalDataManager.shared.deleteTag(id: tagId)
+            }
+            fetchAllTags()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    /// Asks the Manager to delete a specific record, then refreshes the UI.
+    /// - Parameter offsets: The index set from a SwiftUI `onDelete` modifier.
+    func deleteIngredient(at offsets: IndexSet) {
+        do {
+            for index in offsets {
+                let ingredientId = allIngredients[index].id
+                try GlobalDataManager.shared.deleteIngredient(id: ingredientId)
+            }
+            fetchAllIngredients()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    /// Asks the Manager to delete a specific record, then refreshes the UI.
+    /// - Parameter offsets: The index set from a SwiftUI `onDelete` modifier.
+    func deleteCustomField(at offsets: IndexSet) {
+        do {
+            for index in offsets {
+                let customFieldId = allCustomFields[index].id
+                try GlobalDataManager.shared.deleteCustomField(id: customFieldId)
+            }
+            fetchAllCustomFields()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    // MARK: - Delete All Functions
+    
+    /// Asks the Manager to delete all tags.
+    func deleteAllTags() {
+        do {
+            try GlobalDataManager.shared.deleteAllTags()
+            fetchAllTags()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    /// Asks the Manager to delete all ingredients.
+    func deleteAllIngredients() {
+        do {
+            try GlobalDataManager.shared.deleteAllIngredients()
+            fetchAllIngredients()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    /// Asks the manager to delete all custom fields.
+    func deleteAllCustomFields() {
+        do {
+            try GlobalDataManager.shared.deleteAllCustomFields()
+            fetchAllCustomFields()
+        } catch {
+            errorMessage = error.localizedDescription
         }
     }
 }

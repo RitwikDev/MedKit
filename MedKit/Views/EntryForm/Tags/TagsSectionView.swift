@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct TagsSectionView: View {
-    @Environment(MedicineViewModel.self) private var medicineViewModel
+    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     @Environment(NavigationRouter.self) private var router
     
     var body: some View {
         Section("Tags") {
-            ForEach(medicineViewModel.medicine.tags) { tag in
+            ForEach(medicineEditorViewModel.medicine.tags) { tag in
                 Text(tag.value)
                     .foregroundStyle(.secondary)
             }
-            .onDelete(perform: medicineViewModel.removeTags)
+            .onDelete(perform: medicineEditorViewModel.removeTag)
             
             Button("Manage Tags") {
                 router.navigate(to: .manageMedicineTags)
@@ -30,6 +30,6 @@ struct TagsSectionView: View {
     Form {
         TagsSectionView()
     }
-    .environment(MedicineViewModel())
+    .environment(MedicineEditorViewModel())
     .environment(NavigationRouter())
 }

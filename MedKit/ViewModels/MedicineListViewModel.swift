@@ -1,29 +1,61 @@
+//
+//  MedicineListViewModel.swift
+//  MedKit
+//
+//  Created by Rishik Dev on 19/06/26.
+//
+
 import SwiftUI
 
-/// ViewModel responsible for managing the display list of all medicines.
 @Observable
-@MainActor
-public final class MedicineListViewModel {
+class MedicineListViewModel {    
+    var medicines: [Medicine] = []
+    var errorMessage: String? = nil
     
-    /// The array of medicines to display in the UI.
-    public var medicines: [Medicine] = []
-    
-    public init() {
-        refreshData()
+    init() {
+        fetchAllMedicines()
+        
+        Task {
+            // This loop quietly listens in the background forever
+            for await _ in NotificationCenter.default.notifications(named: .NSPersistentStoreRemoteChange) {
+                // When CloudKit updates the database, safely refresh the UI on the main thread
+                await MainActor.run {
+                    self.fetchAllMedicines()
+                }
+            }
+        }
     }
     
     /// Asks the Manager to fetch the latest data from the database.
-    public func refreshData() {
-        self.medicines = MedicineManager.shared.fetchAllMedicines()
+    func fetchAllMedicines() {
+        do {
+            self.medicines = try MedicineManager.shared.fetchAllMedicines()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
     
     /// Asks the Manager to delete a specific record, then refreshes the UI.
     /// - Parameter offsets: The index set from a SwiftUI `onDelete` modifier.
-    public func deleteMedicine(at offsets: IndexSet) {
-        for index in offsets {
-            let medicineId = medicines[index].id
-            MedicineManager.shared.delete(by: medicineId)
+    func deleteMedicine(at offsets: IndexSet) {
+        do {
+            for index in offsets {
+                let medicineId = medicines[index].id
+                try MedicineManager.shared.deleteMedicine(id: medicineId)
+            }
+            fetchAllMedicines()
+        } catch {
+            errorMessage = error.localizedDescription
         }
-        refreshData()
+    }
+    
+    /// Asks the Manager to delete all medicines.
+    func deleteAllMedicines() {
+        do {
+            try MedicineManager.shared.deleteAllMedicines()
+            fetchAllMedicines()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }

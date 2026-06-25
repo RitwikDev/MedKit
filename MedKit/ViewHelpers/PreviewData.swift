@@ -5,7 +5,7 @@
 //  Created by Ritwik Dev on 15/06/26.
 //
 
-
+/*
 import Foundation
 import SwiftData
 import SwiftUI
@@ -161,7 +161,7 @@ public struct PreviewData {
     }()
     
     // MARK: - 3. ViewModels (For Detail/Form Views)
-    static var medicineViewModels: [MedicineViewModel] {
+    static var medicineEditorViewModels: [MedicineEditorViewModel] {
         medicineModels.map { model in
             
             // Map Tags
@@ -196,7 +196,8 @@ public struct PreviewData {
                 customFields: fields
             )
             
-            return MedicineViewModel(medicine: structMed)
+            return MedicineEditorViewModel(medicine: structMed)
         }
     }
 }
+*/

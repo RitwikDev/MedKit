@@ -22,6 +22,7 @@ private extension Date {
     }
 }
 
+/*
 // MARK: - 11 Sample Medicines Array
 let sampleMedicines: [MedicineModel] = [
     MedicineModel(
@@ -123,3 +124,4 @@ let sampleTags: [TagModel] = [
     .init(value: "Statins"),
 
 ]
+*/

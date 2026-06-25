@@ -20,7 +20,7 @@ extension String {
         self.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
-    func trimmedLocalisedEquals(_ other: String) -> Bool {
+    func trimmedLocalizedCaseInsensitiveEquals(_ other: String) -> Bool {
         self.trimmed.localizedCaseInsensitiveCompare(other.trimmed) == .orderedSame
     }
 }

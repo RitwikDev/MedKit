@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ScheduleView: View {
-    @Environment(MedicineViewModel.self) private var medicineViewModel
+    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     @Environment(\.dismiss) private var dismiss
     
     let schedule: Schedule
@@ -21,6 +21,35 @@ struct ScheduleView: View {
     @State private var reminderTimes: [ReminderTime] = []
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
+    
+    private var isDoneButtonDisabled: Bool {
+        switch repeatType {
+        case .never:
+            if ((startDate != nil && reminderTimes.isEmpty)
+                || (startDate == nil && !reminderTimes.isEmpty)
+            ) {
+                return true
+            }
+        case .selectDays:
+            if (selectedDays.isEmpty || reminderTimes.isEmpty) {
+                return true
+            }
+        case .fortnightly:
+            if (reminderTimes.isEmpty) {
+                return true
+            }
+        case .monthly, .quarterly, .biannually, .annually:
+            if (startDate == nil || reminderTimes.isEmpty) {
+                return true
+            }
+        case .custom:
+            if (selectedDates.isEmpty || reminderTimes.isEmpty) {
+                return true
+            }
+        }
+        
+        return false
+    }
     
     init(schedule: Schedule) {
         self.schedule = schedule
@@ -43,7 +72,7 @@ struct ScheduleView: View {
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done", action: handleDoneButtonTap)
-                    .disabled(isDoneButtonDisabled())
+                    .disabled(isDoneButtonDisabled)
             }
         }
         .alert("Schedule is incomplete!", isPresented: $showAlert) {
@@ -232,44 +261,15 @@ struct ScheduleView: View {
             selectedDays: selectedDays,
             selectedDates: Array(selectedDates)
         )
-        print(schedule)
-        medicineViewModel.medicine.schedule = schedule
+
+        medicineEditorViewModel.medicine.schedule = schedule
         dismiss()
-    }
-    
-    private func isDoneButtonDisabled() -> Bool {
-        switch repeatType {
-        case .never:
-            if ((startDate != nil && reminderTimes.isEmpty)
-                || (startDate == nil && !reminderTimes.isEmpty)
-            ) {
-                return true
-            }
-        case .selectDays:
-            if (selectedDays.isEmpty || reminderTimes.isEmpty) {
-                return true
-            }
-        case .fortnightly:
-            if (reminderTimes.isEmpty) {
-                return true
-            }
-        case .monthly, .quarterly, .biannually, .annually:
-            if (startDate == nil || reminderTimes.isEmpty) {
-                return true
-            }
-        case .custom:
-            if (selectedDates.isEmpty || reminderTimes.isEmpty) {
-                return true
-            }
-        }
-        
-        return false
     }
 }
 
 #Preview {
     NavigationStack {
         ScheduleView(schedule: .init())
-            .environment(MedicineViewModel())
+            .environment(MedicineEditorViewModel())
     }
 }

@@ -9,12 +9,7 @@ import Foundation
 import SwiftData
 
 struct Medicine: Identifiable, Equatable, Hashable {
-    // Stable, non-nil identifier dedicated strictly to SwiftUI rendering
     let id: UUID
-    
-    // The database passport token (nil indicates a brand new, unsaved draft)
-    let persistentIdentifier: PersistentIdentifier?
-    
     var name: String
     var quantity: Float
     var manufacturedDate: Date?
@@ -29,7 +24,6 @@ struct Medicine: Identifiable, Equatable, Hashable {
     
     init(
         id: UUID = UUID(),
-        persistentIdentifier: PersistentIdentifier? = nil,
         name: String = "",
         quantity: Float = 0,
         manufacturedDate: Date? = nil,
@@ -42,7 +36,6 @@ struct Medicine: Identifiable, Equatable, Hashable {
         customFields: [CustomFieldValue] = [],
     ) {
         self.id = id
-        self.persistentIdentifier = persistentIdentifier
         self.name = name
         self.quantity = quantity
         self.manufacturedDate = manufacturedDate

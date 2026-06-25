@@ -5,6 +5,7 @@
 //  Created by Ritwik Dev on 15/06/26.
 //
 
+/*
 import Foundation
 import SwiftData
 
@@ -141,3 +142,4 @@ class MedicineWriteRepository
         return CustomFieldModel()
     }
 }
+*/

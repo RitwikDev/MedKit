@@ -9,20 +9,18 @@ import Foundation
 
 extension ManageMedicineTagsView {
     func handleOnAppear(
-        medicineViewModel: MedicineViewModel,
-        allTagModels: [TagModel],
-        allTagsState: inout [Tag],
+        globalDataViewModel: GlobalDataViewModel,
+        medicineEditorViewModel: MedicineEditorViewModel,
         filteredTags: inout [Tag],
-        medicineTags: inout [Tag]
+        medicineTags: inout Set<Tag>
     ) {
-        allTagsState = allTagModels.map { Tag(from: $0) }
-        filteredTags = allTagsState
-        medicineTags = medicineViewModel.medicine.tags
+        filteredTags = globalDataViewModel.allTags
+        medicineTags = Set(medicineEditorViewModel.medicine.tags)
     }
     
     func addNewTag(
-        allTagsState: inout [Tag],
-        medicineTags: inout [Tag],
+        globalDataViewModel: GlobalDataViewModel,
+        medicineTags: inout Set<Tag>,
         newTagValue: inout String
     ) {
         guard !newTagValue.trimmedIsEmpty else { return }
@@ -30,49 +28,44 @@ extension ManageMedicineTagsView {
         let trimmedNewTag = newTagValue.trimmed
         let newTag = Tag(value: trimmedNewTag)
 
-        allTagsState.append(newTag)
-        medicineTags.append(newTag)
-        
-        allTagsState.sort { $0.value < $1.value }
+        globalDataViewModel.allTags.append(newTag)
+        medicineTags.insert(newTag)
         
         newTagValue = ""
     }
     
     func addExistingTag(
-        allTagsState: inout [Tag],
-        medicineTags: inout [Tag],
-        tag: Tag,
+        medicineTags: inout Set<Tag>,
+        tagToAdd: Tag,
         newTagValue: inout String
     ) {
-        medicineTags.append(tag)
+        medicineTags.insert(tagToAdd)
         newTagValue = ""
     }
     
     func removeTag(
-        medicineTags: inout [Tag],
+        medicineTags: inout Set<Tag>,
         tagToRemove: Tag
     ) {
-        medicineTags.removeAll { $0.equals(tagToRemove) }
+        medicineTags.remove(tagToRemove)
     }
     
     func filterIn(
-        allTagsState: inout [Tag],
+        globalDataViewModel: GlobalDataViewModel,
         filteredTags: inout [Tag],
         newTagValue: String
     ) {
         if (newTagValue.trimmedIsEmpty) {
-            filteredTags = allTagsState
+            filteredTags = globalDataViewModel.allTags.sorted()
         } else {
-            filteredTags = allTagsState.filter { $0.value.localizedCaseInsensitiveContains(newTagValue) }
+            filteredTags = globalDataViewModel.allTags.filter { $0.value.localizedCaseInsensitiveContains(newTagValue) }
         }
     }
     
-    func handleSave(medicineViewModel: MedicineViewModel, medicineTags: [Tag]) {
-        medicineViewModel.medicine.tags = medicineTags
-    }
-    
-    func isAddButtonDisabled(allTagsState: [Tag], newTagValue: String) -> Bool {
-        allTagsState.first { $0.value.lowercasedAndTrimmed == newTagValue.lowercasedAndTrimmed } != nil
-        || newTagValue.trimmedIsEmpty
+    func handleSave(
+        medicineEditorViewModel: MedicineEditorViewModel,
+        medicineTags: Set<Tag>
+    ) {
+        medicineEditorViewModel.medicine.tags = Array(medicineTags).sorted()
     }
 }

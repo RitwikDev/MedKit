@@ -9,10 +9,12 @@ import SwiftData
 import SwiftUI
 
 struct SettingsView: View {
-    @Query private var tags: [TagModel]
-    @Query private var ingredients: [IngredientModel]
-    @Environment(\.modelContext) private var modelContext
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
+    @Environment(MedicineListViewModel.self) private var medicineListViewModel
     @State private var enableNotifications: Bool = false
+    @State private var customFields: [CustomField] = []
+    @State private var ingredients: [Ingredient] = []
+    @State private var tags: [Tag] = []
     
     var body: some View {
         NavigationStack {
@@ -24,11 +26,12 @@ struct SettingsView: View {
                     
                     Section("Ingredients") {
                         if (ingredients.isEmpty) {
-                            EmptyEntryView(text: "No Ingrediets Added")
+                            EmptyEntryView(text: "No Ingredients Added")
                         } else {
                             ForEach(ingredients) { ingredient in
                                 Text(ingredient.fullName)
                             }
+                            .onDelete(perform: globalDataViewModel.deleteIngredient)
                         }
                     }
                     
@@ -39,35 +42,61 @@ struct SettingsView: View {
                             ForEach(tags) { tag in
                                 Text(tag.value)
                             }
+                            .onDelete(perform: globalDataViewModel.deleteTag)
+                        }
+                    }
+                    
+                    Section("Custom Fields") {
+                        if (customFields.isEmpty) {
+                            EmptyEntryView(text: "No Custom Fields Added")
+                        } else {
+                            ForEach(customFields) { customField in
+                                VStack(alignment: .leading) {
+                                    Text(customField.label)
+                                    Text(customField.dataType.rawValue)
+                                        .foregroundStyle(.secondary)
+                                        .font(.callout)
+                                }
+                            }
+                            .onDelete(perform: globalDataViewModel.deleteCustomField)
                         }
                     }
                     
                     Section("Reset Application") {
                         Button("Delete All Data", role: .destructive) {
-                            deleteAllData(from: modelContext)
+                            globalDataViewModel.deleteAllTags()
+                            globalDataViewModel.deleteAllIngredients()
+                            globalDataViewModel.deleteAllCustomFields()
+                            medicineListViewModel.deleteAllMedicines()
                         }
                         
                         Button("Delete All Medicines", role: .destructive) {
-                            deleteAllData(from: modelContext, of: .medicines)
+                            medicineListViewModel.deleteAllMedicines()
+                        }
+                        
+                        Button("Delete All Tags", role: .destructive) {
+                            globalDataViewModel.deleteAllTags()
                         }
                         
                         Button("Delete All Ingredients", role: .destructive) {
-                            deleteAllData(from: modelContext, of: .ingredients)
-                        }
-
-                        Button("Delete All Tags", role: .destructive) {
-                            deleteAllData(from: modelContext, of: .tags)
+                            globalDataViewModel.deleteAllIngredients()
                         }
 
                         Button("Delete All Custom Fields", role: .destructive) {
-                            deleteAllData(from: modelContext, of: .customFields)
+                            globalDataViewModel.deleteAllCustomFields()
                         }
                     }
                 }
             }
             .navigationTitle("Settings")
             .onAppear {
-                print(modelContext.sqliteCommand)
+                globalDataViewModel.fetchAllCustomFields()
+                globalDataViewModel.fetchAllIngredients()
+                globalDataViewModel.fetchAllTags()
+                
+                customFields = globalDataViewModel.allCustomFields
+                ingredients = globalDataViewModel.allIngredients
+                tags = globalDataViewModel.allTags
             }
         }
     }
@@ -75,4 +104,6 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView()
+        .environment(GlobalDataViewModel())
+        .environment(MedicineListViewModel())
 }

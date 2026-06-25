@@ -10,12 +10,13 @@ import SwiftUI
 struct StrengthSectionView: View {
     @Binding var strengthAmount: Float?
     @Binding var strengthUnit: String?
+    var textColour: Color = .primary
     
     @State var strengthAmountString: String = ""
     @State var strengthUnitString: String = ""
     
     var body: some View {
-        Section("Strength (Optional)") {
+        Section(content: {
             VStack {
                 TextField("Amount", text: $strengthAmountString)
                     .keyboardType(.decimalPad)
@@ -29,14 +30,24 @@ struct StrengthSectionView: View {
                     .autocorrectionDisabled()
                     .textInputAutocapitalization(.never)
                     .onChange(of: strengthUnitString) { oldValue, newValue in
-                        strengthUnit = newValue
+                        strengthUnit = newValue.trimmedIsEmpty ? nil : newValue
                     }
             }
+            .foregroundStyle(textColour)
             .onAppear(perform: handleStrengthChange)
             .onChange(of: [strengthAmount, strengthUnit] as [AnyHashable]) {
                 handleStrengthChange()
             }
-        }
+        }, header: {
+            Text("Strength (Optional)")
+        }, footer: {
+            if ((strengthAmount != nil && strengthUnit == nil)
+                || (strengthAmount == nil && strengthUnit != nil))
+                || ((strengthAmount ?? 1) <= 0) {
+                Text("Strength is not valid")
+                    .foregroundStyle(.red)
+            }
+        })
     }
 }
 

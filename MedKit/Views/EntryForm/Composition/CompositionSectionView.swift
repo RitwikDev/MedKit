@@ -9,20 +9,20 @@ import SwiftUI
 
 struct CompositionSectionView: View {
     @Environment(NavigationRouter.self) private var router
-    @Environment(MedicineViewModel.self) private var medicineViewModel
+    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     
     var body: some View {
         Section("Composition") {
-            ForEach(medicineViewModel.medicine.composition) { ingredient in
+            ForEach(medicineEditorViewModel.medicine.composition) { ingredient in
                 Button(ingredient.fullName) {
-                    router.navigate(to: .editIngredient(for: ingredient))
+                    router.navigate(to: .ingredientForm(for: ingredient))
                 }
                 .foregroundStyle(.primary)
             }
-            .onDelete(perform: medicineViewModel.removeIngredient)
+            .onDelete(perform: medicineEditorViewModel.removeIngredient)
             
             Button("Add Ingredient") {
-                router.navigate(to: .addIngredient)
+                router.navigate(to: .ingredientForm(for: .init()))
             }
         }
     }
@@ -32,6 +32,7 @@ struct CompositionSectionView: View {
     Form {
         CompositionSectionView()
     }
-    .environment(MedicineViewModel())
+    .environment(GlobalDataViewModel())
+    .environment(MedicineEditorViewModel())
     .environment(NavigationRouter())
 }

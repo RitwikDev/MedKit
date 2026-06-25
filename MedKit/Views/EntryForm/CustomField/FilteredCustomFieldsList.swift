@@ -10,34 +10,32 @@ import SwiftUI
 import SwiftData
 
 struct FilteredCustomFieldsList: View {
-    @Query var customFields: [CustomFieldModel]
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     @Binding var selectedCustomField: CustomField
+    @State private var customFields: [CustomField] = []
     
     init(
         searchText: String,
         selectedCustomField: Binding<CustomField>,
     ) {
         self._selectedCustomField = selectedCustomField
-        
-        let queryText = searchText 
+        /*
+        let queryText = searchText
         
         let predicate = #Predicate<CustomFieldModel> { field in
             queryText.isEmpty || field.label.localizedStandardContains(queryText)
         }
         
         self._customFields = Query(filter: predicate, sort: \.label)
-    }
-    
-    private var customFieldStructs: [CustomField] {
-        customFields.map { CustomField(from: $0) }
+         */
     }
     
     var body: some View {
         Section {
-            if customFieldStructs.isEmpty {
+            if customFields.isEmpty {
                 EmptyEntryView(text: "No Field Found")
             } else {
-                ForEach(self.customFieldStructs) { customField in
+                ForEach(customFields) { customField in
                     Button {
                         selectedCustomField = customField
                     } label: {
@@ -46,7 +44,7 @@ struct FilteredCustomFieldsList: View {
                             
                             Spacer()
                             
-                            if selectedCustomField.persistentIdentifier == customField.persistentIdentifier {
+                            if selectedCustomField == customField {
                                 Image(systemName: "checkmark")
                             }
                         }
@@ -55,5 +53,18 @@ struct FilteredCustomFieldsList: View {
                 }
             }
         }
+        .onAppear {
+            customFields = globalDataViewModel.allCustomFields
+        }
     }
+}
+
+#Preview {
+    Form {
+        FilteredCustomFieldsList(
+            searchText: "",
+            selectedCustomField: .constant(.init())
+        )
+    }
+    .environment(GlobalDataViewModel())
 }

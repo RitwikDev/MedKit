@@ -5,34 +5,25 @@
 //  Created by Ritwik Dev on 16/05/26.
 //
 
-import FirebaseCore
 import SwiftData
 import SwiftUI
 
-class AppDelegate: NSObject, UIApplicationDelegate {
-  func application(_ application: UIApplication,
-                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-    FirebaseApp.configure()
-    return true
-  }
-}
-
 @main
 struct MedKitApp: App {
-    
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
+    @State private var globalDataViewModel = GlobalDataViewModel()
+    @State private var medicineEditorViewModel = MedicineEditorViewModel()
+    @State private var medicineListViewModel = MedicineListViewModel()
+    @State private var router = NavigationRouter()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(globalDataViewModel)
+                .environment(medicineEditorViewModel)
+                .environment(medicineListViewModel)
+                .environment(router)
         }
-        .modelContainer(for: [
-            MedicineModel.self,
-            IngredientModel.self,
-            ScheduleModel.self,
-            TagModel.self,
-            CustomFieldModel.self,
-            CustomFieldValueModel.self,
-        ])
     }
 }

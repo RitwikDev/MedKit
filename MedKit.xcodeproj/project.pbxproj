@@ -13,11 +13,13 @@
 		BA9586402FB957750095C2E2 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = BA95863F2FB957750095C2E2 /* FirebaseAILogic */; };
 		BA95866B2FB95CC80095C2E2 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = BA95866A2FB95CC80095C2E2 /* FirebaseAnalytics */; };
 		BABBA3C42FE172F500DC5020 /* DevKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = BABBA3C32FE172F500DC5020 /* DevKitUI */; };
+		BAE238B22FE45ED100C34F62 /* MedKit.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BAE238B02FE45ED100C34F62 /* MedKit.xcdatamodeld */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		362E636C2FB94D5E00CFB7AB /* MedKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MedKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		362E637D2FB9525100CFB7AB /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		BAE238B12FE45ED100C34F62 /* MedKit.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MedKit.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -60,6 +62,7 @@
 		362E63632FB94D5E00CFB7AB = {
 			isa = PBXGroup;
 			children = (
+				BAE238B02FE45ED100C34F62 /* MedKit.xcdatamodeld */,
 				362E637D2FB9525100CFB7AB /* .gitignore */,
 				362E636E2FB94D5E00CFB7AB /* MedKit */,
 				BA9586692FB95CC80095C2E2 /* Frameworks */,
@@ -168,6 +171,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BAE238B22FE45ED100C34F62 /* MedKit.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,6 +306,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MedKit/MedKit.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MedKit/Preview Content\"";
@@ -334,6 +339,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = MedKit/MedKit.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"MedKit/Preview Content\"";
@@ -446,6 +452,19 @@
 			productName = DevKitUI;
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		BAE238B02FE45ED100C34F62 /* MedKit.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				BAE238B12FE45ED100C34F62 /* MedKit.xcdatamodel */,
+			);
+			currentVersion = BAE238B12FE45ED100C34F62 /* MedKit.xcdatamodel */;
+			path = MedKit.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 362E63642FB94D5E00CFB7AB /* Project object */;
 }

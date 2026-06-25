@@ -5,6 +5,7 @@
 //  Created by Ritwik Dev on 25/05/26.
 //
 
+/*
 import Foundation
 
 extension Medicine {
@@ -24,3 +25,4 @@ extension Medicine {
         self.customFields = model.customFields.map { CustomFieldValue(from: $0) }
     }
 }
+*/
