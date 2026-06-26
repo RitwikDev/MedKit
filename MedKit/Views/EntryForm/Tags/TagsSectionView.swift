@@ -48,7 +48,7 @@ struct TagsSectionView: View {
         .scrollDismissesKeyboard(.interactively)
         .onChange(of: isTagTextFieldFocussed) { _, isFocused in
             withAnimation(.spring) {
-                showSuggestions = isFocused
+                showSuggestions = isFocused && !filteredTags.isEmpty
             }
         }
         .onChange(of: filteredTags.isEmpty) { _, filteredTagsIsEmpty in

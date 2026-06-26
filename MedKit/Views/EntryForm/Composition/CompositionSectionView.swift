@@ -15,14 +15,14 @@ struct CompositionSectionView: View {
         Section("Composition") {
             ForEach(medicineEditorViewModel.medicine.composition) { ingredient in
                 Button(ingredient.fullName) {
-                    router.navigate(to: .ingredientForm(for: ingredient))
+                    router.navigate(to: .ingredientForm(for: ingredient, medicineEditorViewModel: medicineEditorViewModel))
                 }
                 .foregroundStyle(.primary)
             }
             .onDelete(perform: medicineEditorViewModel.removeIngredient)
             
             Button("Add Ingredient") {
-                router.navigate(to: .ingredientForm(for: .init()))
+                router.navigate(to: .ingredientForm(for: .init(), medicineEditorViewModel: medicineEditorViewModel))
             }
         }
     }

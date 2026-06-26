@@ -66,7 +66,7 @@ struct CustomFieldsSectionView: View {
         }
         
         Button("Add Field") {
-            router.navigate(to: .addCustomFields)
+            router.navigate(to: .addCustomFields(medicineEditorViewModel: medicineEditorViewModel))
         }
     }
 }

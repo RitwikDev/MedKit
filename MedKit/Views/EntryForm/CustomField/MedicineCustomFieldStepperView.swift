@@ -14,12 +14,16 @@ enum StepsEnum: Int {
 }
 
 struct MedicineCustomFieldStepperView: View {
-    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
-    @Environment(\.dismiss) private var dismiss
+    let medicineEditorViewModel: MedicineEditorViewModel
     
+    @Environment(\.dismiss) private var dismiss
     @State private var step = StepsEnum.chooseField.rawValue
     @State private var selectedCustomField: CustomField = .init()
     @State private var customFieldValue: CustomFieldValue = .init()
+    
+    init(medicineEditorViewModel: MedicineEditorViewModel) {
+        self.medicineEditorViewModel = medicineEditorViewModel
+    }
     
     var body: some View {
         StepperView(
@@ -27,7 +31,7 @@ struct MedicineCustomFieldStepperView: View {
             onNavigate: handleStepNavigated,
             onComplete: handleCompleted
         ) {
-            AddCustomFieldsView(selectedCustomField: $selectedCustomField)
+            AddCustomFieldsView(selectedCustomField: $selectedCustomField, medicineEditorViewModel: medicineEditorViewModel)
                 .stepItem(index: StepsEnum.chooseField.rawValue, title: "Choose Field")
             
             MedicineCustomFieldFormView(
@@ -60,8 +64,6 @@ struct MedicineCustomFieldStepperView: View {
 
 #Preview {
     NavigationStack {
-        MedicineCustomFieldStepperView()
-            .environment(GlobalDataViewModel())
-            .environment(MedicineEditorViewModel())
+        MedicineCustomFieldStepperView(medicineEditorViewModel: .init())
     }
 }

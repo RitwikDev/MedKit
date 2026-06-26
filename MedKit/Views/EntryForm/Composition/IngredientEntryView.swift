@@ -9,13 +9,14 @@ import SwiftUI
 
 struct IngredientEntryView: View {
     let ingredient: Ingredient
+    let medicineEditorViewModel: MedicineEditorViewModel
     
     @Environment(\.dismiss) private var dismiss
-    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     @State private var draftIngredient: Ingredient
     
-    init(ingredient: Ingredient) {
+    init(ingredient: Ingredient, medicineEditorViewModel: MedicineEditorViewModel) {
         self.ingredient = ingredient
+        self.medicineEditorViewModel = medicineEditorViewModel
         self._draftIngredient = State(initialValue: ingredient)
     }
     
@@ -70,9 +71,8 @@ struct IngredientEntryView: View {
                 name: "Composition Name",
                 strengthAmount: 500,
                 strengthUnit: "mcg"
-            )
+            ),
+            medicineEditorViewModel: .init()
         )
     }
-    .environment(GlobalDataViewModel())
-    .environment(MedicineEditorViewModel())
 }
