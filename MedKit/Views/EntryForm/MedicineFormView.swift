@@ -65,6 +65,7 @@ struct MedicineFormView: View {
     NavigationStack {
         MedicineFormView(medicine: .init())
     }
+    .environment(GlobalDataViewModel())
     .environment(MedicineEditorViewModel())
     .environment(NavigationRouter())
 }

@@ -12,9 +12,6 @@ struct SettingsView: View {
     @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     @State private var medicineListViewModel: MedicineListViewModel = .init()
     @State private var enableNotifications: Bool = false
-    @State private var customFields: [CustomField] = []
-    @State private var ingredients: [Ingredient] = []
-    @State private var tags: [Tag] = []
     
     var body: some View {
         NavigationStack {
@@ -25,10 +22,10 @@ struct SettingsView: View {
                     }
                     
                     Section("Ingredients") {
-                        if (ingredients.isEmpty) {
+                        if (globalDataViewModel.allIngredients.isEmpty) {
                             EmptyEntryView(text: "No Ingredients Added")
                         } else {
-                            ForEach(ingredients) { ingredient in
+                            ForEach(globalDataViewModel.allIngredients) { ingredient in
                                 Text(ingredient.fullName)
                             }
                             .onDelete(perform: globalDataViewModel.deleteIngredient)
@@ -36,10 +33,10 @@ struct SettingsView: View {
                     }
                     
                     Section("Tags") {
-                        if (tags.isEmpty) {
+                        if (globalDataViewModel.allTags.isEmpty) {
                             EmptyEntryView(text: "No Tags Added")
                         } else {
-                            ForEach(tags) { tag in
+                            ForEach(globalDataViewModel.allTags) { tag in
                                 Text(tag.value)
                             }
                             .onDelete(perform: globalDataViewModel.deleteTag)
@@ -47,10 +44,10 @@ struct SettingsView: View {
                     }
                     
                     Section("Custom Fields") {
-                        if (customFields.isEmpty) {
+                        if (globalDataViewModel.allCustomFields.isEmpty) {
                             EmptyEntryView(text: "No Custom Fields Added")
                         } else {
-                            ForEach(customFields) { customField in
+                            ForEach(globalDataViewModel.allCustomFields) { customField in
                                 VStack(alignment: .leading) {
                                     Text(customField.label)
                                     Text(customField.dataType.rawValue)
@@ -93,10 +90,6 @@ struct SettingsView: View {
                 globalDataViewModel.fetchAllCustomFields()
                 globalDataViewModel.fetchAllIngredients()
                 globalDataViewModel.fetchAllTags()
-                
-                customFields = globalDataViewModel.allCustomFields
-                ingredients = globalDataViewModel.allIngredients
-                tags = globalDataViewModel.allTags
             }
         }
     }
@@ -105,5 +98,4 @@ struct SettingsView: View {
 #Preview {
     SettingsView()
         .environment(GlobalDataViewModel())
-        .environment(MedicineListViewModel())
 }

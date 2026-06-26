@@ -9,13 +9,17 @@ import SwiftData
 import SwiftUI
 
 struct AddCustomFieldsView: View {
-    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
-    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
-    
     @Binding var selectedCustomField: CustomField
-    
+    let medicineEditorViewModel: MedicineEditorViewModel
+
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     @State private var isSheetPresented = false
     @State private var searchText = ""
+    
+    init(selectedCustomField: Binding<CustomField>, medicineEditorViewModel: MedicineEditorViewModel) {
+        self._selectedCustomField = selectedCustomField
+        self.medicineEditorViewModel = medicineEditorViewModel
+    }
 
     private var customFieldStructs: [CustomField] {
         globalDataViewModel.allCustomFields
@@ -67,8 +71,7 @@ struct AddCustomFieldsView: View {
 
 #Preview {
     NavigationStack {
-        AddCustomFieldsView(selectedCustomField: .constant(.init()))
+        AddCustomFieldsView(selectedCustomField: .constant(.init()), medicineEditorViewModel: .init())
             .environment(GlobalDataViewModel())
-            .environment(MedicineEditorViewModel())
     }
 }

@@ -17,12 +17,12 @@ struct ScheduleSectionView: View {
             if let schedule = schedule,
                schedule.repeatType != .never {
                 Button(schedule.repeatType.rawValue) {
-                    router.navigate(to: .medicineSchedule(for: schedule))
+                    router.navigate(to: .medicineSchedule(for: schedule, medicineEditorViewModel: medicineEditorViewModel))
                 }
                 .foregroundStyle(.primary)
             } else {
                 Button("Add Schedule") {
-                    router.navigate(to: .medicineSchedule(for: schedule ?? .init()))
+                    router.navigate(to: .medicineSchedule(for: schedule ?? .init(), medicineEditorViewModel: medicineEditorViewModel))
                 }
             }
         }

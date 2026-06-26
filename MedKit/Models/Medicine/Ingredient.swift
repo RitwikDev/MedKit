@@ -8,7 +8,7 @@
 import Foundation
 import SwiftData
 
-struct Ingredient: Identifiable, Equatable, Hashable {
+struct Ingredient: Identifiable, Equatable, Hashable, Comparable {
     let id: UUID
     var name: String
     var strengthAmount: Float?
@@ -24,5 +24,9 @@ struct Ingredient: Identifiable, Equatable, Hashable {
         self.name = name
         self.strengthAmount = strengthAmount
         self.strengthUnit = strengthUnit
+    }
+    
+    static func < (lhs: Ingredient, rhs: Ingredient) -> Bool {
+        lhs.name < rhs.name
     }
 }

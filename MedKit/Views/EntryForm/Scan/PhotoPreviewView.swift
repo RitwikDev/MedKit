@@ -17,7 +17,6 @@ struct PhotoPreviewView: View {
     let photo: UIImage
     let dismissButtonAction: () -> Void
     
-    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     @Environment(NavigationRouter.self) private var router
     @State private var geminiManager: GeminiManager = .init()
     @State private var shouldDisableView: Bool = false
@@ -40,7 +39,7 @@ struct PhotoPreviewView: View {
                 shouldDisableView = true
             case .success:
                 if let cMedicineModel = geminiManager.medicine {
-                    let medicine = medicineEditorViewModel.getMedicine(from: cMedicineModel)
+                    let medicine = Medicine(fromCodable: cMedicineModel)
                     geminiManager.analysisStatus = .reset
                     dismissButtonAction()
                     router.navigate(to: .medicineForm(for: medicine))
@@ -114,7 +113,6 @@ struct PhotoPreviewView: View {
         ) {
             print("Dismiss")
         }
-        .environment(MedicineEditorViewModel())
         .environment(NavigationRouter())
     }
 }

@@ -20,17 +20,6 @@ class MedicineEditorViewModel {
     init(medicine: Medicine = .init()) {
         self.medicine = medicine
     }
-    
-    func getMedicine(from codableMedicineModel: CodableMedicineModel) -> Medicine {
-        Medicine(
-            name: codableMedicineModel.name,
-            manufacturedDate: codableMedicineModel.manufacturedDate,
-            expiryDate: codableMedicineModel.expiryDate,
-            strengthAmount: codableMedicineModel.strengthAmount,
-            strengthUnit: codableMedicineModel.strengthUnit,
-            composition: codableMedicineModel.composition.map { Ingredient(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit) },
-        )
-    }
 
     // MARK: - Ingredient Management
     
@@ -42,6 +31,8 @@ class MedicineEditorViewModel {
             // Add new
             medicine.composition.append(ingredient)
         }
+        
+        medicine.composition.sort()
     }
 
     func removeIngredient(at offsets: IndexSet) {

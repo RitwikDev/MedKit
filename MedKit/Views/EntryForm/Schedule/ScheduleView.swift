@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct ScheduleView: View {
-    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
-    @Environment(\.dismiss) private var dismiss
-    
     let schedule: Schedule
+    let medicineEditorViewModel: MedicineEditorViewModel
+    
+    @Environment(\.dismiss) private var dismiss
     @State private var repeatType: RepeatType = .never
     @State private var selectedDay: Day = .sunday
     @State private var selectedDays: [Day] = []
@@ -21,6 +21,19 @@ struct ScheduleView: View {
     @State private var reminderTimes: [ReminderTime] = []
     @State private var showAlert: Bool = false
     @State private var alertMessage: String = ""
+    
+    init(schedule: Schedule, medicineEditorViewModel: MedicineEditorViewModel) {
+        self.schedule = schedule
+        self.medicineEditorViewModel = medicineEditorViewModel
+        
+        self._repeatType = State(initialValue: schedule.repeatType)
+        self._selectedDay = State(initialValue: schedule.selectedDays.first ?? .sunday)
+        self._selectedDays = State(initialValue: schedule.selectedDays)
+        self._selectedDates = State(initialValue: Set(schedule.selectedDates))
+        self._startDate = State(initialValue: schedule.startDate)
+        self._endDate = State(initialValue: schedule.endDate)
+        self._reminderTimes = State(initialValue: schedule.reminderTimes)
+    }
     
     private var isDoneButtonDisabled: Bool {
         switch repeatType {
@@ -49,17 +62,6 @@ struct ScheduleView: View {
         }
         
         return false
-    }
-    
-    init(schedule: Schedule) {
-        self.schedule = schedule
-        self._repeatType = State(initialValue: schedule.repeatType)
-        self._selectedDay = State(initialValue: schedule.selectedDays.first ?? .sunday)
-        self._selectedDays = State(initialValue: schedule.selectedDays)
-        self._selectedDates = State(initialValue: Set(schedule.selectedDates))
-        self._startDate = State(initialValue: schedule.startDate)
-        self._endDate = State(initialValue: schedule.endDate)
-        self._reminderTimes = State(initialValue: schedule.reminderTimes)
     }
     
     var body: some View {
@@ -269,7 +271,6 @@ struct ScheduleView: View {
 
 #Preview {
     NavigationStack {
-        ScheduleView(schedule: .init())
-            .environment(MedicineEditorViewModel())
+        ScheduleView(schedule: .init(), medicineEditorViewModel: .init())
     }
 }
