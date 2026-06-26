@@ -21,14 +21,14 @@ class MedicineEditorViewModel {
         self.medicine = medicine
     }
     
-    func getMedicineFromCodableMedicineModel(cMedicineModel: CodableMedicineModel) {
-        self.medicine = Medicine(
-            name: cMedicineModel.name,
-            manufacturedDate: cMedicineModel.manufacturedDate,
-            expiryDate: cMedicineModel.expiryDate,
-            strengthAmount: cMedicineModel.strengthAmount,
-            strengthUnit: cMedicineModel.strengthUnit,
-            composition: cMedicineModel.composition.map { Ingredient(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit) },
+    func getMedicine(from codableMedicineModel: CodableMedicineModel) -> Medicine {
+        Medicine(
+            name: codableMedicineModel.name,
+            manufacturedDate: codableMedicineModel.manufacturedDate,
+            expiryDate: codableMedicineModel.expiryDate,
+            strengthAmount: codableMedicineModel.strengthAmount,
+            strengthUnit: codableMedicineModel.strengthUnit,
+            composition: codableMedicineModel.composition.map { Ingredient(name: $0.name, strengthAmount: $0.strengthAmount, strengthUnit: $0.strengthUnit) },
         )
     }
 
@@ -55,6 +55,13 @@ class MedicineEditorViewModel {
     }
 
     // MARK: - Tag Management
+    
+    func addTag(_ tag: Tag) {
+        if !(medicine.tags.contains(tag)) {
+            medicine.tags.append(tag)
+            medicine.tags.sort()
+        }
+    }
     
     func removeTag(at offsets: IndexSet) {
         medicine.tags.remove(atOffsets: offsets)

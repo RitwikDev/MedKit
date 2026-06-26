@@ -40,10 +40,10 @@ struct PhotoPreviewView: View {
                 shouldDisableView = true
             case .success:
                 if let cMedicineModel = geminiManager.medicine {
-                    medicineEditorViewModel.getMedicineFromCodableMedicineModel(cMedicineModel: cMedicineModel)
+                    let medicine = medicineEditorViewModel.getMedicine(from: cMedicineModel)
                     geminiManager.analysisStatus = .reset
                     dismissButtonAction()
-                    router.navigate(to: .medicineForm)
+                    router.navigate(to: .medicineForm(for: medicine))
                 }
             case .failure:
                 showAlert.toggle()

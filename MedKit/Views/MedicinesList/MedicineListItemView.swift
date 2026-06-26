@@ -16,7 +16,6 @@ private struct ShareContext: Identifiable {
 
 struct MedicineListItemView: View {
     @Environment(NavigationRouter.self) private var router
-    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     
     let medicine: Medicine
     
@@ -25,12 +24,10 @@ struct MedicineListItemView: View {
     
     var body: some View {
         Button {
-            medicineEditorViewModel.medicine = medicine
-            router.navigate(to: .medicineForm)
+            router.navigate(to: .medicineForm(for: medicine))
         } label: {
             VStack(alignment: .leading) {
                 Text(medicine.name)
-                Text(medicine.id.uuidString)
             }
         }
         .contextMenu {
@@ -68,6 +65,5 @@ struct MedicineListItemView: View {
     MedicineListItemView(
         medicine: Medicine(name: "Medicine Name", quantity: 10)
     )
-    .environment(MedicineEditorViewModel())
     .environment(NavigationRouter())
 }

@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct CircularButtonView: View {
-    var title: String = "Delete"
-    var systemImage: String = "xmark"
-    var tintColor: Color = .red
+    var title: String = "Add"
+    var systemImage: String = "plus"
+    var tintColor: Color = .blue
     let buttonAction: () -> Void
     
     var body: some View {

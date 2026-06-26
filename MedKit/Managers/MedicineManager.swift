@@ -293,11 +293,16 @@ class MedicineManager {
                 strengthAmount: $0.strengthAmount > 0 ? $0.strengthAmount : nil,
                 strengthUnit: $0.strengthUnit
             )
-        }
+        }.sorted { $0.name < $1.name }
         
         // 2. Map Tags
         let tagEntities = entity.tags as? Set<TagEntity> ?? []
-        let tags = tagEntities.map { Tag(id: $0.id ?? UUID(), value: $0.value ?? "") }
+        let tags = tagEntities.map {
+            Tag(
+                id: $0.id ?? UUID(),
+                value: $0.value ?? ""
+            )
+        }.sorted { $0.value < $1.value }
         
         // 3. Map Custom Fields
         let customFieldEntities = entity.customFields as? Set<CustomFieldValueEntity> ?? []
