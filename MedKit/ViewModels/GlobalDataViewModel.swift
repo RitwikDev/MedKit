@@ -15,6 +15,10 @@ class GlobalDataViewModel {
     var errorMessage: String?
     
     init() {
+        fetchAllData()
+    }
+    
+    func fetchAllData() {
         fetchAllTags()
         fetchAllIngredients()
         fetchAllCustomFields()

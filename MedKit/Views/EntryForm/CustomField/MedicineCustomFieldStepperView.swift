@@ -17,6 +17,7 @@ struct MedicineCustomFieldStepperView: View {
     let medicineEditorViewModel: MedicineEditorViewModel
     
     @Environment(\.dismiss) private var dismiss
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     @State private var step = StepsEnum.chooseField.rawValue
     @State private var selectedCustomField: CustomField = .init()
     @State private var customFieldValue: CustomFieldValue = .init()
@@ -48,16 +49,19 @@ struct MedicineCustomFieldStepperView: View {
     }
     
     private func handleStepNavigated(from: Int) -> Bool {
+        print("NAV")
         return selectedCustomField.isValid()
     }
     
-    private func handleCompleted() -> Void {
+    /// Tag: handleCompleted
+    private func handleCompleted() {
         if !customFieldValue.isValid() {
             return
         }
         
         customFieldValue.definition = selectedCustomField
         medicineEditorViewModel.addCustomField(customFieldValue)
+        globalDataViewModel.allCustomFields.append(selectedCustomField)
         dismiss()
     }
 }
@@ -65,5 +69,6 @@ struct MedicineCustomFieldStepperView: View {
 #Preview {
     NavigationStack {
         MedicineCustomFieldStepperView(medicineEditorViewModel: .init())
+            .environment(GlobalDataViewModel())
     }
 }

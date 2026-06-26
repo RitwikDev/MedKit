@@ -60,12 +60,13 @@ struct AddCustomFieldsView: View {
             }
             
             FilteredCustomFieldsList(
-                searchText: searchText,
+                medicineEditorViewModel: medicineEditorViewModel,
+                searchText: $searchText,
                 selectedCustomField: $selectedCustomField,
             )
         }
-        .listSectionSpacing(8)
-        .contentMargins(.top, 8)
+//        .listSectionSpacing(8)
+//        .contentMargins(.top, 8)
     }
 }
 

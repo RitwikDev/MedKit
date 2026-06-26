@@ -8,7 +8,8 @@
 import SwiftData
 import SwiftUI
 
-struct MedicineListView: View {    
+struct MedicineListView: View {
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     @Environment(NavigationRouter.self) private var router
     @State private var medicineListViewModel: MedicineListViewModel = .init()
     @State private var tabBarVisibility: Visibility = .automatic
@@ -36,11 +37,9 @@ struct MedicineListView: View {
                 }
             }
             .environment(medicineListViewModel)
-            .onAppear {
-                medicineListViewModel.fetchAllMedicines()
-            }
+            .onAppear(perform: fetchData)
             .refreshable {
-                medicineListViewModel.fetchAllMedicines()
+                fetchData()
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -64,6 +63,11 @@ struct MedicineListView: View {
         withAnimation {
             medicineListViewModel.deleteMedicine(at: offset)
         }
+    }
+    
+    private func fetchData() {
+        medicineListViewModel.fetchAllMedicines()
+        globalDataViewModel.fetchAllData()
     }
 }
 

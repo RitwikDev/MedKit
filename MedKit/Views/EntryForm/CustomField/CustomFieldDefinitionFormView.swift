@@ -10,17 +10,22 @@ import SwiftUI
 
 struct CustomFieldDefinitionFormView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.modelContext) private var context
     @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     
     @Binding var customField: CustomField
     
     @State private var label: String = ""
     @State private var type: CustomFieldDataType = .text
-    @State private var error: String? = nil
     
-    private var customFields: [CustomField] {
-        globalDataViewModel.allCustomFields
+    private var customFieldExists: Bool {
+        globalDataViewModel.allCustomFields.contains {
+            $0.label.trimmedLocalizedCaseInsensitiveEquals(label)
+        }
+    }
+    
+    private var isDoneButtonDisabled: Bool {
+        if (label.trimmedIsEmpty) { return true }
+        return customFieldExists
     }
     
     var body: some View {
@@ -32,8 +37,8 @@ struct CustomFieldDefinitionFormView: View {
                     }, header: {
                         Text("Label")
                     }, footer: {
-                        if let error = self.error {
-                            Text(error)
+                        if (customFieldExists) {
+                            Text("Another field with the same label already exists")
                                 .foregroundStyle(.red)
                                 .font(.caption)
                         }
@@ -48,9 +53,6 @@ struct CustomFieldDefinitionFormView: View {
                 .pickerStyle(.inline)
                 .tint(.secondary)
             }
-            .onChange(of: self.label, { oldValue, newValue in
-                self.error = nil
-            })
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -62,25 +64,19 @@ struct CustomFieldDefinitionFormView: View {
                     Button("Done") {
                         saveCustomField()
                     }
-                    .disabled(self.label.trimmedIsEmpty)
+                    .disabled(isDoneButtonDisabled)
                 }
             }
             .scrollDismissesKeyboard(.interactively)
-            .navigationTitle("Create Field")
+            .navigationTitle("New Field")
             .navigationBarTitleDisplayMode(.inline)
         }
     }
     
     private func saveCustomField() -> Void {
-        for customField in self.customFields {
-            if customField.label.trimmedLocalizedCaseInsensitiveEquals(self.label) {
-                self.error = "Another field with the same label already exists"
-                return
-            }
-        }
+        guard !label.trimmedIsEmpty else { return }
         
         let newCustomField = CustomField(label: label.trimmed, dataType: type)
-        globalDataViewModel.allCustomFields.append(newCustomField)
         customField = newCustomField
         
         dismiss()
