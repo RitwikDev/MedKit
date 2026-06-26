@@ -20,13 +20,10 @@ struct IngredientEntryView: View {
         self._draftIngredient = State(initialValue: ingredient)
     }
     
-    private var isIngredientAlreadyPresent: Bool {
-        for medicineIngredient in medicineEditorViewModel.medicine.composition {
-            if (draftIngredient.isDuplicate(of: medicineIngredient)) {
-                return true
-            }
+    private var ingredientExists: Bool {
+        medicineEditorViewModel.medicine.composition.contains {
+            $0.fullName.trimmedLocalizedCaseInsensitiveEquals(draftIngredient.fullName)
         }
-        return false
     }
     
     var body: some View {
@@ -42,7 +39,7 @@ struct IngredientEntryView: View {
             )
             .disabled(draftIngredient.name.trimmedIsEmpty)
             
-            if (isIngredientAlreadyPresent) {
+            if (ingredientExists) {
                 Text("This medicine already contains \(draftIngredient.fullName)")
                     .listRowBackground(Color.clear)
                     .foregroundStyle(.red)
@@ -52,10 +49,15 @@ struct IngredientEntryView: View {
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done") {
-                    medicineEditorViewModel.upsertIngredient(draftIngredient)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                        withAnimation {
+                            medicineEditorViewModel.upsertIngredient(draftIngredient)
+                        }
+                    }
+                    
                     dismiss()
                 }
-                .disabled(!draftIngredient.isValid() || isIngredientAlreadyPresent)
+                .disabled(!draftIngredient.isValid() || ingredientExists)
             }
         }
         .scrollDismissesKeyboard(.interactively)

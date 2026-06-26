@@ -15,7 +15,7 @@ enum CustomFieldValueWrapper: Equatable, Hashable {
     case none
 }
 
-struct CustomFieldValue: Identifiable, Equatable, Hashable {
+struct CustomFieldValue: Identifiable, Equatable, Hashable, Comparable {
     let id: UUID
     var textValue: String?
     var dateValue: Date?
@@ -36,6 +36,10 @@ struct CustomFieldValue: Identifiable, Equatable, Hashable {
         self.dateValue = dateValue
         self.listValue = textListValue
         self.definition = definition
+    }
+    
+    static func < (lhs: CustomFieldValue, rhs: CustomFieldValue) -> Bool {
+        lhs.definition?.label ?? "" < rhs.definition?.label ?? ""
     }
     
     func getLabel() -> String {

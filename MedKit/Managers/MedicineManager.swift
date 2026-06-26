@@ -326,7 +326,7 @@ class MedicineManager {
                 textListValue: decodedList,
                 definition: definition
             )
-        }
+        }.sorted { $0.definition?.label ?? "" < $1.definition?.label ?? "" }
         
         // 4. Map Schedule
         var scheduleStruct: Schedule? = nil

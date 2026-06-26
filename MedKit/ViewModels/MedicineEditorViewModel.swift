@@ -62,6 +62,7 @@ class MedicineEditorViewModel {
     
     func addCustomField(_ customField: CustomFieldValue) {
         medicine.customFields.append(customField)
+        medicine.customFields.sort()
     }
     
     func addCustomListItem(to customField: CustomFieldValue, value: String) {

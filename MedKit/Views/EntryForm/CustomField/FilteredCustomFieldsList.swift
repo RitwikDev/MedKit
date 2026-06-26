@@ -11,36 +11,57 @@ import SwiftData
 
 struct FilteredCustomFieldsList: View {
     @Environment(GlobalDataViewModel.self) private var globalDataViewModel
+    let medicineEditorViewModel: MedicineEditorViewModel
+    @Binding var searchText: String
     @Binding var selectedCustomField: CustomField
-    @State private var customFields: [CustomField] = []
+    
+    private let medicineCustomFields: Set<CustomField?>
     
     init(
-        searchText: String,
+        medicineEditorViewModel: MedicineEditorViewModel,
+        searchText: Binding<String>,
         selectedCustomField: Binding<CustomField>,
     ) {
+        self.medicineEditorViewModel = medicineEditorViewModel
+        self._searchText = searchText
         self._selectedCustomField = selectedCustomField
-        /*
-        let queryText = searchText
+        self.medicineCustomFields = Set(medicineEditorViewModel.medicine.customFields.map { $0.definition })
+    }
         
-        let predicate = #Predicate<CustomFieldModel> { field in
-            queryText.isEmpty || field.label.localizedStandardContains(queryText)
+    private var filteredCustomFields: [CustomField] {
+        /// Uncomment the two lines below to hide the custom fields from the list which are already
+        /// present in the medicine.
+        /// Currently, all custom fields are visible—even the ones already present in the medicine—as
+        /// certain fields, such as 'Prescription' might be reused by users.
+//        let medicineCustomFields = Set(medicineEditorViewModel.medicine.customFields.map { $0.definition })
+        
+        return globalDataViewModel.allCustomFields.filter { customField in
+//            if (medicineCustomFields.contains(customField)) { return false }
+            if (searchText.trimmedIsEmpty) { return true }
+            return customField.label.localizedStandardContains(searchText)
         }
-        
-        self._customFields = Query(filter: predicate, sort: \.label)
-         */
     }
     
     var body: some View {
         Section {
-            if customFields.isEmpty {
+            if filteredCustomFields.isEmpty {
                 EmptyEntryView(text: "No Field Found")
             } else {
-                ForEach(customFields) { customField in
+                ForEach(filteredCustomFields) { customField in
                     Button {
                         selectedCustomField = customField
                     } label: {
                         HStack {
-                            CustomFieldDefinitionListItem(customField: customField)
+                            VStack(alignment: .leading) {
+                                CustomFieldDefinitionListItem(customField: customField)
+                                
+                                if (medicineCustomFields.contains(customField)) {
+                                    Text("Already present in \(medicineEditorViewModel.medicine.name)")
+                                        .foregroundStyle(.secondary)
+                                        .font(.subheadline)
+                                        .italic()
+                                }
+                            }
                             
                             Spacer()
                             
@@ -53,16 +74,14 @@ struct FilteredCustomFieldsList: View {
                 }
             }
         }
-        .onAppear {
-            customFields = globalDataViewModel.allCustomFields
-        }
     }
 }
 
 #Preview {
     Form {
         FilteredCustomFieldsList(
-            searchText: "",
+            medicineEditorViewModel: .init(),
+            searchText: .constant(""),
             selectedCustomField: .constant(.init())
         )
     }
