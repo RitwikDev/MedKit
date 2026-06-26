@@ -9,9 +9,9 @@ import SwiftData
 import SwiftUI
 
 struct MedicineListView: View {    
-    @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
-    @Environment(MedicineListViewModel.self) private var medicineListViewModel
     @Environment(NavigationRouter.self) private var router
+    @State private var medicineListViewModel: MedicineListViewModel = .init()
+    @State private var tabBarVisibility: Visibility = .automatic
     
     var body: some View {
         @Bindable var router = router
@@ -35,13 +35,9 @@ struct MedicineListView: View {
                     .listStyle(.plain)
                 }
             }
+            .environment(medicineListViewModel)
             .onAppear {
                 medicineListViewModel.fetchAllMedicines()
-            }
-            .onChange(of: router.path) { _, newValue in
-                if (newValue.count == 0) {
-                    medicineEditorViewModel.medicine = .init()
-                }
             }
             .refreshable {
                 medicineListViewModel.fetchAllMedicines()
@@ -51,10 +47,16 @@ struct MedicineListView: View {
                     NewMedicineToolbarItemView()
                 }
             }
+            .onChange(of: router.path) { _, newValue in
+                withAnimation(.bouncy(duration: 5)) {
+                    tabBarVisibility = newValue.count == 0 ? .automatic : .hidden
+                }
+            }
             .navigationDestination(for: NavigationPathEnum.self) { route in
                 route.destination
             }
             .navigationTitle("Medicines")
+            .toolbar(tabBarVisibility, for: .tabBar)
         }
     }
     
@@ -68,7 +70,6 @@ struct MedicineListView: View {
 #Preview {    
     MedicineListView()
         .environment(GlobalDataViewModel())
-        .environment(MedicineEditorViewModel())
         .environment(MedicineListViewModel())
         .environment(NavigationRouter())
 }

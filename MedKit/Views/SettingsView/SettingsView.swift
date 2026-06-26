@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @Environment(GlobalDataViewModel.self) private var globalDataViewModel
-    @Environment(MedicineListViewModel.self) private var medicineListViewModel
+    @State private var medicineListViewModel: MedicineListViewModel = .init()
     @State private var enableNotifications: Bool = false
     @State private var customFields: [CustomField] = []
     @State private var ingredients: [Ingredient] = []
