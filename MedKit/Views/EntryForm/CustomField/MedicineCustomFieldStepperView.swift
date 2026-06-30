@@ -21,6 +21,8 @@ struct MedicineCustomFieldStepperView: View {
     @State private var step = StepsEnum.chooseField.rawValue
     @State private var selectedCustomField: CustomField = .init()
     @State private var customFieldValue: CustomFieldValue = .init()
+    @State private var showAlert: Bool = false
+    @State private var alertMessage: String = ""
     
     init(medicineEditorViewModel: MedicineEditorViewModel) {
         self.medicineEditorViewModel = medicineEditorViewModel
@@ -36,6 +38,7 @@ struct MedicineCustomFieldStepperView: View {
                 .stepItem(index: StepsEnum.chooseField.rawValue, title: "Choose Field")
             
             MedicineCustomFieldFormView(
+                medicineEditorViewModel: medicineEditorViewModel,
                 customFieldDefinition: selectedCustomField,
                 customFieldValue: $customFieldValue,
             )
@@ -46,22 +49,31 @@ struct MedicineCustomFieldStepperView: View {
         .onChange(of: selectedCustomField) { oldValue, newValue in
             step = StepsEnum.addValues.rawValue
         }
+        .alert("Unable to proceed", isPresented: $showAlert) { } message: {
+            Text(alertMessage)
+        }
     }
     
     private func handleStepNavigated(from: Int) -> Bool {
-        print("NAV")
         return selectedCustomField.isValid()
     }
     
-    /// Tag: handleCompleted
     private func handleCompleted() {
-        if !customFieldValue.isValid() {
+        let (customFieldIsValid, invalidField) = customFieldValue.isValid()
+        
+        if !customFieldIsValid {
+            showAlert = true
+            alertMessage = invalidField.rawValue
             return
         }
         
         customFieldValue.definition = selectedCustomField
         medicineEditorViewModel.addCustomField(customFieldValue)
-        globalDataViewModel.allCustomFields.append(selectedCustomField)
+        
+        if !(globalDataViewModel.allCustomFields.contains(selectedCustomField)){
+            globalDataViewModel.allCustomFields.append(selectedCustomField)
+        }
+        
         dismiss()
     }
 }

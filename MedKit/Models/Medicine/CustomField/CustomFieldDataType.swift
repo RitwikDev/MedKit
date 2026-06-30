@@ -12,6 +12,7 @@ enum CustomFieldDataType: String, Codable, CaseIterable, Identifiable {
     case text = "Text"
     case date = "Date"
     case list = "List"
+    case documents = "Documents"
     
     var id: Self { self }
 }

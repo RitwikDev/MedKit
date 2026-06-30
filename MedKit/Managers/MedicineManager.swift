@@ -60,14 +60,16 @@ class MedicineManager {
             entity.strengthAmount = medicine.strengthAmount ?? 0
             entity.strengthUnit = medicine.strengthUnit
             
-            // 2. Map Ingredients (One-to-Many Owned)
-            // Delete existing to prevent orphans, then rebuild
-            if let existingIngredients = entity.composition as? Set<IngredientEntity> {
-                existingIngredients.forEach { context.delete($0) }
-            }
+            // 2. Map Ingredients
+            let existingIngredients = (entity.composition as? Set<IngredientEntity>) ?? []
+            var matchedIngredientIDs = Set<UUID>()
             
             for structIngredient in medicine.composition {
-                let ingredientEntity = IngredientEntity(context: context)
+                matchedIngredientIDs.insert(structIngredient.id)
+                
+                let ingredientEntity = existingIngredients.first(where: { $0.id == structIngredient.id })
+                                       ?? IngredientEntity(context: context)
+                
                 ingredientEntity.id = structIngredient.id
                 ingredientEntity.name = structIngredient.name
                 ingredientEntity.strengthAmount = structIngredient.strengthAmount ?? 0
@@ -75,19 +77,22 @@ class MedicineManager {
                 ingredientEntity.medicine = entity
             }
             
+            // Cleanup removed ingredients
+            for oldIngredient in existingIngredients {
+                if let oldID = oldIngredient.id, !matchedIngredientIDs.contains(oldID) {
+                    context.delete(oldIngredient)
+                }
+            }
+            
             // 3. Map Tags (Many-to-Many Shared)
-            // We do NOT delete TagEntities here because they might be shared with other medicines.
-            // We only reset the relationship links for this specific medicine.
             var linkedTags = Set<TagEntity>()
             for structTag in medicine.tags {
                 let tagReq: NSFetchRequest<TagEntity> = TagEntity.fetchRequest()
                 tagReq.predicate = NSPredicate(format: "id == %@", structTag.id as CVarArg)
                 
                 if let existingTag = try context.fetch(tagReq).first {
-                    // Link existing global tag
                     linkedTags.insert(existingTag)
                 } else {
-                    // Create new global tag and link it
                     let newTag = TagEntity(context: context)
                     newTag.id = structTag.id
                     newTag.value = structTag.value
@@ -96,76 +101,115 @@ class MedicineManager {
             }
             entity.tags = linkedTags as NSSet
             
-            // 4. Map Custom Fields (One-to-Many Owned Values, Linked to Global Definitions)
-            // Delete existing values to prevent orphans, then rebuild based on the current draft.
-            if let existingCustomFields = entity.customFields as? Set<CustomFieldValueEntity> {
-                existingCustomFields.forEach { context.delete($0) }
-            }
+            // 4. Map Custom Fields
+            let existingCustomFields = (entity.customFields as? Set<CustomFieldValueEntity>) ?? []
+            var matchedCustomFieldIDs = Set<UUID>()
             
             for structCF in medicine.customFields {
-                let cfEntity = CustomFieldValueEntity(context: context)
+                matchedCustomFieldIDs.insert(structCF.id)
+                
+                let cfEntity = existingCustomFields.first(where: { $0.id == structCF.id })
+                               ?? CustomFieldValueEntity(context: context)
+                
                 cfEntity.id = structCF.id
                 cfEntity.medicine = entity
-                
-                // Step 2: Store only the provided value based on the data type.
-                // Whichever properties are not assigned here will naturally default to nil in Core Data.
                 cfEntity.textValue = structCF.textValue
                 cfEntity.dateValue = structCF.dateValue
                 
-                // Safely encode the string array to binary data if the type is a List
                 if let list = structCF.listValue, let data = try? JSONEncoder().encode(list) {
                     cfEntity.textListValueData = data
                 }
                 
-                // Step 1: Link or Create the global CustomFieldEntity definition
+                let existingDocuments = (cfEntity.documents as? Set<DocumentEntity>) ?? []
+                var matchedDocumentIDs = Set<UUID>()
+
+                if let structDocuments = structCF.documentValue {
+                    for structDocument in structDocuments {
+                        matchedDocumentIDs.insert(structDocument.id)
+                        
+                        let documentEntity = existingDocuments.first(where: { $0.id == structDocument.id })
+                                               ?? DocumentEntity(context: context)
+                        
+                        documentEntity.id = structDocument.id
+                        documentEntity.name = structDocument.name
+                        documentEntity.documentExtension = structDocument.documentExtension
+                        documentEntity.documentData = structDocument.documentData
+                        documentEntity.type = structDocument.documentType.rawValue
+                        documentEntity.customFieldValue = cfEntity // Set the inverse relationship
+                    }
+                }
+
+                for oldDocument in existingDocuments {
+                    if let oldID = oldDocument.id, !matchedDocumentIDs.contains(oldID) {
+                        context.delete(oldDocument)
+                    }
+                }
+                
                 if let definition = structCF.definition {
                     let defReq: NSFetchRequest<CustomFieldEntity> = CustomFieldEntity.fetchRequest()
                     defReq.predicate = NSPredicate(format: "id == %@", definition.id as CVarArg)
                     
                     if let existingDef = try context.fetch(defReq).first {
-                        // The label/type already exists globally, simply link it to the value.
                         cfEntity.definition = existingDef
                     } else {
-                        // The user created a brand new custom field label.
-                        // Save the new definition to the database globally and link it.
                         let newDef = CustomFieldEntity(context: context)
                         newDef.id = definition.id
                         newDef.label = definition.label
                         newDef.dataType = definition.dataType.rawValue
-                        
                         cfEntity.definition = newDef
                     }
                 }
             }
             
-            // 5. Map Schedule (One-to-One Owned)
-            if let existingSchedule = entity.schedule {
-                context.delete(existingSchedule)
+            // Cleanup removed custom fields
+            for oldField in existingCustomFields {
+                if let oldID = oldField.id, !matchedCustomFieldIDs.contains(oldID) {
+                    context.delete(oldField)
+                }
             }
             
+            // 5. Map Schedule
             if let structSchedule = medicine.schedule {
-                let scheduleEntity = ScheduleEntity(context: context)
+                // Get existing schedule or create a new one
+                let scheduleEntity = entity.schedule ?? ScheduleEntity(context: context)
+                
                 scheduleEntity.id = structSchedule.id
                 scheduleEntity.startDate = structSchedule.startDate
                 scheduleEntity.endDate = structSchedule.endDate
                 scheduleEntity.repeatType = structSchedule.repeatType.rawValue
                 scheduleEntity.medicine = entity
                 
-                // Map the Days enum array using the Transformable objective-C bridge
                 scheduleEntity.selectedDays = structSchedule.selectedDays.map { $0.rawValue } as NSArray
                 
-                // Encode the complex DateComponents array into Binary Data
                 if let datesData = try? JSONEncoder().encode(structSchedule.selectedDates) {
                     scheduleEntity.selectedDatesData = datesData
                 }
                 
-                // Rebuild Reminder Times
+                // 5b. Map Reminders
+                let existingReminders = (scheduleEntity.reminderTimes as? Set<ReminderTimeEntity>) ?? []
+                var matchedReminderIDs = Set<UUID>()
+                
                 for reminder in structSchedule.reminderTimes {
-                    let reminderEntity = ReminderTimeEntity(context: context)
+                    matchedReminderIDs.insert(reminder.id)
+                    
+                    let reminderEntity = existingReminders.first(where: { $0.id == reminder.id })
+                                         ?? ReminderTimeEntity(context: context)
+                    
                     reminderEntity.id = reminder.id
                     reminderEntity.time = reminder.time
                     reminderEntity.schedule = scheduleEntity
                 }
+                
+                // Cleanup removed reminders
+                for oldReminder in existingReminders {
+                    if let oldID = oldReminder.id, !matchedReminderIDs.contains(oldID) {
+                        context.delete(oldReminder)
+                    }
+                }
+                
+            } else if let existingSchedule = entity.schedule {
+                // If the draft has no schedule, but the entity does, the user deleted it.
+                context.delete(existingSchedule)
             }
             
             // Execute the save
@@ -312,6 +356,21 @@ class MedicineManager {
                 decodedList = list
             }
             
+            var documentValues: [Document] = []
+            if let documentEntities = cfEntity.documents as? Set<DocumentEntity> {
+                documentEntities.forEach {
+                    documentValues.append(
+                        Document(
+                            id: $0.id ?? UUID(),
+                            name: $0.name ?? "Unknown Document",
+                            documentExtension: $0.documentExtension ?? "Unknown",
+                            documentData: $0.documentData ?? Data(),
+                            documentType: DocumentType(rawValue: $0.type ?? "document") ?? .document
+                        )
+                    )
+                }
+            }
+            
             let defEntity = cfEntity.definition
             let definition = CustomField(
                 id: defEntity?.id ?? UUID(),
@@ -323,7 +382,8 @@ class MedicineManager {
                 id: cfEntity.id ?? UUID(),
                 textValue: cfEntity.textValue,
                 dateValue: cfEntity.dateValue,
-                textListValue: decodedList,
+                textListValue: decodedList?.sorted(),
+                documentValue: documentValues.isEmpty ? nil : documentValues.sorted(),
                 definition: definition
             )
         }.sorted { $0.definition?.label ?? "" < $1.definition?.label ?? "" }

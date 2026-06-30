@@ -5,6 +5,7 @@
 //  Created by Ritwik Dev on 14/06/26.
 //
 
+import PhotosUI
 import SwiftUI
 
 private struct TextFieldListItem: Identifiable, Equatable {
@@ -13,12 +14,17 @@ private struct TextFieldListItem: Identifiable, Equatable {
 }
 
 struct MedicineCustomFieldFormView: View {
+    let medicineEditorViewModel: MedicineEditorViewModel
     let customFieldDefinition: CustomField
     @Binding var customFieldValue: CustomFieldValue
     
     @State private var text: String = ""
     @State private var date: Date = .now
     @State private var textList: [TextFieldListItem] = []
+    @State private var selectedUIImages: [UIImage] = []
+    @State private var imageToPreview: IdentifiableUIImage?
+    @State private var selectedDocuments: [Document] = []
+    @State private var documentToPreview: Document?
     
     @FocusState private var focusedFieldID: UUID?
     
@@ -33,14 +39,29 @@ struct MedicineCustomFieldFormView: View {
                     DatePicker("Choose date", selection: $date, displayedComponents: .date)
                 case .list:
                     listOptions
+                case .documents:
+                    DocumentOptionsView(
+                        customFieldValue: $customFieldValue,
+                        selectedUIImages: $selectedUIImages,
+                        selectedDocuments: $selectedDocuments,
+                        medicineEditorViewModel: medicineEditorViewModel
+                    )
                 }
             }
+            
+            if (customFieldValue.documentValue != nil) {
+                Section("Preview") {
+                    documentPreviewView
+                }
+            }
+            
         }
         .onAppear {
             customFieldValue.definition = customFieldDefinition
             customFieldValue.textValue = nil
             customFieldValue.dateValue = nil
             customFieldValue.listValue = nil
+            customFieldValue.documentValue = nil
         }
         .onChange(of: text) { oldValue, newValue in
             // This condition is required because self.text is being reused for self.textList
@@ -53,6 +74,16 @@ struct MedicineCustomFieldFormView: View {
         }
         .onChange(of: textList) { oldValue, newValue in
             customFieldValue.listValue = newValue.map { $0.text.trimmed }
+        }
+        .sheet(item: $imageToPreview) { uiImage in
+            ImagePreviewSheetView(uiImage: uiImage.uiImage) {
+                imageToPreview = nil
+            }
+        }
+        .sheet(item: $documentToPreview) { document in
+            DocumentPreviewSheetView(document: document) {
+                documentToPreview = nil
+            }
         }
     }
     
@@ -80,18 +111,40 @@ struct MedicineCustomFieldFormView: View {
             .onDelete(perform: deleteListItems)
         }
         .onChange(of: focusedFieldID) { oldFocusedID, newFocusedID in
-            print("Removing 1")
             if let lostFocusID = oldFocusedID {
-                print("Removing 2")
                 if let index = textList.firstIndex(where: { $0.id == lostFocusID }) {
-                    print("Removing 3 \(index) \(textList[index].text)")
                     if textList[index].text.trimmedIsEmpty {
-                        print("Removing 4 \(index)")
                         withAnimation {
                             _ = textList.remove(at: index)
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    private var documentPreviewView: some View {
+        Group {
+            if !(selectedUIImages.isEmpty) {
+                HorizontalCarouselView {
+                    ForEach(selectedUIImages, id: \.self) { selectedUIImage in
+                        ImageCarouselCellView(uiImage: selectedUIImage)
+                            .onTapGesture {
+                                imageToPreview = IdentifiableUIImage(selectedUIImage)
+                            }
+                    }
+                }
+            } else if !(selectedDocuments.isEmpty) {
+                HorizontalCarouselView {
+                    ForEach(selectedDocuments, id: \.self) { selectedDocument in
+                        DocumentCarouselCellView(document: selectedDocument)
+                            .onTapGesture {
+                                documentToPreview = selectedDocument
+                            }
+                    }
+                }
+            } else {
+                Text("Documents Attached")
             }
         }
     }
@@ -103,6 +156,7 @@ struct MedicineCustomFieldFormView: View {
 
 #Preview {
     MedicineCustomFieldFormView(
+        medicineEditorViewModel: .init(),
         customFieldDefinition: .init(label: "Actors", dataType: .list),
         customFieldValue: .constant(.init())
     )

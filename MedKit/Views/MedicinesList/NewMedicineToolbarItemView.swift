@@ -19,7 +19,7 @@ struct NewMedicineToolbarItemView: View {
             }
             
             Button {
-                router.navigate(to: .cameraAndImagePicker)
+                router.navigate(to: .cameraAndPhotoPicker)
             } label: {
                 Label("Scan", systemImage: "camera.viewfinder")
             }

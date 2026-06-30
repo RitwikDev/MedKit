@@ -27,7 +27,7 @@ extension Ingredient {
         }
         
         let bothNil = strengthAmount == nil && strengthUnit == nil
-        let bothValid = (strengthAmount ?? -1) >= 0 && !(strengthUnit ?? "").trimmedIsEmpty
+        let bothValid = (strengthAmount ?? -1) > 0 && !(strengthUnit ?? "").trimmedIsEmpty
                 
         return bothNil || bothValid
     }

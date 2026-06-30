@@ -9,16 +9,18 @@ import Foundation
 import SwiftUI
 
 enum NavigationPathEnum: Hashable {
-    case cameraAndImagePicker
+    case cameraAndPhotoPicker
     case medicineForm(for: Medicine)
     case ingredientForm(for: Ingredient, medicineEditorViewModel: MedicineEditorViewModel)
     case medicineSchedule(for: Schedule, medicineEditorViewModel: MedicineEditorViewModel)
     case addCustomFields(medicineEditorViewModel: MedicineEditorViewModel)
+    case documentPreview(document: Document)
+    case zoomablePhotoView(image: UIImage)
     
     @ViewBuilder
     var destination: some View {
         switch self {
-        case .cameraAndImagePicker:
+        case .cameraAndPhotoPicker:
             CameraAndPhotoPickerView()
         case .medicineForm(let medicine):
             MedicineFormView(medicine: medicine)
@@ -28,6 +30,12 @@ enum NavigationPathEnum: Hashable {
             ScheduleView(schedule: schedule, medicineEditorViewModel: medicineEditorViewModel)
         case .addCustomFields(let medicineEditorViewModel):
             MedicineCustomFieldStepperView(medicineEditorViewModel: medicineEditorViewModel)
+        case .documentPreview(let document):
+            DocumentPreviewView(document: document)
+                .ignoresSafeArea()
+        case .zoomablePhotoView(let photo):
+            ZoomablePhotoView(photo: photo)
+                .ignoresSafeArea()
         }
     }
 }
