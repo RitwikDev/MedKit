@@ -243,6 +243,21 @@ class GlobalDataManager {
                 decodedList = list
             }
             
+            var documentValues: [Document] = []
+            if let documentEntities = cfEntity.documents as? Set<DocumentEntity> {
+                documentEntities.forEach {
+                    documentValues.append(
+                        Document(
+                            id: $0.id ?? UUID(),
+                            name: $0.name ?? "Unknown Document",
+                            documentExtension: $0.documentExtension ?? "Unknown",
+                            documentData: $0.documentData ?? Data(),
+                            documentType: DocumentType(rawValue: $0.type ?? "document") ?? .document
+                        )
+                    )
+                }
+            }
+            
             let defEntity = cfEntity.definition
             let definition = CustomField(
                 id: defEntity?.id ?? UUID(),
@@ -254,7 +269,8 @@ class GlobalDataManager {
                 id: cfEntity.id ?? UUID(),
                 textValue: cfEntity.textValue,
                 dateValue: cfEntity.dateValue,
-                textListValue: decodedList,
+                textListValue: decodedList?.sorted(),
+                documentValue: documentValues.isEmpty ? nil : documentValues.sorted(),
                 definition: definition
             )
         }

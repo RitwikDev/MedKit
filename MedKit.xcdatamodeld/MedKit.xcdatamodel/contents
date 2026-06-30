@@ -12,7 +12,16 @@
         <attribute name="textListValueData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
         <attribute name="textValue" optional="YES" attributeType="String"/>
         <relationship name="definition" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CustomFieldEntity" inverseName="values" inverseEntity="CustomFieldEntity"/>
+        <relationship name="documents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="DocumentEntity" inverseName="customFieldValue" inverseEntity="DocumentEntity"/>
         <relationship name="medicine" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicineEntity" inverseName="customFields" inverseEntity="MedicineEntity"/>
+    </entity>
+    <entity name="DocumentEntity" representedClassName="DocumentEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="documentData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES"/>
+        <attribute name="documentExtension" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <relationship name="customFieldValue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CustomFieldValueEntity" inverseName="documents" inverseEntity="CustomFieldValueEntity"/>
     </entity>
     <entity name="IngredientEntity" representedClassName="IngredientEntity" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>

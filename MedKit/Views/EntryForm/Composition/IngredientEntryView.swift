@@ -20,9 +20,17 @@ struct IngredientEntryView: View {
         self._draftIngredient = State(initialValue: ingredient)
     }
     
+    private var isEditingIngredient: Bool {
+        !ingredient.fullName.trimmedIsEmpty
+    }
+    
     private var ingredientExists: Bool {
         medicineEditorViewModel.medicine.composition.contains {
-            $0.fullName.trimmedLocalizedCaseInsensitiveEquals(draftIngredient.fullName)
+            if (isEditingIngredient && $0 == ingredient) {
+                return false
+            } else {
+                return $0.fullName.trimmedLocalizedCaseInsensitiveEquals(draftIngredient.fullName)
+            }
         }
     }
     
@@ -61,7 +69,7 @@ struct IngredientEntryView: View {
             }
         }
         .scrollDismissesKeyboard(.interactively)
-        .navigationTitle(ingredient.name.trimmedIsEmpty ? "New Ingredient" : "Edit \(ingredient.name)")
+        .navigationTitle(isEditingIngredient ? "Edit \(ingredient.name)" : "New Ingredient")
         .navigationBarTitleDisplayMode(.inline)
     }
 }

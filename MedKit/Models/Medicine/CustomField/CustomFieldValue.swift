@@ -12,7 +12,32 @@ enum CustomFieldValueWrapper: Equatable, Hashable {
     case text(String)
     case date(Date)
     case list([String])
+    case documents([Document])
     case none
+}
+
+enum DocumentType: String {
+    case photo, document
+}
+
+struct Document: Identifiable, Comparable, Hashable {
+    let id: UUID
+    let name: String
+    let documentExtension: String
+    let documentData: Data
+    let documentType: DocumentType
+    
+    init(id: UUID = UUID(), name: String, documentExtension: String, documentData: Data, documentType: DocumentType) {
+        self.id = id
+        self.name = name
+        self.documentExtension = documentExtension
+        self.documentData = documentData
+        self.documentType = documentType
+    }
+    
+    static func < (lhs: Document, rhs: Document) -> Bool {
+        lhs.name < rhs.name
+    }
 }
 
 struct CustomFieldValue: Identifiable, Equatable, Hashable, Comparable {
@@ -20,6 +45,7 @@ struct CustomFieldValue: Identifiable, Equatable, Hashable, Comparable {
     var textValue: String?
     var dateValue: Date?
     var listValue: [String]?
+    var documentValue: [Document]?
     
     // UI layer representations of the relationships
     var definition: CustomField?
@@ -29,12 +55,14 @@ struct CustomFieldValue: Identifiable, Equatable, Hashable, Comparable {
         textValue: String? = nil,
         dateValue: Date? = nil,
         textListValue: [String]? = nil,
+        documentValue: [Document]? = nil,
         definition: CustomField? = nil
     ) {
         self.id = id
         self.textValue = textValue
         self.dateValue = dateValue
         self.listValue = textListValue
+        self.documentValue = documentValue
         self.definition = definition
     }
     
@@ -58,6 +86,8 @@ struct CustomFieldValue: Identifiable, Equatable, Hashable, Comparable {
             return .date(self.dateValue ?? .now)
         case .list:
             return .list(self.listValue ?? [])
+        case .documents:
+            return .documents(self.documentValue ?? [])
         }
     }
 }

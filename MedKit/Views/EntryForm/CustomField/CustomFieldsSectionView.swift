@@ -7,11 +7,22 @@
 
 import SwiftUI
 
+struct IdentifiableUIImage: Identifiable {
+    let id = UUID()
+    let uiImage: UIImage
+    
+    init(_ uiImage: UIImage) {
+        self.uiImage = uiImage
+    }
+}
+
 struct CustomFieldsSectionView: View {
     @Environment(NavigationRouter.self) private var router
     @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     
     @State private var text: String = ""
+    @State private var imageToPreview: IdentifiableUIImage?
+    @State private var documentToPreview: Document?
     
     var body: some View {
         @Bindable var bindableViewModel = medicineEditorViewModel
@@ -59,6 +70,30 @@ struct CustomFieldsSectionView: View {
                         }
                     }
                     
+                case .documents:
+                    if let documents = customField.wrappedValue.documentValue {
+                        HorizontalCarouselView {
+                            ForEach(documents) { document in
+                                switch document.documentType {
+                                case .photo:
+                                    if let uiImage = UIImage(data: document.documentData) {
+                                        ImageCarouselCellView(uiImage: uiImage)
+                                            .onTapGesture {
+                                                imageToPreview = IdentifiableUIImage(uiImage)
+                                            }
+                                    } else {
+                                        Image(systemName: "photo.badge.exclamationmark")
+                                            .foregroundColor(.red)
+                                    }
+                                    
+                                case .document:
+                                    DocumentCarouselCellView(document: document)
+                                        .onTapGesture { documentToPreview = document }
+                                }
+                            }
+                        }
+                    }
+                    
                 case .none:
                     EmptyView()
                 }
@@ -67,6 +102,16 @@ struct CustomFieldsSectionView: View {
         
         Button("Add Field") {
             router.navigate(to: .addCustomFields(medicineEditorViewModel: medicineEditorViewModel))
+        }
+        .fullScreenCover(item: $imageToPreview) { uiImage in
+            ImagePreviewSheetView(uiImage: uiImage.uiImage) {
+                imageToPreview = nil
+            }
+        }
+        .fullScreenCover(item: $documentToPreview) { document in
+            DocumentPreviewSheetView(document: document) {
+                documentToPreview = nil
+            }
         }
     }
 }
