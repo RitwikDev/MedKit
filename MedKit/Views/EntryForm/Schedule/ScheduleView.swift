@@ -7,56 +7,55 @@
 
 import SwiftUI
 
+enum DateType {
+    case startDate
+    case endDate
+}
+
 struct ScheduleView: View {
     let schedule: Schedule
     let medicineEditorViewModel: MedicineEditorViewModel
     
     @Environment(\.dismiss) private var dismiss
-    @State private var repeatType: RepeatType = .never
+    
+    @State private var draftSchedule: Schedule
     @State private var selectedDay: Day = .sunday
-    @State private var selectedDays: [Day] = []
     @State private var selectedDates: Set<DateComponents> = []
-    @State private var startDate: Date? = nil
-    @State private var endDate: Date? = nil
-    @State private var reminderTimes: [ReminderTime] = []
-    @State private var showAlert: Bool = false
-    @State private var alertMessage: String = ""
+    
+    @State private var showToast: Bool = false
+    @State private var toastMessage: String = ""
     
     init(schedule: Schedule, medicineEditorViewModel: MedicineEditorViewModel) {
         self.schedule = schedule
         self.medicineEditorViewModel = medicineEditorViewModel
+        self._draftSchedule = State(initialValue: schedule)
         
-        self._repeatType = State(initialValue: schedule.repeatType)
         self._selectedDay = State(initialValue: schedule.selectedDays.first ?? .sunday)
-        self._selectedDays = State(initialValue: schedule.selectedDays)
         self._selectedDates = State(initialValue: Set(schedule.selectedDates))
-        self._startDate = State(initialValue: schedule.startDate)
-        self._endDate = State(initialValue: schedule.endDate)
-        self._reminderTimes = State(initialValue: schedule.reminderTimes)
     }
     
     private var isDoneButtonDisabled: Bool {
-        switch repeatType {
+        switch draftSchedule.repeatType {
         case .never:
-            if ((startDate != nil && reminderTimes.isEmpty)
-                || (startDate == nil && !reminderTimes.isEmpty)
+            if ((draftSchedule.startDate != nil && draftSchedule.reminderTimes.isEmpty)
+                || (draftSchedule.startDate == nil && !draftSchedule.reminderTimes.isEmpty)
             ) {
                 return true
             }
         case .selectDays:
-            if (selectedDays.isEmpty || reminderTimes.isEmpty) {
+            if (draftSchedule.selectedDays.isEmpty || draftSchedule.reminderTimes.isEmpty) {
                 return true
             }
         case .fortnightly:
-            if (reminderTimes.isEmpty) {
+            if (draftSchedule.reminderTimes.isEmpty) {
                 return true
             }
         case .monthly, .quarterly, .biannually, .annually:
-            if (startDate == nil || reminderTimes.isEmpty) {
+            if (draftSchedule.startDate == nil || draftSchedule.reminderTimes.isEmpty) {
                 return true
             }
         case .custom:
-            if (selectedDates.isEmpty || reminderTimes.isEmpty) {
+            if (selectedDates.isEmpty || draftSchedule.reminderTimes.isEmpty) {
                 return true
             }
         }
@@ -73,14 +72,31 @@ struct ScheduleView: View {
         }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Done", action: handleDoneButtonTap)
-                    .disabled(isDoneButtonDisabled)
+                Button("Done") {
+                    handleDoneButtonTap(
+                        medicineEditorViewModel: medicineEditorViewModel,
+                        draftSchedule: &draftSchedule,
+                        selectedDay: selectedDay,
+                        selectedDates: selectedDates
+                    )
+                }
+                .disabled(isDoneButtonDisabled)
             }
         }
-        .alert("Schedule is incomplete!", isPresented: $showAlert) {
-            Button("Dismiss") { }
-        } message: {
-            Text(alertMessage)
+        .overlay(alignment: .bottom) {
+            if showToast {
+                Text(toastMessage)
+                    .font(.subheadline)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Color.black.opacity(0.8))
+                    .cornerRadius(10)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 20)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+                    .zIndex(1)
+            }
         }
         .navigationTitle("Add Schedule")
         .navigationBarTitleDisplayMode(.inline)
@@ -89,26 +105,28 @@ struct ScheduleView: View {
     private var frequencyPickerSectionView: some View {
         Section("Frequency") {
             Picker("Repeat",
-                   selection: $repeatType.animation()) {
+                   selection: $draftSchedule.repeatType.animation()
+            ) {
                 ForEach(RepeatType.allCases) { repeatType in
                     Text(repeatType.rawValue)
                         .tag(repeatType)
                 }
             }
-                   .onChange(of: repeatType) { _, newValue in
-                       selectedDay = .sunday
-                       selectedDays = []
-                       selectedDates = []
-                       startDate = nil
-                       endDate = nil
-                       reminderTimes = newValue == .never ? []: [.init(time: Calendar.current.date(bySettingHour: 9, minute: 0, second: 0, of: Date())!)]
-                   }
+            .onChange(of: draftSchedule.repeatType) { _, newValue in
+                selectedDay = .sunday
+                
+                draftSchedule.selectedDays = []
+                draftSchedule.selectedDates = []
+                draftSchedule.startDate = nil
+                draftSchedule.endDate = nil
+                draftSchedule.reminderTimes = []
+            }
         }
     }
     
     @ViewBuilder
     private var conditionalSelectorSectionView: some View {
-        switch repeatType {
+        switch draftSchedule.repeatType {
         case .never, .monthly, .quarterly, .biannually, .annually:
             EmptyView()
         case .selectDays:
@@ -121,21 +139,23 @@ struct ScheduleView: View {
     }
     
     private var selectDaysView: some View {
-        Section("Days (Required)") {
+        Section(content: {
             ForEach(Day.allCases) { day in
                 Button {
                     withAnimation {
-                        if (selectedDays.contains(day)) {
-                            selectedDays.removeAll { $0 == day }
-                        } else {
-                            selectedDays.append(day)
-                        }
+                        toggleSelectedDay(
+                            day,
+                            draftSchedule: $draftSchedule,
+                            selectedDay: $selectedDay,
+                            showToast: $showToast,
+                            toastMessage: $toastMessage
+                        )
                     }
                 } label: {
                     HStack {
                         Text(day.rawValue)
                         
-                        if (selectedDays.contains(day)) {
+                        if (draftSchedule.selectedDays.contains(day)) {
                             Spacer()
                             Image(systemName: "checkmark")
                                 .foregroundStyle(.blue)
@@ -144,7 +164,13 @@ struct ScheduleView: View {
                 }
                 .tint(.primary)
             }
-        }
+        }, header: {
+            Text("Days")
+        }, footer : {
+            if (draftSchedule.selectedDays.isEmpty) {
+                Text("A reminder day is required.")
+            }
+        })
     }
     
     private var fortnightlyView: some View {
@@ -154,6 +180,14 @@ struct ScheduleView: View {
                     Text(day.rawValue)
                         .tag(day)
                 }
+            }
+            .onChange(of: selectedDay) { _, _ in
+                handleFortnightlyDayChange(
+                    draftSchedule: $draftSchedule,
+                    selectedDay: $selectedDay,
+                    showToast: $showToast,
+                    toastMessage: $toastMessage
+                )
             }
         }
     }
@@ -167,53 +201,68 @@ struct ScheduleView: View {
     private var datesSectionView: some View {
         Section(content: {
             DatePickerView(
-                label: "\(startDate == nil ? "Add Start Date" : "Start Date")",
-                date: $startDate
+                label: "\(draftSchedule.startDate == nil ? "Add Start Date" : "Start Date")",
+                date: $draftSchedule.startDate
             )
-            .onChange(of: startDate) { _, newValue in
-                // Changing the selectedDay to match the day of the current startDate
-                guard let newDate = newValue else { return }
-                
-                let weekdayNumber = Calendar.current.component(.weekday, from: newDate)
-                
-                if let matchedDay = Day(weekdayNumber: weekdayNumber) {
-                    self.selectedDay = matchedDay
-                }
+            .onChange(of: draftSchedule.startDate) { _, newValue in
+                handleDateChange(
+                    to: newValue,
+                    for: .startDate,
+                    draftSchedule: $draftSchedule,
+                    selectedDay: $selectedDay,
+                    showToast: $showToast,
+                    toastMessage: $toastMessage
+                )
             }
             
             DatePickerView(
-                label: "\(startDate == nil ? "Add End Date" : "End Date")",
-                date: $endDate
+                label: "\(draftSchedule.startDate == nil ? "Add End Date" : "End Date")",
+                date: $draftSchedule.endDate
             )
+            .onChange(of: draftSchedule.endDate) { _, newValue in
+                handleDateChange(
+                    to: newValue,
+                    for: .endDate,
+                    draftSchedule: $draftSchedule,
+                    selectedDay: $selectedDay,
+                    showToast: $showToast,
+                    toastMessage: $toastMessage
+                )
+            }
         }, header: {
             Text("Dates")
         }, footer: {
-            if (startDate == nil) {
-                if (repeatType == .selectDays) {
-                    if (!selectedDays.isEmpty) {
-                        Text("A start date is not added. Reminders will be sent every week starting \(selectedDays[0].rawValue).")
-                    }
-                } else if (repeatType == .fortnightly) {
-                    Text("A start date is not added. Reminders will be sent every two weeks starting \(selectedDay.rawValue).")
-                } else {
-                    Text("A start date is required.")
-                }
-            }
+            datesSectionFooterView
         })
+    }
+    
+    @ViewBuilder
+    private var datesSectionFooterView: some View {
+        if (draftSchedule.startDate == nil) {
+            if (draftSchedule.repeatType == .selectDays) {
+                if let earliestDay = Day.allCases.first(where: { draftSchedule.selectedDays.contains($0) }) {
+                    Text("A start date is not added. Reminders will be sent every week starting \(earliestDay.rawValue).")
+                }
+            } else if draftSchedule.repeatType == .fortnightly {
+                Text("A start date is not added. Reminders will be sent every two weeks starting \(selectedDay.rawValue).")
+            } else {
+                Text("A start date is required.")
+            }
+        }
     }
     
     private var dateSectionView: some View {
         Section("Date") {
             DatePickerView(
-                label: "\(startDate == nil ? "Add Date" : "Remind On")",
-                date: $startDate
+                label: "\(draftSchedule.startDate == nil ? "Add Date" : "Remind On")",
+                date: $draftSchedule.startDate
             )
         }
     }
     
     @ViewBuilder
     private var datePickerSectionView: some View {
-        switch repeatType {
+        switch draftSchedule.repeatType {
         case .never:
             dateSectionView
         case .custom:
@@ -224,48 +273,28 @@ struct ScheduleView: View {
     }
     
     private var timePickerSectionView: some View {
-        Section("Times") {
-            ForEach($reminderTimes) { $reminderTime in
+        Section(content: {
+            ForEach($draftSchedule.reminderTimes) { $reminderTime in
                 DatePicker(
                     "Remind At",
                     selection: $reminderTime.time,
                     displayedComponents: .hourAndMinute
                 )
             }
-            .onDelete(perform: deleteReminderTime)
+            .onDelete { indexSet in
+                deleteReminderTime(at: indexSet, draftSchedule: &draftSchedule)
+            }
             
-            Button("Add Time") { onAddTime() }
-        }
-    }
-
-    private func onAddTime() {
-        withAnimation {
-            reminderTimes.append(.init(time: .now))
-        }
-    }
-    
-    private func deleteReminderTime(at offsets: IndexSet) {
-        withAnimation {
-            self.reminderTimes.remove(atOffsets: offsets)
-        }
-    }
-    
-    private func handleDoneButtonTap() {
-        if (repeatType == .fortnightly) {
-            selectedDays = [selectedDay]
-        }
-        
-        let schedule = Schedule(
-            startDate: startDate,
-            endDate: endDate,
-            reminderTimes: reminderTimes,
-            repeatType: repeatType,
-            selectedDays: selectedDays,
-            selectedDates: Array(selectedDates)
-        )
-
-        medicineEditorViewModel.medicine.schedule = schedule
-        dismiss()
+            Button("Add Time") {
+                onAddTime(draftSchedule: &draftSchedule)
+            }
+        }, header: {
+            Text("Times")
+        }, footer: {
+            if (draftSchedule.repeatType != .never && draftSchedule.reminderTimes.isEmpty) {
+                Text("A reminder time is required.")
+            }
+        })
     }
 }
 
