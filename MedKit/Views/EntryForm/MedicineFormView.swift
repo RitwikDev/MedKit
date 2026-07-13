@@ -23,11 +23,9 @@ struct MedicineFormView: View {
             NameSectionView(name: $medicineEditorViewModel.medicine.name)
             
             StrengthSectionView(
-                strengthAmount: $medicineEditorViewModel.medicine.strengthAmount,
-                strengthUnit: $medicineEditorViewModel.medicine.strengthUnit,
+                quantity: $medicineEditorViewModel.medicine.strengthAmount,
+                unit: $medicineEditorViewModel.medicine.strengthUnit,
             )
-            
-            QuantitySectionView(quantity: $medicineEditorViewModel.medicine.quantity)
             
             DatesSectionView(
                 manufacturedDate: $medicineEditorViewModel.medicine.manufacturedDate,
@@ -35,6 +33,11 @@ struct MedicineFormView: View {
             )
 
             CompositionSectionView()
+            
+            StockSectionView(
+                quantity: $medicineEditorViewModel.medicine.stockQuantity,
+                unit: $medicineEditorViewModel.medicine.stockUnit,
+            )
             
             ScheduleSectionView(schedule: $medicineEditorViewModel.medicine.schedule)
 

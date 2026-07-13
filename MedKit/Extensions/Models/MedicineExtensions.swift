@@ -28,7 +28,9 @@ extension Medicine {
         
         // Attributes NOT present on the medicine package
         self.id = UUID()
-        self.quantity = 0
+        self.stockQuantity = 0
+        self.stockUnit = ""
+        self.doseQuantity = nil
         self.schedule = nil
         self.tags = []
         self.customFields = []

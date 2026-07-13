@@ -18,7 +18,7 @@ private enum DataType: String {
 
 struct SettingsView: View {
     @Environment(GlobalDataViewModel.self) private var globalDataViewModel
-    @State private var medicineListViewModel: MedicineListViewModel = .init()
+    @State private var medicineListViewModel: MedicineViewModel = .init()
     @State private var enableNotifications: Bool = false
     @State private var showDeleteConfirmationDialog: Bool = false
     @State private var dataType: DataType = .all

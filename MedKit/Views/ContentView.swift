@@ -32,6 +32,6 @@ struct ContentView: View {
     ContentView()
         .environment(GlobalDataViewModel())
         .environment(MedicineEditorViewModel())
-        .environment(MedicineListViewModel())
+        .environment(MedicineViewModel())
         .environment(NavigationRouter())
 }

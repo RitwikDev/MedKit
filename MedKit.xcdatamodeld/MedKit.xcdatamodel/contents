@@ -31,11 +31,13 @@
         <relationship name="medicine" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicineEntity" inverseName="composition" inverseEntity="MedicineEntity"/>
     </entity>
     <entity name="MedicineEntity" representedClassName="MedicineEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="doseQuantity" optional="YES" attributeType="Float" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="expiryDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="manufacturedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="quantity" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="stockQuantity" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="stockUnit" optional="YES" attributeType="String"/>
         <attribute name="strengthAmount" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="strengthUnit" optional="YES" attributeType="String"/>
         <relationship name="composition" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="IngredientEntity" inverseName="medicine" inverseEntity="IngredientEntity"/>

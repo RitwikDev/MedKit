@@ -18,9 +18,11 @@ struct TagsSectionView: View {
     // FocusState does not animate views
     @State private var showSuggestions: Bool = false
     
+    private var medicineTags: Set<Tag> {
+        Set(medicineEditorViewModel.medicine.tags)
+    }
+    
     private var filteredTags: [Tag] {
-        let medicineTags = Set(medicineEditorViewModel.medicine.tags)
-        
         return globalDataViewModel.allTags.filter { tag in
             if (medicineTags.contains(tag)) { return false }
             if newTagValue.trimmedIsEmpty { return true }
@@ -28,9 +30,12 @@ struct TagsSectionView: View {
         }
     }
     
-    private var isAddButtonDisabled: Bool {
-        if (newTagValue.trimmedIsEmpty) { return true }
-        return globalDataViewModel.allTags.contains {
+    private var showNewTagButton: Bool {
+        !newTagValue.trimmedIsEmpty
+        && !globalDataViewModel.allTags.contains {
+            $0.value.trimmedLocalizedCaseInsensitiveEquals(newTagValue)
+        }
+        && !medicineTags.contains {
             $0.value.trimmedLocalizedCaseInsensitiveEquals(newTagValue)
         }
     }
@@ -48,12 +53,12 @@ struct TagsSectionView: View {
         .scrollDismissesKeyboard(.interactively)
         .onChange(of: isTagTextFieldFocussed) { _, isFocused in
             withAnimation(.spring) {
-                showSuggestions = isFocused && !filteredTags.isEmpty
+                showSuggestions = isFocused && (!filteredTags.isEmpty || showNewTagButton)
             }
         }
-        .onChange(of: filteredTags.isEmpty) { _, filteredTagsIsEmpty in
+        .onChange(of: !filteredTags.isEmpty || showNewTagButton) { _, show in
             withAnimation {
-                showSuggestions = !filteredTagsIsEmpty
+                showSuggestions = show
             }
         }
     }
@@ -62,31 +67,34 @@ struct TagsSectionView: View {
         HStack {
             TextField("Tag", text: $newTagValue)
                 .focused($isTagTextFieldFocussed)
-            
-            CircularButtonView(buttonAction: handleAddNewTag)
-                .disabled(isAddButtonDisabled)
         }
     }
     
     private var medicineTagsListView: some View {
         ForEach(medicineEditorViewModel.medicine.tags) { tag in
             Text(tag.value)
-                .foregroundStyle(.secondary)
         }
         .onDelete(perform: handleOnDelete)
     }
     
     private var tagHorizontalScrollView: some View {
-        ScrollView(.horizontal) {
+        let search = newTagValue.trimmed
+        
+        return ScrollView(.horizontal) {
             HStack {
+                if (showNewTagButton) {
+                    Button(search, action: handleAddNewTag)
+                }
+                
                 ForEach(filteredTags) { tag in
                     Button(tag.value) { handleAddExistingTag(tag) }
-                        .buttonStyle(.bordered)
-                        .tint(.blue)
-                        .transition(.scale.combined(with: .opacity))
                 }
             }
+            .buttonStyle(.bordered)
+            .tint(.blue)
+            .transition(.scale.combined(with: .opacity))
             .animation(.snappy, value: filteredTags)
+            .animation(.snappy, value: showNewTagButton)
         }
         .scrollIndicators(.hidden)
     }

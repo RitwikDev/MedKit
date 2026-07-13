@@ -12,29 +12,44 @@ struct ScheduleSectionView: View {
     @Environment(NavigationRouter.self) private var router
     @Binding var schedule: Schedule?
     
+    private var isDisabled: Bool {
+        medicineEditorViewModel.medicine.stockQuantity == nil
+    }
+    
     var body: some View {
-        Section("Schedule") {
-            if let schedule = schedule,
-               schedule.repeatType != .never {
-                Button(schedule.repeatType.rawValue) {
-                    router.navigate(to: .medicineSchedule(for: schedule, medicineEditorViewModel: medicineEditorViewModel))
+        Section(
+            content: {
+                if let schedule = schedule,
+                   schedule.repeatType != .never {
+                    Button(schedule.repeatType.rawValue) {
+                        router.navigate(to: .medicineSchedule(for: schedule, medicineEditorViewModel: medicineEditorViewModel))
+                    }
+                    .foregroundStyle(.primary)
+                    .swipeActions {
+                        Button(role: .destructive) {
+                            withAnimation {
+                                medicineEditorViewModel.removeSchedule()
+                            }
+                        } label: {
+                            Label("Delete", systemImage: "bin")
+                        }
+                    }
+                } else {
+                    Button("Add Schedule") {
+                        router.navigate(to: .medicineSchedule(for: schedule ?? .init(), medicineEditorViewModel: medicineEditorViewModel))
+                    }
                 }
-                .foregroundStyle(.primary)
-            } else {
-                Button("Add Schedule") {
-                    router.navigate(to: .medicineSchedule(for: schedule ?? .init(), medicineEditorViewModel: medicineEditorViewModel))
+            },
+            header: {
+                Text("Schedule")
+            },
+            footer: {
+                if (isDisabled) {
+                    Text("Stock is required for adding schedule")
                 }
             }
-        }
-        .swipeActions {
-            Button(role: .destructive) {
-                withAnimation {
-                    medicineEditorViewModel.removeSchedule()
-                }
-            } label: {
-                Label("Delete", systemImage: "bin")
-            }
-        }
+        )
+        .disabled(isDisabled)
     }
 }
 

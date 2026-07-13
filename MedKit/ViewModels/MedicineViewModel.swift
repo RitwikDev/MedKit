@@ -1,5 +1,5 @@
 //
-//  MedicineListViewModel.swift
+//  MedicineViewModel.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 19/06/26.
@@ -8,8 +8,8 @@
 import SwiftUI
 
 @Observable
-class MedicineListViewModel {    
-    var medicines: [Medicine] = []
+class MedicineViewModel {
+    var medicines: [MedicineListItemModel] = []
     var errorMessage: String? = nil
     
     init() {
@@ -29,9 +29,18 @@ class MedicineListViewModel {
     /// Asks the Manager to fetch the latest data from the database.
     func fetchAllMedicines() {
         do {
-            self.medicines = try MedicineManager.shared.fetchAllMedicines()
+            self.medicines = try MedicineListItemManager.shared.fetchMedicineList()
         } catch {
             errorMessage = error.localizedDescription
+        }
+    }
+    
+    func getById(_ id: UUID) -> Medicine? {
+        do {
+            return try MedicineReadManager.shared.fetchById(id)
+        } catch {
+            errorMessage = error.localizedDescription
+            return nil
         }
     }
     
@@ -41,7 +50,7 @@ class MedicineListViewModel {
         do {
             for index in offsets {
                 let medicineId = medicines[index].id
-                try MedicineManager.shared.deleteMedicine(id: medicineId)
+                try MedicineWriteManager.shared.deleteMedicine(id: medicineId)
             }
             fetchAllMedicines()
         } catch {
@@ -52,7 +61,7 @@ class MedicineListViewModel {
     /// Asks the Manager to delete all medicines.
     func deleteAllMedicines() {
         do {
-            try MedicineManager.shared.deleteAllMedicines()
+            try MedicineWriteManager.shared.deleteAllMedicines()
             fetchAllMedicines()
         } catch {
             errorMessage = error.localizedDescription

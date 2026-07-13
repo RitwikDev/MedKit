@@ -79,6 +79,7 @@ struct ScheduleView: View {
                         selectedDay: selectedDay,
                         selectedDates: selectedDates
                     )
+                    dismiss()
                 }
                 .disabled(isDoneButtonDisabled)
             }

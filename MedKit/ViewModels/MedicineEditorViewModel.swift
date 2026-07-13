@@ -146,7 +146,7 @@ class MedicineEditorViewModel {
         }
         
         do {
-            try MedicineManager.shared.save(medicine)
+            try MedicineWriteManager.shared.save(medicine)
         } catch {
             errorMessage = error.localizedDescription
             throw error

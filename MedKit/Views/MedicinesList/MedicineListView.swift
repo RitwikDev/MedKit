@@ -11,7 +11,7 @@ import SwiftUI
 struct MedicineListView: View {
     @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     @Environment(NavigationRouter.self) private var router
-    @State private var medicineListViewModel: MedicineListViewModel = .init()
+    @State private var medicineViewModel: MedicineViewModel = .init()
     @State private var tabBarVisibility: Visibility = .automatic
     
     var body: some View {
@@ -19,14 +19,14 @@ struct MedicineListView: View {
         
         NavigationStack(path: $router.path) {
             VStack {
-                if (medicineListViewModel.medicines.isEmpty) {
+                if (medicineViewModel.medicines.isEmpty) {
                     ScrollView {
                         EmptyMedicineListView()
                     }
                     .defaultScrollAnchor(.center)
                 } else {
                     List {
-                        ForEach(medicineListViewModel.medicines) { medicine in
+                        ForEach(medicineViewModel.medicines) { medicine in
                             MedicineListItemView(
                                 medicine: medicine
                             )
@@ -36,7 +36,7 @@ struct MedicineListView: View {
                     .listStyle(.plain)
                 }
             }
-            .environment(medicineListViewModel)
+            .environment(medicineViewModel)
             .onAppear(perform: fetchData)
             .refreshable {
                 fetchData()
@@ -61,12 +61,12 @@ struct MedicineListView: View {
     
     private func deleteMedicine(at offset: IndexSet) {
         withAnimation {
-            medicineListViewModel.deleteMedicine(at: offset)
+            medicineViewModel.deleteMedicine(at: offset)
         }
     }
     
     private func fetchData() {
-        medicineListViewModel.fetchAllMedicines()
+        medicineViewModel.fetchAllMedicines()
         globalDataViewModel.fetchAllData()
     }
 }
@@ -74,6 +74,6 @@ struct MedicineListView: View {
 #Preview {    
     MedicineListView()
         .environment(GlobalDataViewModel())
-        .environment(MedicineListViewModel())
+        .environment(MedicineViewModel())
         .environment(NavigationRouter())
 }
