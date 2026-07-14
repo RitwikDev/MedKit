@@ -2,23 +2,29 @@
 //  CalendarView.swift
 //  MedKit
 //
-//  Created by Rishik Dev on 20/05/26.
+//  Created by Ritwik Dev on 13/07/26.
 //
 
 import SwiftUI
 
 struct CalendarView: View {
-    @State private var selectedDates: Set<DateComponents> = []
+    @State private var viewModel = CalendarViewModel()
+    
     var body: some View {
-        NavigationStack {
-            VStack {
-                MultiDatePicker("Your Schedule", selection: $selectedDates)
-            }
-            .navigationTitle("Calendar")
+        VStack {
+            CalendarPageViewController(
+                currentDate: $viewModel.currentMonth,
+            )
         }
+        .padding()
+        .background(Color(uiColor: .systemGroupedBackground))
+        .shadow(radius: 6)
+        .onAppear(perform: viewModel.initialiseMedicines)
+        .environment(viewModel)
     }
 }
 
 #Preview {
-    CalendarView()
+    return CalendarView()
+        .environment(CalendarViewModel())
 }
