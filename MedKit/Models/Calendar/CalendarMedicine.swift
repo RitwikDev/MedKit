@@ -13,5 +13,5 @@ struct CalendarMedicine {
     let expiryDate: Date?
     let schedule: Schedule?
     let doseQuantity: Float?
-    let stockQuantity: Float?
+    let stock: StockModel
 }

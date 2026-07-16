@@ -32,7 +32,7 @@ class CalendarMedicineReadManager {
             expiryDate: entity.expiryDate ?? .now,
             schedule: Schedule.fromMedicineEntity(entity),
             doseQuantity: entity.doseQuantity,
-            stockQuantity: entity.stockQuantity,
+            stock: StockModel.fromMedicineEntity(entity),
         )
     }
 }

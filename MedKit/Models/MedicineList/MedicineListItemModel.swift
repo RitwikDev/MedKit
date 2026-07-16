@@ -12,7 +12,7 @@ struct MedicineListItemModel: Identifiable, Hashable {
     let name: String
     let strengthAmount: Float?
     let strengthUnit: String?
-    let stockQuantity: Float?
+    let stock: StockModel?
     let expiryDate: Date?
     let tags: [Tag]
 }

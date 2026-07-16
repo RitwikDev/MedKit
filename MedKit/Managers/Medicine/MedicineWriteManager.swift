@@ -38,8 +38,6 @@ class MedicineWriteManager {
             // 1. Map Basic Attributes
             entity.id = medicine.id
             entity.name = medicine.name
-            entity.stockQuantity = medicine.stockQuantity ?? 0
-            entity.stockUnit = medicine.stockUnit
             entity.manufacturedDate = medicine.manufacturedDate
             entity.expiryDate = medicine.expiryDate
             entity.strengthAmount = medicine.strengthAmount ?? 0
@@ -195,6 +193,18 @@ class MedicineWriteManager {
             } else if let existingSchedule = entity.schedule {
                 // If the draft has no schedule, but the entity does, the user deleted it.
                 context.delete(existingSchedule)
+            }
+            
+            // 6. Map stock
+            if let stockStruct = medicine.stock {
+                let stockEntity = entity.stock ?? StockEntity(context: context)
+                stockEntity.id = stockStruct.id
+                stockEntity.quantity = stockStruct.quantity
+                stockEntity.unit = stockStruct.unit
+                stockEntity.endDate = stockStruct.endDate
+                stockEntity.medicine = entity
+            } else if let existingStock = entity.stock {
+                context.delete(existingStock)
             }
             
             // Execute the save

@@ -36,13 +36,12 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="manufacturedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
-        <attribute name="stockQuantity" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="stockUnit" optional="YES" attributeType="String"/>
         <attribute name="strengthAmount" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="strengthUnit" optional="YES" attributeType="String"/>
         <relationship name="composition" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="IngredientEntity" inverseName="medicine" inverseEntity="IngredientEntity"/>
         <relationship name="customFields" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CustomFieldValueEntity" inverseName="medicine" inverseEntity="CustomFieldValueEntity"/>
         <relationship name="schedule" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ScheduleEntity" inverseName="medicine" inverseEntity="ScheduleEntity"/>
+        <relationship name="stock" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="StockEntity" inverseName="medicine" inverseEntity="StockEntity"/>
         <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TagEntity" inverseName="medicines" inverseEntity="TagEntity"/>
     </entity>
     <entity name="ReminderTimeEntity" representedClassName="ReminderTimeEntity" syncable="YES" codeGenerationType="class">
@@ -59,6 +58,13 @@
         <attribute name="startDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <relationship name="medicine" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicineEntity" inverseName="schedule" inverseEntity="MedicineEntity"/>
         <relationship name="reminderTimes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ReminderTimeEntity" inverseName="schedule" inverseEntity="ReminderTimeEntity"/>
+    </entity>
+    <entity name="StockEntity" representedClassName="StockEntity" syncable="YES" codeGenerationType="class">
+        <attribute name="endDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="quantity" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="unit" optional="YES" attributeType="String"/>
+        <relationship name="medicine" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MedicineEntity" inverseName="stock" inverseEntity="MedicineEntity"/>
     </entity>
     <entity name="TagEntity" representedClassName="TagEntity" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>

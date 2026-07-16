@@ -16,17 +16,11 @@ struct QuantityUnitSectionView: View {
     @Binding var quantity: Float?
     @Binding var unit: String?
     var textColour: Color = .primary
+    let isValid: (Float?, String?) -> Bool
     
     @State var quantityString: String = ""
     @State var unitString: String = ""
-    
-    private var isValid: Bool {
-        let bothNil = quantity == nil && unit == nil
-        let bothNotNil = (quantity != nil && quantity ?? 0 > 0) && unit != nil
         
-        return bothNil || bothNotNil
-    }
-    
     var body: some View {
         Section(content: {
             VStack {
@@ -53,7 +47,7 @@ struct QuantityUnitSectionView: View {
         }, header: {
             Text(sectionHeader)
         }, footer: {
-            if (!isValid) {
+            if (!isValid(quantity, unit)) {
                 Text(error)
                     .foregroundStyle(.red)
             }
@@ -92,7 +86,8 @@ struct QuantityUnitSectionView: View {
             unitLabel: "mg, cc...",
             error: "Invalid input",
             quantity: .constant(10),
-            unit: .constant("mg"),
-        )
+            unit: .constant("mg")) { _, _ in
+                true
+            }
     }
 }

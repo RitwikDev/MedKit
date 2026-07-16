@@ -31,8 +31,8 @@ class MedicineListItemManager {
             id: entity.id ?? UUID(),
             name: entity.name ?? "",
             strengthAmount: entity.strengthAmount,
-            strengthUnit: entity.stockUnit,
-            stockQuantity: entity.stockQuantity,
+            strengthUnit: entity.strengthUnit,
+            stock: StockModel.fromMedicineEntity(entity),
             expiryDate: entity.expiryDate ?? .now,
             tags: mapTags(medicineEntity: entity),
         )

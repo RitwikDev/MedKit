@@ -13,7 +13,7 @@ struct ScheduleSectionView: View {
     @Binding var schedule: Schedule?
     
     private var isDisabled: Bool {
-        medicineEditorViewModel.medicine.stockQuantity == nil
+        medicineEditorViewModel.medicine.stock == nil
     }
     
     var body: some View {

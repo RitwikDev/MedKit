@@ -11,8 +11,6 @@ import SwiftData
 struct Medicine: Identifiable, Equatable, Hashable {
     var id: UUID
     var name: String
-    var stockQuantity: Float?
-    var stockUnit: String?
     var manufacturedDate: Date?
     var expiryDate: Date?
     var strengthAmount: Float?
@@ -21,14 +19,13 @@ struct Medicine: Identifiable, Equatable, Hashable {
     
     var composition: [Ingredient]
     var schedule: Schedule?
+    var stock: StockModel?
     var tags: [Tag]
     var customFields: [CustomFieldValue]
     
     init(
         id: UUID = UUID(),
         name: String = "",
-        stockQuantity: Float? = nil,
-        stockUnit: String? = nil,
         manufacturedDate: Date? = nil,
         expiryDate: Date? = nil,
         strengthAmount: Float? = nil,
@@ -36,13 +33,12 @@ struct Medicine: Identifiable, Equatable, Hashable {
         doseQuantity: Float? = nil,
         composition: [Ingredient] = [],
         schedule: Schedule? = nil,
+        stock: StockModel? = nil,
         tags: [Tag] = [],
         customFields: [CustomFieldValue] = [],
     ) {
         self.id = id
         self.name = name
-        self.stockQuantity = stockQuantity
-        self.stockUnit = stockUnit
         self.manufacturedDate = manufacturedDate
         self.expiryDate = expiryDate
         self.strengthAmount = strengthAmount
@@ -50,6 +46,7 @@ struct Medicine: Identifiable, Equatable, Hashable {
         self.doseQuantity = doseQuantity
         self.composition = composition
         self.schedule = schedule
+        self.stock = stock
         self.tags = tags
         self.customFields = customFields
     }

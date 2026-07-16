@@ -88,18 +88,29 @@ class MedicineReadManager {
             )
         }.sorted { $0.definition?.label ?? "" < $1.definition?.label ?? "" }
         
+        var stock: StockModel? = nil
+        if let stockEntity = entity.stock {
+            if stockEntity.quantity  > 0 {
+                stock = .init(
+                    id: stockEntity.id ?? UUID(),
+                    quantity: stockEntity.quantity,
+                    unit: stockEntity.unit ?? "",
+                    endDate: stockEntity.endDate ?? .distantFuture,
+                )
+            }
+        }
+        
         // 5. Construct Final Medicine Struct
         return Medicine(
             id: entity.id ?? UUID(),
             name: entity.name ?? "",
-            stockQuantity: entity.stockQuantity > 0 ? entity.stockQuantity : nil,
-            stockUnit: entity.stockUnit,
             manufacturedDate: entity.manufacturedDate,
             expiryDate: entity.expiryDate,
             strengthAmount: entity.strengthAmount > 0 ? entity.strengthAmount : nil,
             strengthUnit: entity.strengthUnit,
             composition: ingredients,
             schedule: Schedule.fromMedicineEntity(entity),
+            stock: stock,
             tags: tags,
             customFields: customFields
         )

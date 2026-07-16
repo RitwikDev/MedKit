@@ -19,7 +19,15 @@ struct StrengthSectionView: View {
             error: "Strength is not valid",
             quantity: $quantity,
             unit: $unit,
+            isValid: isValid,
         )
+    }
+    
+    private func isValid(quantity: Float?, unit: String?) -> Bool {
+        let bothNil = quantity == nil && unit == nil
+        let bothNotNil = (quantity != nil && quantity ?? 0 > 0) && unit != nil
+        
+        return bothNil || bothNotNil
     }
 }
 

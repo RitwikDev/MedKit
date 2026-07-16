@@ -71,7 +71,7 @@ struct MedicineListItemView: View {
             name: "Medicine Name",
             strengthAmount: 10,
             strengthUnit: "mg",
-            stockQuantity: nil,
+            stock: nil,
             expiryDate: .now,
             tags: [],
         )
