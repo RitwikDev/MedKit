@@ -15,10 +15,9 @@ struct Medicine: Identifiable, Equatable, Hashable {
     var expiryDate: Date?
     var strengthAmount: Float?
     var strengthUnit: String?
-    var doseQuantity: Float?
     
     var composition: [Ingredient]
-    var schedule: Schedule?
+    var dosage: DosageModel?
     var stock: StockModel?
     var tags: [Tag]
     var customFields: [CustomFieldValue]
@@ -30,9 +29,8 @@ struct Medicine: Identifiable, Equatable, Hashable {
         expiryDate: Date? = nil,
         strengthAmount: Float? = nil,
         strengthUnit: String? = nil,
-        doseQuantity: Float? = nil,
         composition: [Ingredient] = [],
-        schedule: Schedule? = nil,
+        dosage: DosageModel? = nil,
         stock: StockModel? = nil,
         tags: [Tag] = [],
         customFields: [CustomFieldValue] = [],
@@ -43,9 +41,8 @@ struct Medicine: Identifiable, Equatable, Hashable {
         self.expiryDate = expiryDate
         self.strengthAmount = strengthAmount
         self.strengthUnit = strengthUnit
-        self.doseQuantity = doseQuantity
         self.composition = composition
-        self.schedule = schedule
+        self.dosage = dosage
         self.stock = stock
         self.tags = tags
         self.customFields = customFields

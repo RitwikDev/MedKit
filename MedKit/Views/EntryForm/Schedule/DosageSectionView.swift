@@ -1,5 +1,5 @@
 //
-//  ScheduleSectionView.swift
+//  DosageSectionView.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 03/06/26.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct ScheduleSectionView: View {
+struct DosageSectionView: View {
     @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
     @Environment(NavigationRouter.self) private var router
-    @Binding var schedule: Schedule?
+    @Binding var dosage: DosageModel?
     
     private var isDisabled: Bool {
         medicineEditorViewModel.medicine.stock == nil
@@ -19,33 +19,33 @@ struct ScheduleSectionView: View {
     var body: some View {
         Section(
             content: {
-                if let schedule = schedule,
-                   schedule.repeatType != .never {
-                    Button(schedule.repeatType.rawValue) {
-                        router.navigate(to: .medicineSchedule(for: schedule, medicineEditorViewModel: medicineEditorViewModel))
+                if let dosage = dosage,
+                   dosage.repeatType != .never {
+                    Button(dosage.repeatType.rawValue) {
+                        router.navigate(to: .medicineDosage(for: dosage, medicineEditorViewModel: medicineEditorViewModel))
                     }
                     .foregroundStyle(.primary)
                     .swipeActions {
                         Button(role: .destructive) {
                             withAnimation {
-                                medicineEditorViewModel.removeSchedule()
+                                medicineEditorViewModel.removeDosage()
                             }
                         } label: {
                             Label("Delete", systemImage: "bin")
                         }
                     }
                 } else {
-                    Button("Add Schedule") {
-                        router.navigate(to: .medicineSchedule(for: schedule ?? .init(), medicineEditorViewModel: medicineEditorViewModel))
+                    Button("Add Dosage") {
+                        router.navigate(to: .medicineDosage(for: dosage ?? .init(), medicineEditorViewModel: medicineEditorViewModel))
                     }
                 }
             },
             header: {
-                Text("Schedule")
+                Text("Dosage")
             },
             footer: {
                 if (isDisabled) {
-                    Text("Stock is required for adding schedule")
+                    Text("Stock is required for adding dosage")
                 }
             }
         )
@@ -55,7 +55,7 @@ struct ScheduleSectionView: View {
 
 #Preview {
     Form {
-        ScheduleSectionView(schedule: .constant(nil))
+        DosageSectionView(dosage: .constant(nil))
     }
     .environment(MedicineEditorViewModel())
     .environment(NavigationRouter())

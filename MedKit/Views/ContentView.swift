@@ -17,7 +17,7 @@ struct ContentView: View {
             
             CalendarView()
                 .tabItem {
-                    Label("Schedule", systemImage: "calendar")
+                    Label("Calendar", systemImage: "calendar")
                 }
             
             SettingsView()

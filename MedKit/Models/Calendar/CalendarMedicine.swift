@@ -11,7 +11,6 @@ struct CalendarMedicine {
     let id: UUID
     let name: String
     let expiryDate: Date?
-    let schedule: Schedule?
-    let doseQuantity: Float?
+    let dosage: DosageModel?
     let stock: StockModel
 }

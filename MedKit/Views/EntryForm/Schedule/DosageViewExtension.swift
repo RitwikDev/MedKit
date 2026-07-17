@@ -1,5 +1,5 @@
 //
-//  ScheduleViewExtension.swift
+//  DosageViewExtension.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 03/07/26.
@@ -8,28 +8,28 @@
 import Foundation
 import SwiftUI
 
-extension ScheduleView {    
+extension DosageView {    
     func handleFortnightlyDayChange(
-        draftSchedule: Binding<Schedule>,
+        draftDosage: Binding<DosageModel>,
         selectedDay: Binding<Day>,
         showToast: Binding<Bool>,
         toastMessage: Binding<String>
     ) {
-        if draftSchedule.wrappedValue.startDate != nil {
+        if draftDosage.wrappedValue.startDate != nil {
             handleDateChange(
-                to: draftSchedule.wrappedValue.startDate,
+                to: draftDosage.wrappedValue.startDate,
                 for: .startDate,
-                draftSchedule: draftSchedule,
+                draftDosage: draftDosage,
                 selectedDay: selectedDay,
                 showToast: showToast,
                 toastMessage: toastMessage
             )
         }
-        if draftSchedule.wrappedValue.endDate != nil {
+        if draftDosage.wrappedValue.endDate != nil {
             handleDateChange(
-                to: draftSchedule.wrappedValue.endDate,
+                to: draftDosage.wrappedValue.endDate,
                 for: .endDate,
-                draftSchedule: draftSchedule,
+                draftDosage: draftDosage,
                 selectedDay: selectedDay,
                 showToast: showToast,
                 toastMessage: toastMessage
@@ -39,34 +39,34 @@ extension ScheduleView {
     
     func toggleSelectedDay(
         _ day: Day,
-        draftSchedule: Binding<Schedule>,
+        draftDosage: Binding<DosageModel>,
         selectedDay: Binding<Day>,
         showToast: Binding<Bool>,
         toastMessage: Binding<String>
     ) {
-        if draftSchedule.wrappedValue.selectedDays.contains(day) {
-            draftSchedule.wrappedValue.selectedDays.removeAll { $0 == day }
+        if draftDosage.wrappedValue.selectedDays.contains(day) {
+            draftDosage.wrappedValue.selectedDays.removeAll { $0 == day }
         } else {
-            draftSchedule.wrappedValue.selectedDays.append(day)
+            draftDosage.wrappedValue.selectedDays.append(day)
         }
         
-        guard !draftSchedule.wrappedValue.selectedDays.isEmpty else { return }
+        guard !draftDosage.wrappedValue.selectedDays.isEmpty else { return }
         
-        if draftSchedule.wrappedValue.startDate != nil {
+        if draftDosage.wrappedValue.startDate != nil {
             handleDateChange(
-                to: draftSchedule.wrappedValue.startDate,
+                to: draftDosage.wrappedValue.startDate,
                 for: .startDate,
-                draftSchedule: draftSchedule,
+                draftDosage: draftDosage,
                 selectedDay: selectedDay,
                 showToast: showToast,
                 toastMessage: toastMessage
             )
         }
-        if draftSchedule.wrappedValue.endDate != nil {
+        if draftDosage.wrappedValue.endDate != nil {
             handleDateChange(
-                to: draftSchedule.wrappedValue.endDate,
+                to: draftDosage.wrappedValue.endDate,
                 for: .endDate,
-                draftSchedule: draftSchedule,
+                draftDosage: draftDosage,
                 selectedDay: selectedDay,
                 showToast: showToast,
                 toastMessage: toastMessage
@@ -77,7 +77,7 @@ extension ScheduleView {
     func handleDateChange(
         to newValue: Date?,
         for type: DateType,
-        draftSchedule: Binding<Schedule>,
+        draftDosage: Binding<DosageModel>,
         selectedDay: Binding<Day>,
         showToast: Binding<Bool>,
         toastMessage: Binding<String>
@@ -86,16 +86,16 @@ extension ScheduleView {
         let calendar = Calendar.current
         
         // NEW: Determine which array to validate against based on RepeatType
-        let repeatType = draftSchedule.wrappedValue.repeatType
-        let validDays = repeatType == .fortnightly ? [selectedDay.wrappedValue] : draftSchedule.wrappedValue.selectedDays
+        let repeatType = draftDosage.wrappedValue.repeatType
+        let validDays = repeatType == .fortnightly ? [selectedDay.wrappedValue] : draftDosage.wrappedValue.selectedDays
         
         // 1. Initial Boundary Check (End Date Only)
         if type == .endDate {
-            if let startDate = draftSchedule.wrappedValue.startDate, calendar.startOfDay(for: newDate) < calendar.startOfDay(for: startDate) {
+            if let startDate = draftDosage.wrappedValue.startDate, calendar.startOfDay(for: newDate) < calendar.startOfDay(for: startDate) {
                 autoAdvanceEndDate(
                     from: startDate,
                     message: "End date must be after start date. Adjusted automatically.",
-                    draftSchedule: draftSchedule,
+                    draftDosage: draftDosage,
                     validDays: validDays, // Pass the correct array
                     showToast: showToast,
                     toastMessage: toastMessage
@@ -119,11 +119,11 @@ extension ScheduleView {
                 if let correctedDate = nearestValidDate(from: newDate, validDays: validDays, searchForward: searchForward) {
                     
                     // Post-snap boundary check (End Date Only)
-                    if type == .endDate, let startDate = draftSchedule.wrappedValue.startDate, calendar.startOfDay(for: correctedDate) < calendar.startOfDay(for: startDate) {
+                    if type == .endDate, let startDate = draftDosage.wrappedValue.startDate, calendar.startOfDay(for: correctedDate) < calendar.startOfDay(for: startDate) {
                         autoAdvanceEndDate(
                             from: startDate,
                             message: "End date auto-adjusted to remain after start date.",
-                            draftSchedule: draftSchedule,
+                            draftDosage: draftDosage,
                             validDays: validDays, // Pass the correct array
                             showToast: showToast,
                             toastMessage: toastMessage
@@ -147,20 +147,20 @@ extension ScheduleView {
         // 3. State Assignment & Start Date Overtake Check
         Task { @MainActor in
             if type == .startDate {
-                draftSchedule.wrappedValue.startDate = finalDate
+                draftDosage.wrappedValue.startDate = finalDate
                 
-                if let endDate = draftSchedule.wrappedValue.endDate, calendar.startOfDay(for: finalDate) > calendar.startOfDay(for: endDate) {
+                if let endDate = draftDosage.wrappedValue.endDate, calendar.startOfDay(for: finalDate) > calendar.startOfDay(for: endDate) {
                     autoAdvanceEndDate(
                         from: finalDate,
                         message: "End date was automatically advanced.",
-                        draftSchedule: draftSchedule,
+                        draftDosage: draftDosage,
                         validDays: validDays, // Pass the correct array
                         showToast: showToast,
                         toastMessage: toastMessage
                     )
                 }
             } else {
-                draftSchedule.wrappedValue.endDate = finalDate
+                draftDosage.wrappedValue.endDate = finalDate
             }
         }
     }
@@ -169,7 +169,7 @@ extension ScheduleView {
     func autoAdvanceEndDate(
         from baseDate: Date,
         message: String,
-        draftSchedule: Binding<Schedule>,
+        draftDosage: Binding<DosageModel>,
         validDays: [Day],
         showToast: Binding<Bool>,
         toastMessage: Binding<String>
@@ -181,7 +181,7 @@ extension ScheduleView {
             let snappedEndDate = nearestValidDate(from: advancedEndDate, validDays: validDays, searchForward: true) ?? advancedEndDate
             
             displayToast(message, showToast: showToast, toastMessage: toastMessage)
-            Task { @MainActor in draftSchedule.wrappedValue.endDate = snappedEndDate }
+            Task { @MainActor in draftDosage.wrappedValue.endDate = snappedEndDate }
         }
     }
     
@@ -229,28 +229,28 @@ extension ScheduleView {
         }
     }
 
-    func onAddTime(draftSchedule: inout Schedule) {
+    func onAddTime(draftDosage: inout DosageModel) {
         withAnimation {
-            draftSchedule.reminderTimes.append(.init(time: .now))
+            draftDosage.reminderTimes.append(.init(time: .now))
         }
     }
     
-    func deleteReminderTime(at offsets: IndexSet, draftSchedule: inout Schedule) {
+    func deleteReminderTime(at offsets: IndexSet, draftDosage: inout DosageModel) {
         withAnimation {
-            draftSchedule.reminderTimes.remove(atOffsets: offsets)
+            draftDosage.reminderTimes.remove(atOffsets: offsets)
         }
     }
     
     func handleDoneButtonTap(
         medicineEditorViewModel: MedicineEditorViewModel,
-        draftSchedule: inout Schedule,
+        draftDosage: inout DosageModel,
         selectedDay: Day,
         selectedDates: Set<DateComponents>,
     ) {
-        if (draftSchedule.repeatType == .fortnightly) {
-            draftSchedule.selectedDays = [selectedDay]
+        if (draftDosage.repeatType == .fortnightly) {
+            draftDosage.selectedDays = [selectedDay]
         }
-        draftSchedule.selectedDates = Array(selectedDates)
-        medicineEditorViewModel.medicine.schedule = draftSchedule
+        draftDosage.selectedDates = Array(selectedDates)
+        medicineEditorViewModel.medicine.dosage = draftDosage
     }
 }

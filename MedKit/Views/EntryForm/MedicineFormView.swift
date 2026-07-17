@@ -36,7 +36,7 @@ struct MedicineFormView: View {
             
             StockSectionView(stock: $medicineEditorViewModel.medicine.stock)
             
-            ScheduleSectionView(schedule: $medicineEditorViewModel.medicine.schedule)
+            DosageSectionView(dosage: $medicineEditorViewModel.medicine.dosage)
 
             TagsSectionView()
             

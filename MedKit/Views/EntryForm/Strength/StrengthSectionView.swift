@@ -13,7 +13,7 @@ struct StrengthSectionView: View {
     
     var body: some View {
         QuantityUnitSectionView(
-            sectionHeader: "Strength (Optional)",
+            sectionHeader: "Strength",
             quantityLabel: "Amount",
             unitLabel: "mg/ml...",
             error: "Strength is not valid",

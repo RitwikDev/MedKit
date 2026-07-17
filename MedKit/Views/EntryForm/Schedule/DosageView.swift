@@ -1,5 +1,5 @@
 //
-//  ScheduleView.swift
+//  DosageView.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 04/06/26.
@@ -12,50 +12,58 @@ enum DateType {
     case endDate
 }
 
-struct ScheduleView: View {
-    let schedule: Schedule
+struct DosageView: View {
+    let dosage: DosageModel
     let medicineEditorViewModel: MedicineEditorViewModel
     
     @Environment(\.dismiss) private var dismiss
     
-    @State private var draftSchedule: Schedule
+    @State private var draftDosage: DosageModel
+    @State private var draftDoseQuantityString: String = ""
     @State private var selectedDay: Day = .sunday
     @State private var selectedDates: Set<DateComponents> = []
     
+    @State private var isDoseQuantityValid = true
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     
-    init(schedule: Schedule, medicineEditorViewModel: MedicineEditorViewModel) {
-        self.schedule = schedule
+    init(dosage: DosageModel, medicineEditorViewModel: MedicineEditorViewModel) {
+        self.dosage = dosage
         self.medicineEditorViewModel = medicineEditorViewModel
-        self._draftSchedule = State(initialValue: schedule)
+        self._draftDosage = State(initialValue: dosage)
         
-        self._selectedDay = State(initialValue: schedule.selectedDays.first ?? .sunday)
-        self._selectedDates = State(initialValue: Set(schedule.selectedDates))
+        let doseQuantity = dosage.dosageQuantity == nil ? "" : String(dosage.dosageQuantity ?? 0)
+        self._draftDoseQuantityString = State(initialValue: doseQuantity)
+        self._selectedDay = State(initialValue: dosage.selectedDays.first ?? .sunday)
+        self._selectedDates = State(initialValue: Set(dosage.selectedDates))
     }
     
     private var isDoneButtonDisabled: Bool {
-        switch draftSchedule.repeatType {
+        if (!isDoseQuantityValid) {
+            return true
+        }
+        
+        switch draftDosage.repeatType {
         case .never:
-            if ((draftSchedule.startDate != nil && draftSchedule.reminderTimes.isEmpty)
-                || (draftSchedule.startDate == nil && !draftSchedule.reminderTimes.isEmpty)
+            if ((draftDosage.startDate != nil && draftDosage.reminderTimes.isEmpty)
+                || (draftDosage.startDate == nil && !draftDosage.reminderTimes.isEmpty)
             ) {
                 return true
             }
         case .selectDays:
-            if (draftSchedule.selectedDays.isEmpty || draftSchedule.reminderTimes.isEmpty) {
+            if (draftDosage.selectedDays.isEmpty || draftDosage.reminderTimes.isEmpty) {
                 return true
             }
         case .fortnightly:
-            if (draftSchedule.reminderTimes.isEmpty) {
+            if (draftDosage.reminderTimes.isEmpty) {
                 return true
             }
         case .monthly, .quarterly, .biannually, .annually:
-            if (draftSchedule.startDate == nil || draftSchedule.reminderTimes.isEmpty) {
+            if (draftDosage.startDate == nil || draftDosage.reminderTimes.isEmpty) {
                 return true
             }
         case .custom:
-            if (selectedDates.isEmpty || draftSchedule.reminderTimes.isEmpty) {
+            if (selectedDates.isEmpty || draftDosage.reminderTimes.isEmpty) {
                 return true
             }
         }
@@ -65,6 +73,7 @@ struct ScheduleView: View {
     
     var body: some View {
         Form {
+            doseSectionView
             frequencyPickerSectionView
             conditionalSelectorSectionView
             datePickerSectionView
@@ -75,7 +84,7 @@ struct ScheduleView: View {
                 Button("Done") {
                     handleDoneButtonTap(
                         medicineEditorViewModel: medicineEditorViewModel,
-                        draftSchedule: &draftSchedule,
+                        draftDosage: &draftDosage,
                         selectedDay: selectedDay,
                         selectedDates: selectedDates
                     )
@@ -99,35 +108,75 @@ struct ScheduleView: View {
                     .zIndex(1)
             }
         }
-        .navigationTitle("Add Schedule")
+        .navigationTitle("Add Dosage")
         .navigationBarTitleDisplayMode(.inline)
+    }
+    
+    private var doseSectionView: some View {
+        Section(
+            content: {
+                TextField("Quantity", text: $draftDoseQuantityString)
+                    .keyboardType(.decimalPad)
+                    .onChange(of: draftDoseQuantityString) { _, newValue in
+                        
+                        if newValue.trimmedIsEmpty {
+                            draftDosage.dosageQuantity = nil
+                        }
+                        
+                        let floatValue = Float(newValue)
+                        if floatValue == nil || floatValue ?? -1 < 0 {
+                            isDoseQuantityValid = false
+                        } else {
+                            draftDosage.dosageQuantity = floatValue ?? 0
+                            isDoseQuantityValid = true
+                        }
+                    }
+            }, header: {
+                Text("Dose Quantity")
+            }, footer: {
+                VStack(alignment: .leading) {
+                    if let unit = medicineEditorViewModel.medicine.stock?.unit {
+                        Text(unit)
+                    }
+                    
+                    if !isDoseQuantityValid {
+                        Text("Invalid quantity")
+                            .foregroundStyle(.red)
+                    }
+                }
+            }
+        )
     }
     
     private var frequencyPickerSectionView: some View {
         Section("Frequency") {
             Picker("Repeat",
-                   selection: $draftSchedule.repeatType.animation()
+                   selection: $draftDosage.repeatType.animation()
             ) {
                 ForEach(RepeatType.allCases) { repeatType in
                     Text(repeatType.rawValue)
                         .tag(repeatType)
                 }
             }
-            .onChange(of: draftSchedule.repeatType) { _, newValue in
+            .onChange(of: draftDosage.repeatType) { _, newValue in
                 selectedDay = .sunday
                 
-                draftSchedule.selectedDays = []
-                draftSchedule.selectedDates = []
-                draftSchedule.startDate = nil
-                draftSchedule.endDate = nil
-                draftSchedule.reminderTimes = []
+                draftDosage.selectedDays = []
+                draftDosage.selectedDates = []
+                draftDosage.startDate = nil
+                draftDosage.endDate = nil
+                draftDosage.reminderTimes = []
+                
+                if (newValue == .never) {
+                    draftDoseQuantityString = ""
+                }
             }
         }
     }
     
     @ViewBuilder
     private var conditionalSelectorSectionView: some View {
-        switch draftSchedule.repeatType {
+        switch draftDosage.repeatType {
         case .never, .monthly, .quarterly, .biannually, .annually:
             EmptyView()
         case .selectDays:
@@ -146,7 +195,7 @@ struct ScheduleView: View {
                     withAnimation {
                         toggleSelectedDay(
                             day,
-                            draftSchedule: $draftSchedule,
+                            draftDosage: $draftDosage,
                             selectedDay: $selectedDay,
                             showToast: $showToast,
                             toastMessage: $toastMessage
@@ -156,7 +205,7 @@ struct ScheduleView: View {
                     HStack {
                         Text(day.rawValue)
                         
-                        if (draftSchedule.selectedDays.contains(day)) {
+                        if (draftDosage.selectedDays.contains(day)) {
                             Spacer()
                             Image(systemName: "checkmark")
                                 .foregroundStyle(.blue)
@@ -168,7 +217,7 @@ struct ScheduleView: View {
         }, header: {
             Text("Days")
         }, footer : {
-            if (draftSchedule.selectedDays.isEmpty) {
+            if (draftDosage.selectedDays.isEmpty) {
                 Text("A reminder day is required.")
             }
         })
@@ -184,7 +233,7 @@ struct ScheduleView: View {
             }
             .onChange(of: selectedDay) { _, _ in
                 handleFortnightlyDayChange(
-                    draftSchedule: $draftSchedule,
+                    draftDosage: $draftDosage,
                     selectedDay: $selectedDay,
                     showToast: $showToast,
                     toastMessage: $toastMessage
@@ -202,14 +251,14 @@ struct ScheduleView: View {
     private var datesSectionView: some View {
         Section(content: {
             DatePickerView(
-                label: "\(draftSchedule.startDate == nil ? "Add Start Date" : "Start Date")",
-                date: $draftSchedule.startDate
+                label: "\(draftDosage.startDate == nil ? "Add Start Date" : "Start Date")",
+                date: $draftDosage.startDate
             )
-            .onChange(of: draftSchedule.startDate) { _, newValue in
+            .onChange(of: draftDosage.startDate) { _, newValue in
                 handleDateChange(
                     to: newValue,
                     for: .startDate,
-                    draftSchedule: $draftSchedule,
+                    draftDosage: $draftDosage,
                     selectedDay: $selectedDay,
                     showToast: $showToast,
                     toastMessage: $toastMessage
@@ -217,14 +266,14 @@ struct ScheduleView: View {
             }
             
             DatePickerView(
-                label: "\(draftSchedule.startDate == nil ? "Add End Date" : "End Date")",
-                date: $draftSchedule.endDate
+                label: "\(draftDosage.startDate == nil ? "Add End Date" : "End Date")",
+                date: $draftDosage.endDate
             )
-            .onChange(of: draftSchedule.endDate) { _, newValue in
+            .onChange(of: draftDosage.endDate) { _, newValue in
                 handleDateChange(
                     to: newValue,
                     for: .endDate,
-                    draftSchedule: $draftSchedule,
+                    draftDosage: $draftDosage,
                     selectedDay: $selectedDay,
                     showToast: $showToast,
                     toastMessage: $toastMessage
@@ -239,12 +288,12 @@ struct ScheduleView: View {
     
     @ViewBuilder
     private var datesSectionFooterView: some View {
-        if (draftSchedule.startDate == nil) {
-            if (draftSchedule.repeatType == .selectDays) {
-                if let earliestDay = Day.allCases.first(where: { draftSchedule.selectedDays.contains($0) }) {
+        if (draftDosage.startDate == nil) {
+            if (draftDosage.repeatType == .selectDays) {
+                if let earliestDay = Day.allCases.first(where: { draftDosage.selectedDays.contains($0) }) {
                     Text("A start date is not added. Reminders will be sent every week starting \(earliestDay.rawValue).")
                 }
-            } else if draftSchedule.repeatType == .fortnightly {
+            } else if draftDosage.repeatType == .fortnightly {
                 Text("A start date is not added. Reminders will be sent every two weeks starting \(selectedDay.rawValue).")
             } else {
                 Text("A start date is required.")
@@ -255,15 +304,15 @@ struct ScheduleView: View {
     private var dateSectionView: some View {
         Section("Date") {
             DatePickerView(
-                label: "\(draftSchedule.startDate == nil ? "Add Date" : "Remind On")",
-                date: $draftSchedule.startDate
+                label: "\(draftDosage.startDate == nil ? "Add Date" : "Remind On")",
+                date: $draftDosage.startDate
             )
         }
     }
     
     @ViewBuilder
     private var datePickerSectionView: some View {
-        switch draftSchedule.repeatType {
+        switch draftDosage.repeatType {
         case .never:
             dateSectionView
         case .custom:
@@ -275,7 +324,7 @@ struct ScheduleView: View {
     
     private var timePickerSectionView: some View {
         Section(content: {
-            ForEach($draftSchedule.reminderTimes) { $reminderTime in
+            ForEach($draftDosage.reminderTimes) { $reminderTime in
                 DatePicker(
                     "Remind At",
                     selection: $reminderTime.time,
@@ -283,16 +332,18 @@ struct ScheduleView: View {
                 )
             }
             .onDelete { indexSet in
-                deleteReminderTime(at: indexSet, draftSchedule: &draftSchedule)
+                deleteReminderTime(at: indexSet, draftDosage: &draftDosage)
             }
             
-            Button("Add Time") {
-                onAddTime(draftSchedule: &draftSchedule)
+            if (draftDosage.reminderTimes.count < 5) {
+                Button("Add Time") {
+                    onAddTime(draftDosage: &draftDosage)
+                }
             }
         }, header: {
             Text("Times")
         }, footer: {
-            if (draftSchedule.repeatType != .never && draftSchedule.reminderTimes.isEmpty) {
+            if (draftDosage.repeatType != .never && draftDosage.reminderTimes.isEmpty) {
                 Text("A reminder time is required.")
             }
         })
@@ -301,6 +352,6 @@ struct ScheduleView: View {
 
 #Preview {
     NavigationStack {
-        ScheduleView(schedule: .init(), medicineEditorViewModel: .init())
+        DosageView(dosage: .init(), medicineEditorViewModel: .init())
     }
 }

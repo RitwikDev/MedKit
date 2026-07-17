@@ -55,10 +55,10 @@ class MedicineEditorViewModel {
         medicine.composition.remove(atOffsets: offsets)
     }
     
-    // MARK: - Schedule Management
+    // MARK: - Dosage Management
     
-    func removeSchedule() {
-        medicine.schedule = nil
+    func removeDosage() {
+        medicine.dosage = nil
     }
 
     // MARK: - Tag Management

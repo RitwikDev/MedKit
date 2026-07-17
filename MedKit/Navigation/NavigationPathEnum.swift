@@ -12,7 +12,7 @@ enum NavigationPathEnum: Hashable {
     case cameraAndPhotoPicker
     case medicineForm(for: Medicine)
     case ingredientForm(for: Ingredient, medicineEditorViewModel: MedicineEditorViewModel)
-    case medicineSchedule(for: Schedule, medicineEditorViewModel: MedicineEditorViewModel)
+    case medicineDosage(for: DosageModel, medicineEditorViewModel: MedicineEditorViewModel)
     case addCustomFields(medicineEditorViewModel: MedicineEditorViewModel)
     case documentPreview(document: Document)
     case zoomablePhotoView(image: UIImage)
@@ -26,8 +26,8 @@ enum NavigationPathEnum: Hashable {
             MedicineFormView(medicine: medicine)
         case .ingredientForm(let ingredient, let medicineEditorViewModel):
             IngredientEntryView(ingredient: ingredient, medicineEditorViewModel: medicineEditorViewModel)
-        case .medicineSchedule(let schedule, let medicineEditorViewModel):
-            ScheduleView(schedule: schedule, medicineEditorViewModel: medicineEditorViewModel)
+        case .medicineDosage(let dosage, let medicineEditorViewModel):
+            DosageView(dosage: dosage, medicineEditorViewModel: medicineEditorViewModel)
         case .addCustomFields(let medicineEditorViewModel):
             MedicineCustomFieldStepperView(medicineEditorViewModel: medicineEditorViewModel)
         case .documentPreview(let document):

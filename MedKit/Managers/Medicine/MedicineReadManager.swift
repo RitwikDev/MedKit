@@ -109,7 +109,7 @@ class MedicineReadManager {
             strengthAmount: entity.strengthAmount > 0 ? entity.strengthAmount : nil,
             strengthUnit: entity.strengthUnit,
             composition: ingredients,
-            schedule: Schedule.fromMedicineEntity(entity),
+            dosage: DosageModel.fromMedicineEntity(entity),
             stock: stock,
             tags: tags,
             customFields: customFields

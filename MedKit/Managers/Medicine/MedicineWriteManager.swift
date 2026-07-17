@@ -151,28 +151,29 @@ class MedicineWriteManager {
                 }
             }
             
-            // 5. Map Schedule
-            if let structSchedule = medicine.schedule {
-                // Get existing schedule or create a new one
-                let scheduleEntity = entity.schedule ?? ScheduleEntity(context: context)
+            // 5. Map Dosage
+            if let structDosage = medicine.dosage {
+                // Get existing dosage or create a new one
+                let dosageEntity = entity.dosage ?? DosageEntity(context: context)
                 
-                scheduleEntity.id = structSchedule.id
-                scheduleEntity.startDate = structSchedule.startDate
-                scheduleEntity.endDate = structSchedule.endDate
-                scheduleEntity.repeatType = structSchedule.repeatType.rawValue
-                scheduleEntity.medicine = entity
+                dosageEntity.id = structDosage.id
+                dosageEntity.dosageQuantity = structDosage.dosageQuantity ?? 0
+                dosageEntity.startDate = structDosage.startDate
+                dosageEntity.endDate = structDosage.endDate
+                dosageEntity.repeatType = structDosage.repeatType.rawValue
+                dosageEntity.medicine = entity
                 
-                scheduleEntity.selectedDays = structSchedule.selectedDays.map { $0.rawValue } as NSArray
+                dosageEntity.selectedDays = structDosage.selectedDays.map { $0.rawValue } as NSArray
                 
-                if let datesData = try? JSONEncoder().encode(structSchedule.selectedDates) {
-                    scheduleEntity.selectedDatesData = datesData
+                if let datesData = try? JSONEncoder().encode(structDosage.selectedDates) {
+                    dosageEntity.selectedDatesData = datesData
                 }
                 
                 // 5b. Map Reminders
-                let existingReminders = (scheduleEntity.reminderTimes as? Set<ReminderTimeEntity>) ?? []
+                let existingReminders = (dosageEntity.reminderTimes as? Set<ReminderTimeEntity>) ?? []
                 var matchedReminderIDs = Set<UUID>()
                 
-                for reminder in structSchedule.reminderTimes {
+                for reminder in structDosage.reminderTimes {
                     matchedReminderIDs.insert(reminder.id)
                     
                     let reminderEntity = existingReminders.first(where: { $0.id == reminder.id })
@@ -180,7 +181,7 @@ class MedicineWriteManager {
                     
                     reminderEntity.id = reminder.id
                     reminderEntity.time = reminder.time
-                    reminderEntity.schedule = scheduleEntity
+                    reminderEntity.dosage = dosageEntity
                 }
                 
                 // Cleanup removed reminders
@@ -190,9 +191,9 @@ class MedicineWriteManager {
                     }
                 }
                 
-            } else if let existingSchedule = entity.schedule {
-                // If the draft has no schedule, but the entity does, the user deleted it.
-                context.delete(existingSchedule)
+            } else if let existingDosage = entity.dosage {
+                // If the draft has no dosage, but the entity does, the user deleted it.
+                context.delete(existingDosage)
             }
             
             // 6. Map stock

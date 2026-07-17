@@ -1,5 +1,5 @@
 //
-//  Schedule.swift
+//  DosageModel.swift
 //  MedKit
 //
 //  Created by Rishik Dev on 04/06/26.
@@ -7,8 +7,9 @@
 
 import Foundation
 
-struct Schedule: Identifiable, Equatable, Hashable {
+struct DosageModel: Identifiable, Equatable, Hashable {
     let id: UUID
+    var dosageQuantity: Float?
     var startDate: Date?
     var endDate: Date?
     var reminderTimes: [ReminderTime]
@@ -16,15 +17,18 @@ struct Schedule: Identifiable, Equatable, Hashable {
     var selectedDays: [Day]
     var selectedDates: [DateComponents]
     
-    init(id: UUID = UUID(),
-         startDate: Date? = nil,
-         endDate: Date? = nil,
-         reminderTimes: [ReminderTime] = [],
-         repeatType: RepeatType = .never,
-         selectedDays: [Day] = [],
-         selectedDates: [DateComponents] = []
+    init(
+        id: UUID = UUID(),
+        dosageQuantity: Float? = nil,
+        startDate: Date? = nil,
+        endDate: Date? = nil,
+        reminderTimes: [ReminderTime] = [],
+        repeatType: RepeatType = .never,
+        selectedDays: [Day] = [],
+        selectedDates: [DateComponents] = []
     ) {
         self.id = id
+        self.dosageQuantity = dosageQuantity
         self.startDate = startDate
         self.endDate = endDate
         self.reminderTimes = reminderTimes
@@ -33,37 +37,38 @@ struct Schedule: Identifiable, Equatable, Hashable {
         self.selectedDates = selectedDates
     }
     
-    public static func fromMedicineEntity(_ entity: MedicineEntity) -> Schedule? {
-        var scheduleStruct: Schedule? = nil
-        if let scheduleEntity = entity.schedule {
+    public static func fromMedicineEntity(_ entity: MedicineEntity) -> DosageModel? {
+        var dosageStruct: DosageModel? = nil
+        if let dosageEntity = entity.dosage {
             
             // Decode complex binary date components
             var mappedDates: [DateComponents] = []
-            if let datesData = scheduleEntity.selectedDatesData,
+            if let datesData = dosageEntity.selectedDatesData,
                let decoded = try? JSONDecoder().decode([DateComponents].self, from: datesData) {
                 mappedDates = decoded
             }
             
             // Extract transformable string array and map back to enums
-            let rawDays = scheduleEntity.selectedDays ?? []
+            let rawDays = dosageEntity.selectedDays ?? []
             let mappedDays = rawDays.compactMap { Day(rawValue: $0 as? String ?? "Unknown") }
             
             // Map Reminders
-            let reminderEntities = scheduleEntity.reminderTimes as? Set<ReminderTimeEntity> ?? []
+            let reminderEntities = dosageEntity.reminderTimes as? Set<ReminderTimeEntity> ?? []
             let mappedReminders = reminderEntities.map { ReminderTime(id: $0.id ?? UUID(), time: $0.time ?? Date()) }
             
-            scheduleStruct = Schedule(
-                id: scheduleEntity.id ?? UUID(),
-                startDate: scheduleEntity.startDate,
-                endDate: scheduleEntity.endDate,
+            dosageStruct = DosageModel(
+                id: dosageEntity.id ?? UUID(),
+                dosageQuantity: dosageEntity.dosageQuantity,
+                startDate: dosageEntity.startDate,
+                endDate: dosageEntity.endDate,
                 reminderTimes: mappedReminders,
-                repeatType: RepeatType(rawValue: scheduleEntity.repeatType ?? "") ?? .never,
+                repeatType: RepeatType(rawValue: dosageEntity.repeatType ?? "") ?? .never,
                 selectedDays: mappedDays,
                 selectedDates: mappedDates
             )
         }
         
-        return scheduleStruct
+        return dosageStruct
     }
 }
 

@@ -68,9 +68,9 @@ struct CalendarMonthView: View {
                             .clipShape(.circle)
                         
                         HStack {
-                            ForEach(dayEvents.prefix(3)) { event in
+                            if (!dayEvents.isEmpty) {
                                 Circle()
-                                    .fill(event.color)
+                                    .fill(.blue)
                                     .frame(width: 5, height: 5)
                             }
                         }
