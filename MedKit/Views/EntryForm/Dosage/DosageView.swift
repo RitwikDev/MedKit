@@ -23,7 +23,6 @@ struct DosageView: View {
     @State private var selectedDay: Day = .sunday
     @State private var selectedDates: Set<DateComponents> = []
     
-    @State private var isDoseQuantityValid = true
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     
@@ -39,10 +38,10 @@ struct DosageView: View {
     }
     
     private var isDoneButtonDisabled: Bool {
-        if (!isDoseQuantityValid) {
+        if ((draftDosage.dosageQuantity ?? 0).isZero) {
             return true
         }
-        
+
         switch draftDosage.repeatType {
         case .never:
             if ((draftDosage.startDate != nil && draftDosage.reminderTimes.isEmpty)
@@ -51,14 +50,10 @@ struct DosageView: View {
                 return true
             }
         case .selectDays:
-            if (draftDosage.selectedDays.isEmpty || draftDosage.reminderTimes.isEmpty) {
+            if (draftDosage.selectedDays.isEmpty || draftDosage.startDate == nil || draftDosage.reminderTimes.isEmpty) {
                 return true
             }
-        case .fortnightly:
-            if (draftDosage.reminderTimes.isEmpty) {
-                return true
-            }
-        case .monthly, .quarterly, .biannually, .annually:
+        case .fortnightly, .monthly, .quarterly, .biannually, .annually:
             if (draftDosage.startDate == nil || draftDosage.reminderTimes.isEmpty) {
                 return true
             }
@@ -79,6 +74,7 @@ struct DosageView: View {
             datePickerSectionView
             timePickerSectionView
         }
+        .scrollDismissesKeyboard(.interactively)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Done") {
@@ -117,18 +113,17 @@ struct DosageView: View {
             content: {
                 TextField("Quantity", text: $draftDoseQuantityString)
                     .keyboardType(.decimalPad)
-                    .onChange(of: draftDoseQuantityString) { _, newValue in
-                        
+                    .onChange(of: draftDoseQuantityString) { oldValue, newValue in
                         if newValue.trimmedIsEmpty {
                             draftDosage.dosageQuantity = nil
+                            return
                         }
                         
                         let floatValue = Float(newValue)
-                        if floatValue == nil || floatValue ?? -1 < 0 {
-                            isDoseQuantityValid = false
+                        if (floatValue == nil || (floatValue ?? -1) < 0) {
+                            draftDoseQuantityString = oldValue
                         } else {
                             draftDosage.dosageQuantity = floatValue ?? 0
-                            isDoseQuantityValid = true
                         }
                     }
             }, header: {
@@ -137,11 +132,6 @@ struct DosageView: View {
                 VStack(alignment: .leading) {
                     if let unit = medicineEditorViewModel.medicine.stock?.unit {
                         Text(unit)
-                    }
-                    
-                    if !isDoseQuantityValid {
-                        Text("Invalid quantity")
-                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -289,15 +279,7 @@ struct DosageView: View {
     @ViewBuilder
     private var datesSectionFooterView: some View {
         if (draftDosage.startDate == nil) {
-            if (draftDosage.repeatType == .selectDays) {
-                if let earliestDay = Day.allCases.first(where: { draftDosage.selectedDays.contains($0) }) {
-                    Text("A start date is not added. Reminders will be sent every week starting \(earliestDay.rawValue).")
-                }
-            } else if draftDosage.repeatType == .fortnightly {
-                Text("A start date is not added. Reminders will be sent every two weeks starting \(selectedDay.rawValue).")
-            } else {
-                Text("A start date is required.")
-            }
+            Text("A start date is required.")
         }
     }
     

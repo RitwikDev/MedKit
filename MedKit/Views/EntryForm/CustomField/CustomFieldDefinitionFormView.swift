@@ -53,6 +53,7 @@ struct CustomFieldDefinitionFormView: View {
                 .pickerStyle(.inline)
                 .tint(.secondary)
             }
+            .scrollDismissesKeyboard(.interactively)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -67,7 +68,6 @@ struct CustomFieldDefinitionFormView: View {
                     .disabled(isDoneButtonDisabled)
                 }
             }
-            .scrollDismissesKeyboard(.interactively)
             .navigationTitle("New Field")
             .navigationBarTitleDisplayMode(.inline)
         }

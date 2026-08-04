@@ -12,6 +12,8 @@ class GlobalDataViewModel {
     var allTags: [Tag] = []
     var allIngredients: [Ingredient] = []
     var allCustomFields: [CustomField] = []
+    var allStrengthUnits: Set<String> = []
+    var allStockTypes: Set<String> = []
     var errorMessage: String?
     
     init() {
@@ -22,6 +24,8 @@ class GlobalDataViewModel {
         fetchAllTags()
         fetchAllIngredients()
         fetchAllCustomFields()
+        fetchAllStrengthUnits()
+        fetchAllStockTypes()
     }
     
     // MARK: - Fetch All Functions
@@ -48,6 +52,24 @@ class GlobalDataViewModel {
     func fetchAllCustomFields() {
         do {
             self.allCustomFields = try GlobalDataManager.shared.fetchAllCustomFields()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    /// Asks the Manager to fetch the latest data from the database.
+    func fetchAllStrengthUnits() {
+        do {
+            self.allStrengthUnits = try GlobalDataManager.shared.fetchAllStrengthUnits()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    /// Asks the Manager to fetch the latest data from the database.
+    func fetchAllStockTypes() {
+        do {
+            self.allStockTypes = try GlobalDataManager.shared.fetchAllStockTypes()
         } catch {
             errorMessage = error.localizedDescription
         }

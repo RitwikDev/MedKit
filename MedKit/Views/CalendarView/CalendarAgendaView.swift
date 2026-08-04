@@ -15,18 +15,35 @@ struct CalendarAgendaView: View {
     }
     
     var body: some View {
-        VStack {
-            Text("Agenda")
+        VStack(alignment: .leading) {
+            let eventsCountText = events.count == 0 ? "" : "(\(events.count))"
+            Text("Agenda \(eventsCountText)")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.bottom, 5)
             
-            if events.isEmpty {
+            if (events.isEmpty) {
                 EmptyEntryView(text: "No Events")
-                    .frame(maxHeight: .infinity, alignment: .center)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } else {
                 List(events) { event in
-                    Text(event.title)
-                        .listRowInsets(EdgeInsets())
+                    HStack(spacing: 12) {
+                        Rectangle()
+                            .fill(event.color)
+                            .frame(width: 5, height: 50)
+                        
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(event.title)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+
+                            Text(event.date.formatted(date: .omitted, time: .shortened))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                    .listRowSeparator(.hidden)
                 }
                 .listStyle(.plain)
             }

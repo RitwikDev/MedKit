@@ -23,7 +23,7 @@ struct MedicineFormView: View {
             NameSectionView(name: $medicineEditorViewModel.medicine.name)
             
             StrengthSectionView(
-                quantity: $medicineEditorViewModel.medicine.strengthAmount,
+                amount: $medicineEditorViewModel.medicine.strengthAmount,
                 unit: $medicineEditorViewModel.medicine.strengthUnit,
             )
             
@@ -34,7 +34,7 @@ struct MedicineFormView: View {
 
             CompositionSectionView()
             
-            StockSectionView(stock: $medicineEditorViewModel.medicine.stock)
+            StockSectionView()
             
             DosageSectionView(dosage: $medicineEditorViewModel.medicine.dosage)
 

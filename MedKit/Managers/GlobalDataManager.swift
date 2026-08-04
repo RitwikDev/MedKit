@@ -80,6 +80,51 @@ class GlobalDataManager {
         }
     }
     
+    /// Fetches all strength units from the database and translates them into pure Swift structs.
+    /// - Returns: An array of `medicine units` sorted alphabetically by unit.
+    func fetchAllStrengthUnits() throws -> Set<String> {
+        let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \MedicineEntity.strengthUnit, ascending: true)]
+        
+        var units: Set<String> = Set()
+        do {
+            let entities = try context.fetch(request)
+            entities.forEach { entity in
+                entity.composition?.forEach { ingredient in
+                    if (!((ingredient as! IngredientEntity).strengthUnit ?? "").isEmpty) {
+                        units.insert((ingredient as! IngredientEntity).strengthUnit ?? "")
+                    }
+                }
+                if (!(entity.strengthUnit ?? "").isEmpty) {
+                    units.insert(entity.strengthUnit ?? "")
+                }
+            }
+            
+            return units
+        } catch {
+            throw error
+        }
+    }
+    
+    /// Fetches all stock types from the database and translates them into pure Swift structs.
+    /// - Returns: An array of `stock types` sorted alphabetically by unit.
+    func fetchAllStockTypes() throws -> Set<String> {
+        let request: NSFetchRequest<StockEntity> = StockEntity.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \StockEntity.unit, ascending: true)]
+        
+        var units: Set<String> = Set()
+        do {
+            let entities = try context.fetch(request)
+            entities.forEach { entity in
+                units.insert(entity.unit ?? "")
+            }
+            
+            return units
+        } catch {
+            throw error
+        }
+    }
+    
     // MARK: - Delete Record by UUID Functions
     
     /// Deletes a tag record by its UUID.

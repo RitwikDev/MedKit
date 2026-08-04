@@ -41,7 +41,7 @@ struct IngredientEntryView: View {
             }
             
             StrengthSectionView(
-                quantity: $draftIngredient.strengthAmount,
+                amount: $draftIngredient.strengthAmount,
                 unit: $draftIngredient.strengthUnit,
             )
             .disabled(draftIngredient.name.trimmedIsEmpty)

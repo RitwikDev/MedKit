@@ -27,7 +27,7 @@ struct CalendarMonthView: View {
             
             Spacer()
             
-            Text(viewModel.monthYearHeader(for: date))
+            Text(viewModel.monthYearHeaderString(for: date))
                 .font(.title3.bold())
             
             Spacer()
@@ -51,14 +51,15 @@ struct CalendarMonthView: View {
         }
         
         LazyVGrid(columns: columns, spacing: 12) {
-            ForEach(viewModel.generateDays(for: date)) { day in
-                if let date = day.date {
+            // Pass the local date here
+            ForEach(viewModel.daysForMonth(of: date)) { day in
+                if let dayDate = day.date {
                     let isSelected = Calendar.current.isDate(
-                        date,
+                        dayDate,
                         equalTo: viewModel.selectedDate,
                         toGranularity: .day
                     )
-                    let dayEvents = viewModel.getEvents(forDate: date)
+                    let dayEvents = viewModel.getEvents(forDate: dayDate)
                     
                     VStack {
                         Text("\(day.dayNumber)")
@@ -77,7 +78,7 @@ struct CalendarMonthView: View {
                         .frame(height: 5)
                     }
                     .onTapGesture {
-                        viewModel.selectedDate = date
+                        viewModel.selectedDate = dayDate
                     }
                 } else {
                     Color.clear.frame(minWidth: 30, minHeight: 30)
@@ -88,6 +89,6 @@ struct CalendarMonthView: View {
 }
 
 #Preview {
-    CalendarMonthView(date: .now)
+    CalendarMonthView(date: Date())
         .environment(CalendarViewModel())
 }

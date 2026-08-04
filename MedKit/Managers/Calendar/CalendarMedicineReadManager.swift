@@ -29,7 +29,7 @@ class CalendarMedicineReadManager {
         CalendarMedicine(
             id: entity.id ?? UUID(),
             name: entity.name ?? "",
-            expiryDate: entity.expiryDate ?? .now,
+            expiryDate: entity.expiryDate,
             dosage: DosageModel.fromMedicineEntity(entity),
             stock: StockModel.fromMedicineEntity(entity),
         )

@@ -29,6 +29,7 @@ struct AddCustomFieldsView: View {
         VStack(spacing: 0) {
             availableCustomFields
         }
+        .scrollDismissesKeyboard(.interactively)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 if #available(iOS 26.0, *) {
@@ -65,8 +66,6 @@ struct AddCustomFieldsView: View {
                 selectedCustomField: $selectedCustomField,
             )
         }
-//        .listSectionSpacing(8)
-//        .contentMargins(.top, 8)
     }
 }
 

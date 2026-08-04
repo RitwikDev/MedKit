@@ -50,7 +50,6 @@ struct TagsSectionView: View {
             
             medicineTagsListView
         }
-        .scrollDismissesKeyboard(.interactively)
         .onChange(of: isTagTextFieldFocussed) { _, isFocused in
             withAnimation(.spring) {
                 showSuggestions = isFocused && (!filteredTags.isEmpty || showNewTagButton)
@@ -65,7 +64,7 @@ struct TagsSectionView: View {
     
     private var newTagInputView: some View {
         HStack {
-            TextField("Tag", text: $newTagValue)
+            TextField("Add Tag", text: $newTagValue)
                 .focused($isTagTextFieldFocussed)
         }
     }

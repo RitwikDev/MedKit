@@ -56,6 +56,7 @@ struct MedicineCustomFieldFormView: View {
             }
             
         }
+        .scrollDismissesKeyboard(.interactively)
         .onAppear {
             customFieldValue.definition = customFieldDefinition
             customFieldValue.textValue = nil

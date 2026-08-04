@@ -90,14 +90,12 @@ class MedicineReadManager {
         
         var stock: StockModel? = nil
         if let stockEntity = entity.stock {
-            if stockEntity.quantity  > 0 {
-                stock = .init(
-                    id: stockEntity.id ?? UUID(),
-                    quantity: stockEntity.quantity,
-                    unit: stockEntity.unit ?? "",
-                    endDate: stockEntity.endDate ?? .distantFuture,
-                )
-            }
+            stock = .init(
+                id: stockEntity.id ?? UUID(),
+                quantity: stockEntity.quantity,
+                unit: stockEntity.unit ?? "",
+                endDate: stockEntity.endDate ?? .distantFuture,
+            )
         }
         
         // 5. Construct Final Medicine Struct

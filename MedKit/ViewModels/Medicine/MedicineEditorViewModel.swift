@@ -146,10 +146,22 @@ class MedicineEditorViewModel {
         }
         
         do {
+            calculateStockEndDate()
+            
+            if let expiryDate = medicine.expiryDate {
+                medicine.expiryDate = Calendar.current.startOfDay(for: expiryDate)
+            }
+            
             try MedicineWriteManager.shared.save(medicine)
         } catch {
             errorMessage = error.localizedDescription
             throw error
+        }
+    }
+    
+    func calculateStockEndDate() -> Void {
+        if let endDate = MedicineStockHelper.calculateStockEndDate(for: medicine) {
+            medicine.stock?.endDate = endDate
         }
     }
 }
