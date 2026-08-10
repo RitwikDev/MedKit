@@ -1,5 +1,5 @@
 //
-//  MedicineStockHelper.swift
+//  MedicineStockEndDateCalculator.swift
 //  MedKit
 //
 //  Created by Ritwik Dev on 03/08/26.
@@ -7,12 +7,18 @@
 
 import Foundation
 
-class MedicineStockHelper
+class MedicineStockEndDateCalculator
 {
-    public static func calculateStockEndDate(for medicine: Medicine, startingFrom baseDate: Date = Date()) -> Date? {
-        guard let stock = medicine.stock, stock.quantity > 0,
-              let dosage = medicine.dosage,
-              let dosageQuantity = dosage.dosageQuantity, dosageQuantity > 0,
+    public static func calculate(
+        stock: StockModel?,
+        dosage: DosageModel?,
+        startingFrom baseDate: Date = Date(),
+    ) -> Date? {
+        guard let stock = stock,
+              stock.quantity > 0,
+              let dosage = dosage,
+              let dosageQuantity = dosage.dosageQuantity,
+              dosageQuantity > 0,
               !dosage.reminderTimes.isEmpty else {
             return nil
         }

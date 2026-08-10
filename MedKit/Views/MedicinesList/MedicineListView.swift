@@ -13,6 +13,29 @@ struct MedicineListView: View {
     @Environment(NavigationRouter.self) private var router
     @State private var medicineViewModel: MedicineViewModel = .init()
     @State private var tabBarVisibility: Visibility = .automatic
+    @State private var searchQuery: String = ""
+    @State private var selectedTags: Set<UUID> = []
+    @State private var showOnlyExpiringSoon: Bool = false
+    @State private var sortSelection: MedicineListSortOptionsEnum = .nameAscending
+    @State private var isControlsSheetOpen: Bool = false
+        
+    @State private var medicineToDelete: MedicineListItemModel?
+    @State private var showDeleteAlert: Bool = false
+    
+    private var medicines: [MedicineListItemModel] {
+        return medicineViewModel.medicines.filter { medicine in
+            let tagIds = Set(medicine.tags.map { $0.id })
+            
+            let searchMatches = searchQuery.trimmedIsEmpty ||
+            medicine.name.localizedCaseInsensitiveContains(searchQuery.trimmed)
+            
+            let hasTags = selectedTags.isEmpty || !selectedTags.intersection(tagIds).isEmpty
+            
+            let expirationMatches = !showOnlyExpiringSoon || medicine.isExpiringSoon
+            
+            return searchMatches && hasTags && expirationMatches
+        }
+    }
     
     var body: some View {
         @Bindable var router = router
@@ -25,15 +48,33 @@ struct MedicineListView: View {
                     }
                     .defaultScrollAnchor(.center)
                 } else {
-                    List {
-                        ForEach(medicineViewModel.medicines) { medicine in
-                            MedicineListItemView(
-                                medicine: medicine
-                            )
+                    if (medicines.isEmpty) {
+                        EmptyEntryView(text: "No medicines found")
+                            .foregroundStyle(.secondary)
+                            .font(.title3)
+                            .fontWeight(.black)
+                    } else {
+                        List {
+                            ForEach(medicines) { medicine in
+                                MedicineListItemView(
+                                    medicine: medicine
+                                )
+                                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                                    Button {
+                                        medicineToDelete = medicine
+                                        showDeleteAlert = true
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    .tint(.red)
+                                }
+                                .listRowSeparator(.hidden)
+                                .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
+                                .listRowBackground(Color.clear)
+                            }
                         }
-                        .onDelete(perform: deleteMedicine)
+                        .listStyle(.plain)
                     }
-                    .listStyle(.plain)
                 }
             }
             .environment(medicineViewModel)
@@ -45,17 +86,44 @@ struct MedicineListView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     NewMedicineToolbarItemView()
                 }
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    MedicineListControlsView(isDrawerOpen: $isControlsSheetOpen)
+                }
             }
             .onChange(of: router.path) { _, newValue in
                 withAnimation(.bouncy(duration: 5)) {
                     tabBarVisibility = newValue.count == 0 ? .automatic : .hidden
                 }
             }
+            .onChange(of: sortSelection, { _, newValue in
+                medicineViewModel.fetchAllMedicines(sortOn: sortSelection)
+            })
             .navigationDestination(for: NavigationPathEnum.self) { route in
                 route.destination
             }
             .navigationTitle("Medicines")
             .toolbar(tabBarVisibility, for: .tabBar)
+            .alert("Delete Medicine", isPresented: $showDeleteAlert, presenting: medicineToDelete) { medicine in
+                Button("Cancel", role: .cancel) { }
+                Button("Delete", role: .destructive) {
+                    if let index = medicineViewModel.medicines.firstIndex(where: { $0.id == medicine.id }) {
+                        deleteMedicine(at: IndexSet(integer: index))
+                    }
+                }
+            } message: { medicine in
+                Text("Are you sure you want to delete \(medicine.name)?")
+            }
+        }
+        .searchable(text: $searchQuery)
+        .sheet(isPresented: $isControlsSheetOpen) {
+            MedicineListControlsSheetView(
+                isPresented: $isControlsSheetOpen,
+                selectedTags: $selectedTags,
+                showOnlyExpiringSoon: $showOnlyExpiringSoon,
+                sortSelection: $sortSelection,
+            )
+            .interactiveDismissDisabled()
         }
     }
     
@@ -66,12 +134,12 @@ struct MedicineListView: View {
     }
     
     private func fetchData() {
-        medicineViewModel.fetchAllMedicines()
+        medicineViewModel.fetchAllMedicines(sortOn: sortSelection)
         globalDataViewModel.fetchAllData()
     }
 }
 
-#Preview {    
+#Preview {
     MedicineListView()
         .environment(GlobalDataViewModel())
         .environment(MedicineViewModel())

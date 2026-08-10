@@ -27,9 +27,11 @@ class MedicineViewModel {
     }
     
     /// Asks the Manager to fetch the latest data from the database.
-    func fetchAllMedicines() {
+    func fetchAllMedicines(
+        sortOn: MedicineListSortOptionsEnum = .nameAscending,
+    ) {
         do {
-            self.medicines = try MedicineListItemManager.shared.fetchMedicineList()
+            self.medicines = try MedicineListItemManager.shared.fetchMedicineList(sortOn: sortOn)
         } catch {
             errorMessage = error.localizedDescription
         }

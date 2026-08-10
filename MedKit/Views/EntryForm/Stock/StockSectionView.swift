@@ -105,7 +105,7 @@ struct StockSectionView: View {
     }
     
     private var unitView: some View {
-        TextField("Tablet/Drop...", text: $unitString)
+        TextField("Tablet/Bottle...", text: $unitString)
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
             .focused($isUnitFocused)
@@ -131,9 +131,11 @@ struct StockSectionView: View {
     
     private func updateQuantity(isIncrement: Bool) -> Void {
         if let quantity = Float(quantityString) {
-            var step = medicineViewModel.medicine.dosage?.dosageQuantity ?? 1
-            step = isIncrement ? step : -1 * step
-            let newQuantity = max(0, quantity + step)
+            let newQuantity = MedicineStockQuantityUpdater.update(
+                isIncrement: isIncrement,
+                quantity: quantity,
+                dosage: medicineViewModel.medicine.dosage,
+            )
             quantityString = String(newQuantity)
         }
     }

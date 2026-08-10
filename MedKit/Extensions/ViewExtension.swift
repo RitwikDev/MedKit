@@ -20,9 +20,23 @@ struct SheetModifier: ViewModifier {
     }
 }
 
+struct RoundedRectBackground: ViewModifier {
+    let colour: Color
+    
+    func body(content: Content) -> some View {
+        content
+            .background(colour)
+            .clipShape(.rect(cornerRadius: 10))
+    }
+}
+
 extension View {
     func sheetModifier(titled title: String) -> some View {
         modifier(SheetModifier(title: title))
+    }
+    
+    func roundedRectBackground(colour: Color) -> some View {
+        modifier(RoundedRectBackground(colour: colour))
     }
     
     @ViewBuilder

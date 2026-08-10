@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct CalendarEvent: Identifiable {
+struct CalendarEvent: Identifiable, Hashable {
     let id = UUID()
     let date: Date
     let title: String

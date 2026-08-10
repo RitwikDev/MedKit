@@ -87,7 +87,7 @@ class MedicineReadManager {
                 definition: definition
             )
         }.sorted { $0.definition?.label ?? "" < $1.definition?.label ?? "" }
-        
+                
         var stock: StockModel? = nil
         if let stockEntity = entity.stock {
             stock = .init(

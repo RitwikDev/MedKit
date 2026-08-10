@@ -30,7 +30,7 @@ actor ScheduleGenerationService {
             }
             
             // 2. Stock End Events
-            let stockEndDate = medicine.stock.endDate
+            let stockEndDate = medicine.stock?.endDate ?? .distantFuture
             if calendar.isDate(stockEndDate, equalTo: targetMonth, toGranularity: .month) {
                 let event = CalendarEvent(date: stockEndDate, title: "Stockout: \(medicine.name)", color: .red)
                 let dateKey = calendar.startOfDay(for: stockEndDate)
@@ -101,30 +101,59 @@ actor ScheduleGenerationService {
         switch dosage.repeatType {
         case .never:
             return targetDate == startDate
+            
         case .selectDays:
             let weekday = calendar.component(.weekday, from: targetDate)
             guard let day = Day(weekdayNumber: weekday) else { return false }
             return dosage.selectedDays.contains(day)
+            
         case .fortnightly:
             let components = calendar.dateComponents([.day], from: startDate, to: targetDate)
             guard let daysDifference = components.day else { return false }
             return daysDifference % 14 == 0
+            
         case .monthly:
-            return calendar.component(.day, from: startDate) == calendar.component(.day, from: targetDate)
+            let monthsDiff = monthsBetween(startDate, and: targetDate)
+            guard monthsDiff >= 0 else { return false }
+            let expectedDate = calendar.date(byAdding: .month, value: monthsDiff, to: startDate)
+            return expectedDate == targetDate
+            
         case .quarterly:
-            let components = calendar.dateComponents([.month, .day], from: startDate, to: targetDate)
-            guard let monthsDifference = components.month else { return false }
-            return monthsDifference % 3 == 0 && calendar.component(.day, from: startDate) == calendar.component(.day, from: targetDate)
+            let monthsDiff = monthsBetween(startDate, and: targetDate)
+            guard monthsDiff >= 0, monthsDiff % 3 == 0 else { return false }
+            let expectedDate = calendar.date(byAdding: .month, value: monthsDiff, to: startDate)
+            return expectedDate == targetDate
+            
         case .biannually:
-            let components = calendar.dateComponents([.month, .day], from: startDate, to: targetDate)
-            guard let monthsDifference = components.month else { return false }
-            return monthsDifference % 6 == 0 && calendar.component(.day, from: startDate) == calendar.component(.day, from: targetDate)
+            let monthsDiff = monthsBetween(startDate, and: targetDate)
+            guard monthsDiff >= 0, monthsDiff % 6 == 0 else { return false }
+            let expectedDate = calendar.date(byAdding: .month, value: monthsDiff, to: startDate)
+            return expectedDate == targetDate
+            
         case .annually:
-            let startComponents = calendar.dateComponents([.month, .day], from: startDate)
-            let targetComponents = calendar.dateComponents([.month, .day], from: targetDate)
-            return startComponents.month == targetComponents.month && startComponents.day == targetComponents.day
+            let startYear = calendar.component(.year, from: startDate)
+            let targetYear = calendar.component(.year, from: targetDate)
+            let yearsDiff = targetYear - startYear
+            guard yearsDiff >= 0 else { return false }
+            let expectedDate = calendar.date(byAdding: .year, value: yearsDiff, to: startDate)
+            return expectedDate == targetDate
+            
         case .custom:
-            return false
+            return false // Custom is handled directly in the outer loops
         }
     }
+    
+    /// Calculates the discrete number of calendar months between two dates
+    private func monthsBetween(_ start: Date, and target: Date) -> Int {
+        let startComponents = calendar.dateComponents([.year, .month], from: start)
+        let targetComponents = calendar.dateComponents([.year, .month], from: target)
+        
+        let startYear = startComponents.year ?? 0
+        let startMonth = startComponents.month ?? 0
+        let targetYear = targetComponents.year ?? 0
+        let targetMonth = targetComponents.month ?? 0
+        
+        return (targetYear - startYear) * 12 + (targetMonth - startMonth)
+    }
+
 }

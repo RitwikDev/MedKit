@@ -12,5 +12,5 @@ struct CalendarMedicine {
     let name: String
     let expiryDate: Date?
     let dosage: DosageModel?
-    let stock: StockModel
+    let stock: StockModel?
 }

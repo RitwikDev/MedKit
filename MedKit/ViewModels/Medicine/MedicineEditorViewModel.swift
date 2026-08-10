@@ -160,7 +160,10 @@ class MedicineEditorViewModel {
     }
     
     func calculateStockEndDate() -> Void {
-        if let endDate = MedicineStockHelper.calculateStockEndDate(for: medicine) {
+        if let endDate = MedicineStockEndDateCalculator.calculate(
+            stock: medicine.stock,
+            dosage: medicine.dosage,
+        ) {
             medicine.stock?.endDate = endDate
         }
     }

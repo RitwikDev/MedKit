@@ -25,7 +25,7 @@ struct StockModel: Equatable, Hashable {
         self.endDate = endDate
     }
     
-    public static func fromMedicineEntity(_ medicine: MedicineEntity) -> StockModel {
+    public static func fromMedicineEntity(_ medicine: MedicineEntity) -> StockModel? {
         if let stock = medicine.stock {
             return .init(
                 id: stock.id ?? UUID(),
@@ -35,6 +35,6 @@ struct StockModel: Equatable, Hashable {
             )
         }
         
-        return .init()
+        return nil
     }
 }

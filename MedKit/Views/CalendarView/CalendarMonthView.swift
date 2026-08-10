@@ -51,7 +51,6 @@ struct CalendarMonthView: View {
         }
         
         LazyVGrid(columns: columns, spacing: 12) {
-            // Pass the local date here
             ForEach(viewModel.daysForMonth(of: date)) { day in
                 if let dayDate = day.date {
                     let isSelected = Calendar.current.isDate(
@@ -60,18 +59,19 @@ struct CalendarMonthView: View {
                         toGranularity: .day
                     )
                     let dayEvents = viewModel.getEvents(forDate: dayDate)
+                    let distinctColours = Array(Set(dayEvents.map { $0.color }))
                     
-                    VStack {
+                    VStack(spacing: 4) {
                         Text("\(day.dayNumber)")
                             .frame(minWidth: 30, minHeight: 30)
                             .background(isSelected ? .blue : .clear)
                             .foregroundStyle(isSelected ? .white : .primary)
                             .clipShape(.circle)
                         
-                        HStack {
-                            if (!dayEvents.isEmpty) {
+                        HStack(spacing: 4) {
+                            ForEach(distinctColours, id: \.self) { colour in
                                 Circle()
-                                    .fill(.blue)
+                                    .fill(colour)
                                     .frame(width: 5, height: 5)
                             }
                         }

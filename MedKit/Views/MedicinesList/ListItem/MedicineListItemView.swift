@@ -29,9 +29,7 @@ struct MedicineListItemView: View {
                 router.navigate(to: .medicineForm(for: completeMedicine))
             }
         } label: {
-            VStack(alignment: .leading) {
-                Text(medicine.name)
-            }
+            buttonLabel
         }
         .contextMenu {
             Button {
@@ -45,6 +43,48 @@ struct MedicineListItemView: View {
             CloudSharingView(share: context.share, container: context.container)
                 .ignoresSafeArea()
         }
+    }
+    
+    private var buttonLabel: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                Text(medicine.name)
+                    .font(.headline)
+                
+                Spacer()
+                
+                MedicineListItemIconsView(medicine: medicine)
+            }
+            
+            if let strengthAmount = medicine.strengthAmount,
+                let strengthUnit = medicine.strengthUnit {
+                Text("\(String(format: "%.3f", strengthAmount)) \(strengthUnit)")
+            }
+            
+            MedicineListItemExpiryView(medicine: medicine)
+            
+            if let stock = medicine.stock {
+                if (stock.unit.trimmed == "") {
+                    EmptyView()
+                } else {
+                    MedicineListItemStockView(
+                        medicineId: medicine.id,
+                        stock: stock,
+                        dosage: medicine.dosage,
+                    )
+                }
+            }
+            
+            if (!medicine.tags.isEmpty) {
+                MedicineListItemTagsView(medicine: medicine)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .font(.subheadline)
+        .padding()
+        .roundedRectBackground(colour: Color(uiColor: .systemBackground))
+        .shadow(color: .gray, radius: 10)
+        .padding(.vertical, 5)
     }
     
     private func prepareShare() {
@@ -72,6 +112,7 @@ struct MedicineListItemView: View {
             strengthAmount: 10,
             strengthUnit: "mg",
             stock: nil,
+            dosage: nil,
             expiryDate: .now,
             tags: [],
         )

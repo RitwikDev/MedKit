@@ -17,9 +17,25 @@ class MedicineListItemManager {
         self.context = context
     }
     
-    public func fetchMedicineList() throws -> [MedicineListItemModel] {
+    public func fetchMedicineList(
+        sortOn: MedicineListSortOptionsEnum = .nameAscending,
+    ) throws -> [MedicineListItemModel] {
         let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \MedicineEntity.name, ascending: true)]
+        
+        switch sortOn {
+        case .nameAscending:
+            request.sortDescriptors = [NSSortDescriptor(keyPath: \MedicineEntity.name, ascending: true)]
+        case .nameDescending:
+            request.sortDescriptors = [NSSortDescriptor(keyPath: \MedicineEntity.name, ascending: false)]
+        case .expiryAscending:
+            request.sortDescriptors = [NSSortDescriptor(keyPath: \MedicineEntity.expiryDate, ascending: true)]
+        case .expiryDescending:
+            request.sortDescriptors = [NSSortDescriptor(keyPath: \MedicineEntity.expiryDate, ascending: false)]
+        case .stockAscending:
+            request.sortDescriptors = [NSSortDescriptor(keyPath: \MedicineEntity.stock?.quantity, ascending: true)]
+        case .stockDescending:
+            request.sortDescriptors = [NSSortDescriptor(keyPath: \MedicineEntity.stock?.quantity, ascending: false)]
+        }
         
         let entities = try context.fetch(request)
         
@@ -33,7 +49,8 @@ class MedicineListItemManager {
             strengthAmount: entity.strengthAmount,
             strengthUnit: entity.strengthUnit,
             stock: StockModel.fromMedicineEntity(entity),
-            expiryDate: entity.expiryDate ?? .now,
+            dosage: DosageModel.fromMedicineEntity(entity),
+            expiryDate: entity.expiryDate,
             tags: mapTags(medicineEntity: entity),
         )
     }
@@ -48,5 +65,44 @@ class MedicineListItemManager {
         }.sorted { $0.value < $1.value }
         
         return tags
+    }
+    
+    public func updateStockQuantity(
+        medicineId: UUID,
+        quantity: Float,
+        dosage: DosageModel?,
+    ) -> Void {
+        let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", medicineId as CVarArg)
+        
+        do {
+            let results = try context.fetch(request)
+            guard let entity = results.first, let stockEntity = entity.stock else {
+                return
+            }
+            
+            let stock: StockModel = .init(
+                id: stockEntity.id ?? UUID(),
+                quantity: quantity,
+                unit: stockEntity.unit ?? "",
+                endDate: stockEntity.endDate ?? .distantFuture,
+            )
+            
+            if let endDate = MedicineStockEndDateCalculator.calculate(
+                stock: stock,
+                dosage: dosage,
+            ) {
+                stockEntity.endDate = endDate
+            }
+            
+            stockEntity.quantity = quantity
+            entity.stock = stockEntity
+            
+            if (context.hasChanges) {
+                try context.save()
+            }
+        } catch {
+            context.rollback()
+        }
     }
 }
