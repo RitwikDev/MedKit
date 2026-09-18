@@ -7,10 +7,13 @@
 
 import SwiftData
 import SwiftUI
+import NotificationCenter
 
 struct MedicineListView: View {
     @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     @Environment(NavigationRouter.self) private var router
+    @Environment(NotificationViewModel.self) private var notificationViewModel
+    
     @State private var medicineViewModel: MedicineViewModel = .init()
     @State private var tabBarVisibility: Visibility = .automatic
     @State private var searchQuery: String = ""
@@ -78,16 +81,22 @@ struct MedicineListView: View {
                 }
             }
             .environment(medicineViewModel)
-            .onAppear(perform: fetchData)
+            .onAppear {
+                fetchData()
+                requestNotificationAuthorisation()
+            }
             .refreshable {
                 fetchData()
             }
+            .onReceive(NotificationCenter.default.publisher(for: NotificationManager.dataDidChangeNotification)) { _ in
+                fetchData()
+            }
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
+                ToolbarItemGroup(placement: .confirmationAction) {
                     NewMedicineToolbarItemView()
                 }
                 
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarLeading) {
                     MedicineListControlsView(isDrawerOpen: $isControlsSheetOpen)
                 }
             }
@@ -96,9 +105,9 @@ struct MedicineListView: View {
                     tabBarVisibility = newValue.count == 0 ? .automatic : .hidden
                 }
             }
-            .onChange(of: sortSelection, { _, newValue in
+            .onChange(of: sortSelection) { _, newValue in
                 medicineViewModel.fetchAllMedicines(sortOn: sortSelection)
-            })
+            }
             .navigationDestination(for: NavigationPathEnum.self) { route in
                 route.destination
             }
@@ -137,6 +146,10 @@ struct MedicineListView: View {
         medicineViewModel.fetchAllMedicines(sortOn: sortSelection)
         globalDataViewModel.fetchAllData()
     }
+    
+    private func requestNotificationAuthorisation() {
+        notificationViewModel.requestAuthorisation()
+    }
 }
 
 #Preview {
@@ -144,4 +157,5 @@ struct MedicineListView: View {
         .environment(GlobalDataViewModel())
         .environment(MedicineViewModel())
         .environment(NavigationRouter())
+        .environment(NotificationViewModel(notificationManager: NotificationManager.shared))
 }

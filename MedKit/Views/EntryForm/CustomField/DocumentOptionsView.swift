@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 
 struct DocumentOptionsView: View {
     @Binding var customFieldValue: CustomFieldValue
-    @Binding var selectedUIImages: [UIImage]
+    @Binding var selectedUIImages: [UIImageDocument]
     @Binding var selectedDocuments: [Document]
     let medicineEditorViewModel: MedicineEditorViewModel
     
@@ -90,9 +90,13 @@ struct DocumentOptionsView: View {
             for photoPickerItem in photoPickerItems {
                 if let data = try await photoPickerItem.loadTransferable(type: Data.self) {
                     try medicineEditorViewModel.validateImageData(data)
-                    await loadUIImage(from: photoPickerItem)
+                    
+                    let id: UUID = UUID()
+                    
+                    await loadUIImage(from: photoPickerItem, id: id)
                     
                     let document = Document(
+                        id: id,
                         name: "Photo",
                         documentExtension: photoPickerItem.supportedContentTypes.first?.preferredFilenameExtension ?? "unknown",
                         documentData: data,
@@ -116,7 +120,7 @@ struct DocumentOptionsView: View {
         }
     }
     
-    private func loadUIImage(from item: PhotosPickerItem?) async {
+    private func loadUIImage(from item: PhotosPickerItem?, id: UUID) async {
         guard let item = item else { return }
         
         do {
@@ -124,7 +128,7 @@ struct DocumentOptionsView: View {
                let uiImage = UIImage(data: data) {
                 
                 withAnimation {
-                    self.selectedUIImages.append(uiImage)
+                    self.selectedUIImages.append(UIImageDocument(id: id, image: uiImage))
                 }
             }
         } catch {

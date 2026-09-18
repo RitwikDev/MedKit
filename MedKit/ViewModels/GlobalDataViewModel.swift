@@ -33,7 +33,8 @@ class GlobalDataViewModel {
     /// Asks the Manager to fetch the latest data from the database.
     func fetchAllTags() {
         do {
-            self.allTags = try GlobalDataManager.shared.fetchAllTags()
+            let tags = try GlobalDataManager.shared.fetchAllTags()
+            self.allTags = Array(Set(tags)).sorted()
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -51,7 +52,8 @@ class GlobalDataViewModel {
     /// Asks the Manager to fetch the latest data from the database.
     func fetchAllCustomFields() {
         do {
-            self.allCustomFields = try GlobalDataManager.shared.fetchAllCustomFields()
+            let customFields = try GlobalDataManager.shared.fetchAllCustomFields()
+            self.allCustomFields = Array(Set(customFields)).sorted { $0.label < $1.label }
         } catch {
             errorMessage = error.localizedDescription
         }

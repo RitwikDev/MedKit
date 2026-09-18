@@ -5,6 +5,7 @@
 //  Created by Rishik Dev on 24/06/26.
 //
 
+import FirebaseAppCheck
 import FirebaseCore
 import SwiftUI
 
@@ -13,6 +14,14 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
+        
+#if DEBUG
+        let providerFactory = AppCheckDebugProviderFactory()
+#else
+        let providerFactory = AppCheckProviderFactory()
+#endif
+        AppCheck.setAppCheckProviderFactory(providerFactory)
+
         FirebaseApp.configure()
         return true
     }

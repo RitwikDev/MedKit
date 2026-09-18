@@ -39,7 +39,7 @@ extension CustomFieldValue {
                 return (false, .list)
             }
         case .documents:
-            if (self.documentValue != nil) {
+            if (self.documentValue != nil && !(self.documentValue?.isEmpty ?? true)) {
                 return (true, .none)
             } else {
                 return (false, .file)

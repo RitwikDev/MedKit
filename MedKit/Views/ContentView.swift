@@ -34,4 +34,5 @@ struct ContentView: View {
         .environment(MedicineEditorViewModel())
         .environment(MedicineViewModel())
         .environment(NavigationRouter())
+        .environment(NotificationViewModel(notificationManager: NotificationManager.shared))
 }

@@ -98,7 +98,7 @@ class MedicineReadManager {
             )
         }
         
-        // 5. Construct Final Medicine Struct
+        // 4. Construct Final Medicine Struct
         return Medicine(
             id: entity.id ?? UUID(),
             name: entity.name ?? "",
@@ -110,7 +110,7 @@ class MedicineReadManager {
             dosage: DosageModel.fromMedicineEntity(entity),
             stock: stock,
             tags: tags,
-            customFields: customFields
+            customFields: customFields,
         )
     }
 }

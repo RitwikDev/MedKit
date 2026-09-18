@@ -134,14 +134,19 @@ class GlobalDataManager {
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
         do {
-            if let entity = try context.fetch(request).first {
+            let matchingEntities = try context.fetch(request)
+            for entity in matchingEntities {
                 context.delete(entity)
+            }
+            
+            if context.hasChanges {
                 try context.save()
             }
         } catch {
             throw error
         }
     }
+
     
     /// Deletes an ingredient record by its UUID.
     /// - Parameter id: The unique identifier of the ingredient to delete.
@@ -166,8 +171,12 @@ class GlobalDataManager {
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
         
         do {
-            if let entity = try context.fetch(request).first {
+            let matchingEntities = try context.fetch(request)
+            for entity in matchingEntities {
                 context.delete(entity)
+            }
+            
+            if context.hasChanges {
                 try context.save()
             }
         } catch {

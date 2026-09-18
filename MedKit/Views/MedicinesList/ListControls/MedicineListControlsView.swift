@@ -16,7 +16,7 @@ struct MedicineListControlsView: View {
                 isDrawerOpen.toggle()
             }
         } label: {
-            Image(systemName: "line.3.horizontal.decrease")
+            Image(systemName: "line.3.horizontal.decrease.circle")
         }
     }
 }

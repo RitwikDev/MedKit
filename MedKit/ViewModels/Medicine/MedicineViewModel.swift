@@ -8,6 +8,7 @@
 import SwiftUI
 
 @Observable
+@MainActor
 class MedicineViewModel {
     var medicines: [MedicineListItemModel] = []
     var errorMessage: String? = nil
@@ -49,14 +50,19 @@ class MedicineViewModel {
     /// Asks the Manager to delete a specific record, then refreshes the UI.
     /// - Parameter offsets: The index set from a SwiftUI `onDelete` modifier.
     func deleteMedicine(at offsets: IndexSet) {
-        do {
-            for index in offsets {
-                let medicineId = medicines[index].id
-                try MedicineWriteManager.shared.deleteMedicine(id: medicineId)
+        Task {
+            do {
+                for index in offsets {
+                    let medicineId = medicines[index].id
+                    
+                    await NotificationManager.shared.removePendingNotificationRequests(for: medicineId)
+                    
+                    try MedicineWriteManager.shared.deleteMedicine(id: medicineId)
+                }
+                fetchAllMedicines()
+            } catch {
+                errorMessage = error.localizedDescription
             }
-            fetchAllMedicines()
-        } catch {
-            errorMessage = error.localizedDescription
         }
     }
     
@@ -68,5 +74,24 @@ class MedicineViewModel {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+    
+    /// Asks the Manager to update the stock of the given medicine
+    ///
+    /// - Parameters:
+    ///   - medicineId: The id of the medicine whose stock needs to be updated
+    ///   - quantity: The new quantity of the medicine
+    ///   - dosage: The dosage object of the medicine
+    ///   
+    func updateStockQuantity(
+        medicineId: UUID,
+        quantity: Float,
+        dosage: DosageModel?,
+    ) {
+        MedicineListItemManager.shared.updateStockQuantity(
+            medicineId: medicineId,
+            quantity: quantity,
+            dosage: dosage
+        )
     }
 }

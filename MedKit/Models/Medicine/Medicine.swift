@@ -51,4 +51,8 @@ struct Medicine: Identifiable, Equatable, Hashable {
     public func getCustomFieldsSortedByLabel() -> [CustomFieldValue] {
         self.customFields.sorted { $0.getLabel().localizedCaseInsensitiveCompare($1.getLabel()) == .orderedAscending }
     }
+    
+    public func getNotificationIdentifier(for reminderID: UUID) -> String {
+        "medicine-\(self.id.uuidString)-reminder-\(reminderID.uuidString)"
+    }
 }

@@ -5,6 +5,8 @@
 //  Created by Ritwik Dev on 16/05/26.
 //
 
+import FirebaseCore
+import FirebaseAppCheck
 import SwiftData
 import SwiftUI
 
@@ -14,12 +16,18 @@ struct MedKitApp: App {
     
     @State private var globalDataViewModel = GlobalDataViewModel()
     @State private var router = NavigationRouter()
+    @State private var notificationViewModel = NotificationViewModel(notificationManager: NotificationManager.shared)
+    
+    init() {
+        notificationViewModel.registerCategories()
+    }
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environment(globalDataViewModel)
                 .environment(router)
+                .environment(notificationViewModel)
         }
     }
 }

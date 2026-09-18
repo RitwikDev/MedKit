@@ -12,6 +12,8 @@ struct MedicineListItemStockView: View {
     let stock: StockModel
     let dosage: DosageModel?
     
+    @Environment(MedicineViewModel.self) private var medicineViewModel
+    
     var body: some View {
         HStack {
             decrementButton
@@ -63,7 +65,7 @@ struct MedicineListItemStockView: View {
             dosage: dosage,
         )
         
-        MedicineListItemManager.shared.updateStockQuantity(
+        medicineViewModel.updateStockQuantity(
             medicineId: medicineId,
             quantity: newQuantity,
             dosage: dosage,
@@ -81,4 +83,5 @@ struct MedicineListItemStockView: View {
         ),
         dosage: nil,
     )
+    .environment(MedicineViewModel())
 }

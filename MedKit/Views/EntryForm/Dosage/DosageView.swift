@@ -26,6 +26,34 @@ struct DosageView: View {
     @State private var showToast: Bool = false
     @State private var toastMessage: String = ""
     
+    private var sanitisedDates: Binding<Set<DateComponents>> {
+        Binding(
+            get: { self.selectedDates },
+            set: { newValue in
+                // 2. Rebuild the set with strictly uniform components
+                var cleanedSet: Set<DateComponents> = []
+                
+                for component in newValue {
+                    // Keep only what is strictly necessary for equality matching
+                    var cleanComponent = DateComponents()
+                    cleanComponent.year = component.year
+                    cleanComponent.month = component.month
+                    cleanComponent.day = component.day
+                    
+                    // Explicitly lock the calendar to prevent hidden mismatches
+                    cleanComponent.calendar = Calendar.current
+                    
+                    cleanedSet.insert(cleanComponent)
+                }
+                
+                // 3. Assign the mathematically pure set back to your state
+                withAnimation {
+                    self.selectedDates = cleanedSet
+                }
+            }
+        )
+    }
+    
     init(dosage: DosageModel, medicineEditorViewModel: MedicineEditorViewModel) {
         self.dosage = dosage
         self.medicineEditorViewModel = medicineEditorViewModel
@@ -38,7 +66,7 @@ struct DosageView: View {
     }
     
     private var isDoneButtonDisabled: Bool {
-        if ((draftDosage.dosageQuantity ?? 0).isZero) {
+        if (draftDosage.repeatType != .never && (draftDosage.dosageQuantity ?? 0).isZero) {
             return true
         }
 
@@ -91,17 +119,7 @@ struct DosageView: View {
         }
         .overlay(alignment: .bottom) {
             if showToast {
-                Text(toastMessage)
-                    .font(.subheadline)
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(Color.black.opacity(0.8))
-                    .cornerRadius(10)
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 20)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                    .zIndex(1)
+                ToastView(toastMessage: toastMessage)
             }
         }
         .navigationTitle("Add Dosage")
@@ -150,6 +168,7 @@ struct DosageView: View {
             }
             .onChange(of: draftDosage.repeatType) { _, newValue in
                 selectedDay = .sunday
+                selectedDates = []
                 
                 draftDosage.selectedDays = []
                 draftDosage.selectedDates = []
@@ -233,9 +252,15 @@ struct DosageView: View {
     }
     
     private var customView: some View {
-        Section("Dates (Required)") {
-            MultiDatePicker("Select Dates", selection: $selectedDates)
-        }
+        Section(content: {
+            MultiDatePicker("Select Dates", selection: sanitisedDates.animation())
+        }, header: {
+            Text("Dates")
+        }, footer: {
+            if (selectedDates.isEmpty) {
+                Text("Please select at least one date.")
+            }
+        })
     }
     
     private var datesSectionView: some View {
@@ -334,6 +359,6 @@ struct DosageView: View {
 
 #Preview {
     NavigationStack {
-        DosageView(dosage: .init(), medicineEditorViewModel: .init())
+        DosageView(dosage: .init(repeatType: .custom), medicineEditorViewModel: .init())
     }
 }

@@ -29,6 +29,8 @@ struct MedicineCustomFieldStepperView: View {
     }
     
     var body: some View {
+        @Bindable var bindableViewModel = medicineEditorViewModel
+        
         StepperView(
             currentStepIndex: $step,
             onNavigate: handleStepNavigated,
@@ -38,7 +40,7 @@ struct MedicineCustomFieldStepperView: View {
                 .stepItem(index: StepsEnum.chooseField.rawValue, title: "Choose Field")
             
             MedicineCustomFieldFormView(
-                medicineEditorViewModel: medicineEditorViewModel,
+                medicineEditorViewModel: bindableViewModel,
                 customFieldDefinition: selectedCustomField,
                 customFieldValue: $customFieldValue,
             )
