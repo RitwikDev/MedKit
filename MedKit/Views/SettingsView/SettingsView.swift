@@ -7,6 +7,7 @@
 
 import SwiftData
 import SwiftUI
+import UserNotifications
 
 private enum DataType: String {
     case all = "All Data"
@@ -22,6 +23,7 @@ struct SettingsView: View {
     @State private var enableNotifications: Bool = false
     @State private var showDeleteConfirmationDialog: Bool = false
     @State private var dataType: DataType = .all
+    @State private var isNotificationListViewPresented: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -127,6 +129,20 @@ struct SettingsView: View {
                             Text("This action cannot be undone.")
                         }
                 }
+            }
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        isNotificationListViewPresented.toggle()
+                    } label: {
+                        Label("Show Notifications", systemImage: "bell.badge.fill")
+                            .labelStyle(.iconOnly)
+                    }
+                }
+            }
+            .sheet(isPresented: $isNotificationListViewPresented) {
+                NotificationListView()
+                    .interactiveDismissDisabled()
             }
             .navigationTitle("Settings")
             .onAppear {

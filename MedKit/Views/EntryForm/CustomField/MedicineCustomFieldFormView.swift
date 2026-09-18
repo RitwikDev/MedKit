@@ -13,6 +13,11 @@ private struct TextFieldListItem: Identifiable, Equatable {
     var text: String
 }
 
+struct UIImageDocument: Identifiable, Equatable, Hashable {
+    var id: UUID
+    var image: UIImage
+}
+
 struct MedicineCustomFieldFormView: View {
     let medicineEditorViewModel: MedicineEditorViewModel
     let customFieldDefinition: CustomField
@@ -21,7 +26,7 @@ struct MedicineCustomFieldFormView: View {
     @State private var text: String = ""
     @State private var date: Date = .now
     @State private var textList: [TextFieldListItem] = []
-    @State private var selectedUIImages: [UIImage] = []
+    @State private var selectedUIImages: [UIImageDocument] = []
     @State private var imageToPreview: IdentifiableUIImage?
     @State private var selectedDocuments: [Document] = []
     @State private var documentToPreview: Document?
@@ -129,23 +134,34 @@ struct MedicineCustomFieldFormView: View {
             if !(selectedUIImages.isEmpty) {
                 HorizontalCarouselView {
                     ForEach(selectedUIImages, id: \.self) { selectedUIImage in
-                        ImageCarouselCellView(uiImage: selectedUIImage)
-                            .onTapGesture {
-                                imageToPreview = IdentifiableUIImage(selectedUIImage)
+                        ImageCarouselCellView(uiImage: selectedUIImage.image) {
+                            withAnimation {
+                                selectedUIImages.removeAll { $0 == selectedUIImage }
+                                selectedDocuments.removeAll { $0.id == selectedUIImage.id }
+                                customFieldValue.documentValue = selectedDocuments
                             }
+                        }
+                        .onTapGesture {
+                            imageToPreview = IdentifiableUIImage(selectedUIImage.image)
+                        }
                     }
                 }
             } else if !(selectedDocuments.isEmpty) {
                 HorizontalCarouselView {
                     ForEach(selectedDocuments, id: \.self) { selectedDocument in
-                        DocumentCarouselCellView(document: selectedDocument)
-                            .onTapGesture {
-                                documentToPreview = selectedDocument
+                        DocumentCarouselCellView(document: selectedDocument) {
+                            withAnimation {
+                                selectedDocuments.removeAll { $0.id == selectedDocument.id }
+                                customFieldValue.documentValue = selectedDocuments
                             }
+                        }
+                        .onTapGesture {
+                            documentToPreview = selectedDocument
+                        }
                     }
                 }
             } else {
-                Text("Documents Attached")
+                EmptyView()
             }
         }
     }

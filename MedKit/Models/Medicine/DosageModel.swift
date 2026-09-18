@@ -54,7 +54,7 @@ struct DosageModel: Identifiable, Equatable, Hashable {
             
             // Map Reminders
             let reminderEntities = dosageEntity.reminderTimes as? Set<ReminderTimeEntity> ?? []
-            let mappedReminders = reminderEntities.map { ReminderTime(id: $0.id ?? UUID(), time: $0.time ?? Date()) }
+            let mappedReminders = reminderEntities.map { ReminderTime(id: $0.id ?? UUID(), time: $0.time ?? Date()) }.sorted { $0.time < $1.time }
             
             dosageStruct = DosageModel(
                 id: dosageEntity.id ?? UUID(),
@@ -106,6 +106,18 @@ enum Day: String, CaseIterable, Identifiable, Codable {
         default: return nil // Invalid weekday
         }
     }
+    
+    var weekdayNumber: Int {
+            switch self {
+            case .sunday: return 1
+            case .monday: return 2
+            case .tuesday: return 3
+            case .wednesday: return 4
+            case .thursday: return 5
+            case .friday: return 6
+            case .saturday: return 7
+            }
+        }
 }
 
 struct ReminderTime: Identifiable, Equatable, Hashable, Codable {

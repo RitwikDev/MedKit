@@ -5,6 +5,7 @@
 //  Created by Rishik Dev on 30/05/26.
 //
 
+import CloudKit
 import SwiftUI
 
 enum AttachmentError: LocalizedError {
@@ -19,6 +20,12 @@ enum AttachmentError: LocalizedError {
             return "The selected file could not be read. Please try another."
         }
     }
+}
+
+struct ShareContext: Identifiable {
+    let id = UUID()
+    let share: CKShare
+    let container: CKContainer
 }
 
 /// Powers the medicine creation and editing form.
@@ -103,6 +110,19 @@ class MedicineEditorViewModel {
         medicine.customFields[fieldIndex].listValue = updatedList
     }
     
+    func deleteCustomField(_ customFieldToDelete: CustomFieldValue) {
+        medicine.customFields.removeAll { $0.id == customFieldToDelete.id }
+    }
+    
+    func deleteDocument(_ documentToDelete: Document) {
+        for index in medicine.customFields.indices {
+            if var existingDocuments = medicine.customFields[index].documentValue {
+                existingDocuments.removeAll { $0.id == documentToDelete.id }
+                medicine.customFields[index].documentValue = existingDocuments
+            }
+        }
+    }
+    
     // MARK: - File Attachment Logic
     
     /// Validates a file URL and extracts its data if it is safe to upload.
@@ -152,6 +172,9 @@ class MedicineEditorViewModel {
                 medicine.expiryDate = Calendar.current.startOfDay(for: expiryDate)
             }
             
+            clearExistingNotifications(for: medicine)
+            try NotificationManager.shared.scheduleInitialNotification(for: medicine)
+            
             try MedicineWriteManager.shared.save(medicine)
         } catch {
             errorMessage = error.localizedDescription
@@ -166,5 +189,27 @@ class MedicineEditorViewModel {
         ) {
             medicine.stock?.endDate = endDate
         }
+    }
+    
+    func shareMedicine() async -> ShareContext? {
+        do {
+            let data = try await MedicineWriteManager.shared.fetchOrCreateShare(for: medicine)
+            
+            return ShareContext(share: data.0, container: data.1)
+        } catch {
+            print("Failed to fetch/create share: \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    private func clearExistingNotifications(for medicine: Medicine) {
+        guard let dosage = medicine.dosage else { return }
+        
+        // Reconstruct the identifiers for all possible reminders on this medicine
+        let identifiersToCancel = dosage.reminderTimes.map { reminder in
+            medicine.getNotificationIdentifier(for: reminder.id)
+        }
+        
+        NotificationManager.shared.removePendingNotificationRequests(withIdentifiers: identifiersToCancel)
     }
 }

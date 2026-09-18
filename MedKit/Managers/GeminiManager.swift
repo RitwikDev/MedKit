@@ -28,7 +28,7 @@ class GeminiManager {
     }
     
     private func initAI() {
-        ai = FirebaseAI.firebaseAI(backend: .googleAI())
+        ai = FirebaseAI.firebaseAI(backend: .googleAI(), useLimitedUseAppCheckTokens: true)
     }
     
     private func initModel() {

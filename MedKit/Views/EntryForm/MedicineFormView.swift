@@ -5,6 +5,7 @@
 //  Created by Rishik Dev on 19/05/26.
 //
 
+import PDFKit
 import SwiftUI
 
 struct MedicineFormView: View {
@@ -12,6 +13,13 @@ struct MedicineFormView: View {
 
     @Environment(NavigationRouter.self) private var router
     @State private var medicineEditorViewModel: MedicineEditorViewModel
+    @State private var shareContext: ShareContext? = nil
+    @State private var showShareSheet: Bool = false
+    @State private var showAlert: Bool = false
+    
+    var isNewMedicine: Bool {
+        medicine.name.trimmedIsEmpty
+    }
         
     init(medicine: Medicine) {
         self.medicine = medicine
@@ -44,20 +52,58 @@ struct MedicineFormView: View {
         }
         .environment(medicineEditorViewModel)
         .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                if (!isNewMedicine) {
+                    Menu {
+                        shareSheet
+                    } label: {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                }
+                
                 Button("Save") {
                     do {
                         try medicineEditorViewModel.saveMedicine()
                         router.popToRoot()
                     } catch {
-                        
+                        showAlert.toggle()
+                        print(error)
                     }
                 }
-                .tint(.blue)
             }
         }
+        .alert("Failed to save \(medicine.name.trimmedIsEmpty ? "medicine" : medicine.name)", isPresented: $showAlert) {
+            Button("Dismiss", role: .cancel) { showAlert = false }
+        }
+        .sheet(item: $shareContext) { context in
+            CloudSharingView(share: context.share, container: context.container)
+                .ignoresSafeArea()
+        }
+        .sheet(isPresented: $showShareSheet) {
+            shareSheet
+                .presentationDetents([.fraction(0.25)])
+        }
         .scrollDismissesKeyboard(.interactively)
-        .navigationTitle("\(medicine.name.trimmedIsEmpty ? "New Medicine" :  medicine.name)")
+        .navigationTitle("\(isNewMedicine ? "New Medicine" :  medicine.name)")
+    }
+    
+    private var shareSheet: some View {
+        VStack {
+            ShareLink(
+                item: MedicinePDFExporter(medicine: medicine),
+                preview: SharePreview("\(medicine.name)", image: Image(systemName: "doc.richtext"))
+            ) {
+                Label("Export as PDF", systemImage: "document.badge.arrow.up.fill")
+            }
+            
+            Button {
+                Task {
+                    shareContext = await medicineEditorViewModel.shareMedicine()
+                }
+            } label: {
+                Label("Share", systemImage: "person.crop.circle.badge.plus")
+            }
+        }
     }
 }
 

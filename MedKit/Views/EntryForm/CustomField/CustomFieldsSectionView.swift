@@ -77,18 +77,33 @@ struct CustomFieldsSectionView: View {
                                 switch document.documentType {
                                 case .photo:
                                     if let uiImage = UIImage(data: document.documentData) {
-                                        ImageCarouselCellView(uiImage: uiImage)
-                                            .onTapGesture {
-                                                imageToPreview = IdentifiableUIImage(uiImage)
-                                            }
+                                        ImageCarouselCellView(uiImage: uiImage) {
+                                            bindableViewModel.deleteDocument(document)
+                                        }
+                                        .onTapGesture {
+                                            imageToPreview = IdentifiableUIImage(uiImage)
+                                        }
                                     } else {
                                         Image(systemName: "photo.badge.exclamationmark")
                                             .foregroundColor(.red)
                                     }
                                     
                                 case .document:
-                                    DocumentCarouselCellView(document: document)
-                                        .onTapGesture { documentToPreview = document }
+                                    DocumentCarouselCellView(document: document) {
+                                        bindableViewModel.deleteDocument(document)
+                                    }
+                                    .onTapGesture { documentToPreview = document }
+                                }
+                            }
+                        }
+                        .onChange(of: bindableViewModel.medicine.customFields) { _, newValue in
+                            for newCustomField in newValue {
+                                if let documents = newCustomField.documentValue {
+                                    if (documents.isEmpty) {
+                                        withAnimation {
+                                            bindableViewModel.deleteCustomField(newCustomField)
+                                        }
+                                    }
                                 }
                             }
                         }

@@ -44,9 +44,9 @@ struct TagsSectionView: View {
         Section("Tags") {
             newTagInputView
             
-            if (showSuggestions) {
-                tagHorizontalScrollView
-            }
+//            if (showSuggestions) {
+//                tagHorizontalScrollView
+//            }
             
             medicineTagsListView
         }
@@ -66,6 +66,13 @@ struct TagsSectionView: View {
         HStack {
             TextField("Add Tag", text: $newTagValue)
                 .focused($isTagTextFieldFocussed)
+                .toolbar {
+                    if(showSuggestions) {
+                        ToolbarItem(placement: .keyboard) {
+                            tagHorizontalScrollView
+                        }
+                    }
+                }
         }
     }
     

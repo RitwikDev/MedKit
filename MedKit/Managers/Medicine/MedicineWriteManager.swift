@@ -34,6 +34,8 @@ class MedicineWriteManager {
         do {
             let results = try context.fetch(request)
             let entity = results.first ?? MedicineEntity(context: context)
+            // Identify the store (private or shared) where this specific medicine lives
+            let targetStore = entity.objectID.persistentStore
             
             // 1. Map Basic Attributes
             entity.id = medicine.id
@@ -73,12 +75,23 @@ class MedicineWriteManager {
                 let tagReq: NSFetchRequest<TagEntity> = TagEntity.fetchRequest()
                 tagReq.predicate = NSPredicate(format: "id == %@", structTag.id as CVarArg)
                 
+                // Restrict the search to the medicine's store
+                if let store = targetStore {
+                    tagReq.affectedStores = [store]
+                }
+                
                 if let existingTag = try context.fetch(tagReq).first {
                     linkedTags.insert(existingTag)
                 } else {
                     let newTag = TagEntity(context: context)
                     newTag.id = structTag.id
                     newTag.value = structTag.value
+                    
+                    // Explicitly create the new tag in the same store
+                    if let store = targetStore {
+                        context.assign(newTag, to: store)
+                    }
+                    
                     linkedTags.insert(newTag)
                 }
             }
@@ -132,6 +145,10 @@ class MedicineWriteManager {
                     let defReq: NSFetchRequest<CustomFieldEntity> = CustomFieldEntity.fetchRequest()
                     defReq.predicate = NSPredicate(format: "id == %@", definition.id as CVarArg)
                     
+                    if let store = targetStore {
+                        defReq.affectedStores = [store]
+                    }
+                    
                     if let existingDef = try context.fetch(defReq).first {
                         cfEntity.definition = existingDef
                     } else {
@@ -140,6 +157,10 @@ class MedicineWriteManager {
                         newDef.label = definition.label
                         newDef.dataType = definition.dataType.rawValue
                         cfEntity.definition = newDef
+                        
+                        if let store = targetStore {
+                            context.assign(newDef, to: store)
+                        }
                     }
                 }
             }
@@ -261,31 +282,6 @@ class MedicineWriteManager {
     /// Generates a CloudKit Share for a specific medicine.
     /// - Parameter medicine: The medicine struct to share.
     /// - Returns: A tuple containing the new (or existing) CKShare and the CKContainer.
-    func createShare(for medicine: Medicine) async throws -> (CKShare, CKContainer) {
-        // 1. Fetch the actual Core Data entity
-        let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
-        request.predicate = NSPredicate(format: "id == %@", medicine.id as CVarArg)
-        
-        guard let entity = try context.fetch(request).first else {
-            throw NSError(domain: "MedicineManager", code: 404, userInfo: [NSLocalizedDescriptionKey: "Medicine not found in database."])
-        }
-        
-        // 2. Access your persistent container
-        let container = PersistenceController.shared.container
-        
-        // 3. Ask Core Data to create the share record
-        // If the item is already shared, this safely returns the existing share.
-        let (_, share, ckContainer) = try await container.share([entity], to: nil)
-        
-        // 4. Configure the share's basic metadata
-        share[CKShare.SystemFieldKey.title] = medicine.name as CKRecordValue
-        
-        // Save the context so the share is pushed to iCloud
-        try context.save()
-        
-        return (share, ckContainer)
-    }
-    
     public func fetchOrCreateShare(for medicine: Medicine) async throws -> (CKShare, CKContainer) {
         let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", medicine.id as CVarArg)
@@ -294,29 +290,49 @@ class MedicineWriteManager {
             throw NSError(domain: "MedicineManager", code: 404, userInfo: [NSLocalizedDescriptionKey: "Medicine not found."])
         }
         
+        // 1. Flush any pending changes to the SQLite store before sharing
+        if context.hasChanges {
+            try context.save()
+        }
+        
         let container = PersistenceController.shared.container
 
-        // Extract the CloudKit container identifier from your configured store descriptions
         guard let storeDescription = container.persistentStoreDescriptions.first,
               let containerIdentifier = storeDescription.cloudKitContainerOptions?.containerIdentifier else {
             throw NSError(domain: "MedicineManager", code: 500, userInfo: [NSLocalizedDescriptionKey: "CloudKit container not configured."])
         }
 
-        // Instantiate the pure CloudKit container object
         let actualCKContainer = CKContainer(identifier: containerIdentifier)
 
-        // 1. ALWAYS check if it is already shared (either by you or someone else)
+        // 2. Check if already shared
         if let existingShares = try? container.fetchShares(matching: [entity.objectID]),
            let share = existingShares[entity.objectID] {
-            // Return the actual CKContainer to satisfy the tuple requirement
             return (share, actualCKContainer)
         }
         
-        // 2. If it is NOT shared, create a new one
-        let (_, share, ckContainer) = try await container.share([entity], to: nil)
-        share[CKShare.SystemFieldKey.title] = medicine.name as CKRecordValue
-        try context.save()
-        
-        return (share, ckContainer)
+        // 3. Create a new share with a fallback for the mirroring delegate race condition
+        do {
+            let (_, share, ckContainer) = try await container.share([entity], to: nil)
+            share[CKShare.SystemFieldKey.title] = medicine.name as CKRecordValue
+            try context.save()
+            
+            return (share, ckContainer)
+        } catch {
+            // 4. If the mirroring delegate aborted (e.g., due to an in-flight private sync),
+            // the CKShare is usually still successfully created in the local context.
+            if let existingShares = try? container.fetchShares(matching: [entity.objectID]),
+               let share = existingShares[entity.objectID] {
+                
+                // Configure the title and save the context again just to be safe
+                share[CKShare.SystemFieldKey.title] = medicine.name as CKRecordValue
+                try? context.save()
+                
+                return (share, actualCKContainer)
+            }
+            
+            // If the share truly wasn't created, rethrow the original error
+            throw error
+        }
     }
+
 }
