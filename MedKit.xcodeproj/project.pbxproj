@@ -12,9 +12,9 @@
 		BA8C15AD2FE0F206008F8A78 /* DeviceCameraService in Frameworks */ = {isa = PBXBuildFile; productRef = BA8C15AC2FE0F206008F8A78 /* DeviceCameraService */; };
 		BA9586402FB957750095C2E2 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = BA95863F2FB957750095C2E2 /* FirebaseAILogic */; };
 		BA95866B2FB95CC80095C2E2 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = BA95866A2FB95CC80095C2E2 /* FirebaseAnalytics */; };
-		BAA632C9303F1272009F820E /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = BAA632C8303F1272009F820E /* FirebaseAppCheck */; };
 		BABBA3C42FE172F500DC5020 /* DevKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = BABBA3C32FE172F500DC5020 /* DevKitUI */; };
 		BAE238B22FE45ED100C34F62 /* MedKit.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BAE238B02FE45ED100C34F62 /* MedKit.xcdatamodeld */; };
+		BAE525A1305D7D2E0041C18E /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = BAE525A0305D7D2E0041C18E /* FirebaseAppCheck */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,7 +53,7 @@
 				BA8C15AD2FE0F206008F8A78 /* DeviceCameraService in Frameworks */,
 				BA95866B2FB95CC80095C2E2 /* FirebaseAnalytics in Frameworks */,
 				BABBA3C42FE172F500DC5020 /* DevKitUI in Frameworks */,
-				BAA632C9303F1272009F820E /* FirebaseAppCheck in Frameworks */,
+				BAE525A1305D7D2E0041C18E /* FirebaseAppCheck in Frameworks */,
 				BA9586402FB957750095C2E2 /* FirebaseAILogic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -112,7 +112,7 @@
 				BA8C15A92FE0F1EF008F8A78 /* SimulatorCameraService */,
 				BA8C15AC2FE0F206008F8A78 /* DeviceCameraService */,
 				BABBA3C32FE172F500DC5020 /* DevKitUI */,
-				BAA632C8303F1272009F820E /* FirebaseAppCheck */,
+				BAE525A0305D7D2E0041C18E /* FirebaseAppCheck */,
 			);
 			productName = MedKit;
 			productReference = 362E636C2FB94D5E00CFB7AB /* MedKit.app */;
@@ -449,15 +449,15 @@
 			package = BA95863E2FB957750095C2E2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAnalytics;
 		};
-		BAA632C8303F1272009F820E /* FirebaseAppCheck */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BA95863E2FB957750095C2E2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAppCheck;
-		};
 		BABBA3C32FE172F500DC5020 /* DevKitUI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = BABBA3C22FE172F500DC5020 /* XCRemoteSwiftPackageReference "dev-kit-ui" */;
 			productName = DevKitUI;
+		};
+		BAE525A0305D7D2E0041C18E /* FirebaseAppCheck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = BA95863E2FB957750095C2E2 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAppCheck;
 		};
 /* End XCSwiftPackageProductDependency section */
 
