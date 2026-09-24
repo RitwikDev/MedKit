@@ -13,4 +13,5 @@ struct CalendarMedicine {
     let expiryDate: Date?
     let dosage: DosageModel?
     let stock: StockModel?
+    var doseLogs: [DoseLogModel] = []
 }

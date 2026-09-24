@@ -1,15 +1,15 @@
 //
-//  EmptyMedicineListView.swift
+//  EmptyShoppingListView.swift
 //  MedKit
 //
-//  Created by Ritwik Dev on 30/05/26.
+//  Created by Rishik Dev on 21/09/26.
 //
 
 import SwiftUI
 
-struct EmptyMedicineListView: View {
+struct EmptyShoppingListView: View {
     var body: some View {
-        EmptyEntryView(text: "No Medicines Added")
+        EmptyEntryView(text: "Shopping List is Empty")
             .foregroundStyle(.secondary)
             .font(.title3)
             .fontWeight(.black)
@@ -18,5 +18,5 @@ struct EmptyMedicineListView: View {
 }
 
 #Preview {
-    EmptyMedicineListView()
+    EmptyShoppingListView()
 }

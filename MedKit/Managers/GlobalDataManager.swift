@@ -7,6 +7,7 @@
 
 import CoreData
 import Foundation
+import CloudKit
 
 class GlobalDataManager {
     /// The shared singleton instance.
@@ -267,6 +268,24 @@ class GlobalDataManager {
             }
         } catch {
             throw error
+        }
+    }
+    // MARK: - CloudKit Identity
+    
+    /// Fetches the raw CloudKit Record ID string of the currently signed-in user.
+    func fetchCurrentRecordName() async -> String? {
+        do {
+            let container = PersistenceController.shared.container
+            guard let storeDescription = container.persistentStoreDescriptions.first,
+                  let containerIdentifier = storeDescription.cloudKitContainerOptions?.containerIdentifier else {
+                return nil
+            }
+            let ckContainer = CKContainer(identifier: containerIdentifier)
+            let userRecordID = try await ckContainer.userRecordID()
+            return userRecordID.recordName
+        } catch {
+            print("Failed to fetch user record ID: \(error)")
+            return nil
         }
     }
 }

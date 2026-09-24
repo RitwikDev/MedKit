@@ -12,7 +12,7 @@ class MedicineStockEndDateCalculator
     public static func calculate(
         stock: StockModel?,
         dosage: DosageModel?,
-        startingFrom baseDate: Date = Date(),
+        startingFrom baseDate: Date? = nil
     ) -> Date? {
         guard let stock = stock,
               stock.quantity > 0,
@@ -23,62 +23,67 @@ class MedicineStockEndDateCalculator
             return nil
         }
         
-        guard let nextDosageDate = MedicineDosageHelper.getNextDosageDate(for: dosage, startingFrom: baseDate) else {
+        let actualBaseDate = baseDate ?? max(Date(), dosage.startDate ?? Date())
+        guard let nextDosageDate = MedicineDosageHelper.getNextDosageDate(for: dosage, startingFrom: actualBaseDate) else {
             return nil
         }
         
         let calendar = Calendar.current
         let dailyUsage = dosageQuantity * Float(dosage.reminderTimes.count)
-        let totalDosesAvailable = Int(ceil(stock.quantity / dailyUsage))
+        let fullDaysCovered = Int(floor(stock.quantity / dailyUsage))
         
-        guard totalDosesAvailable > 0 else { return nil }
+        // If they don't even have enough for the first dose, stockout is immediately on nextDosageDate
+        if fullDaysCovered == 0 {
+            return nextDosageDate
+        }
         
-        let jumpsRequired = totalDosesAvailable - 1
+        // At this point, fullDaysCovered >= 1, so they can take at least 1 dose.
+        let jumpsRequired = fullDaysCovered - 1
         var rawStockEndDate = nextDosageDate
         
-        if (jumpsRequired > 0) {
-            switch dosage.repeatType {
-            case .never:
-                rawStockEndDate = nextDosageDate
-                
-            case .selectDays:
-                var currentDate = nextDosageDate
-                var remaining = jumpsRequired
-                while remaining > 0 {
-                    currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
-                    let weekday = calendar.component(.weekday, from: currentDate)
-                    if let day = Day(weekdayNumber: weekday), dosage.selectedDays.contains(day) {
-                        remaining -= 1
-                    }
+        switch dosage.repeatType {
+        case .never:
+            // Since fullDaysCovered >= 1, they have enough for this single dose.
+            return nil
+            
+        case .selectDays:
+            var currentDate = nextDosageDate
+            var remaining = jumpsRequired
+            while remaining > 0 {
+                currentDate = calendar.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
+                let weekday = calendar.component(.weekday, from: currentDate)
+                if let day = Day(weekdayNumber: weekday), dosage.selectedDays.contains(day) {
+                    remaining -= 1
                 }
-                rawStockEndDate = currentDate
-                
-            case .fortnightly:
-                rawStockEndDate = calendar.date(byAdding: .day, value: jumpsRequired * 14, to: nextDosageDate) ?? nextDosageDate
-                
-            case .monthly:
-                rawStockEndDate = calendar.date(byAdding: .month, value: jumpsRequired, to: nextDosageDate) ?? nextDosageDate
-                
-            case .quarterly:
-                rawStockEndDate = calendar.date(byAdding: .month, value: jumpsRequired * 3, to: nextDosageDate) ?? nextDosageDate
-                
-            case .biannually:
-                rawStockEndDate = calendar.date(byAdding: .month, value: jumpsRequired * 6, to: nextDosageDate) ?? nextDosageDate
-                
-            case .annually:
-                rawStockEndDate = calendar.date(byAdding: .year, value: jumpsRequired, to: nextDosageDate) ?? nextDosageDate
-                
-            case .custom:
-                let futureDates = dosage.selectedDates.compactMap { calendar.date(from: $0) }
-                    .map { calendar.startOfDay(for: $0) }
-                    .filter { $0 >= nextDosageDate }
-                    .sorted()
-                
-                if futureDates.count > jumpsRequired {
-                    rawStockEndDate = futureDates[jumpsRequired]
-                } else {
-                    rawStockEndDate = futureDates.last ?? nextDosageDate
-                }
+            }
+            rawStockEndDate = currentDate
+            
+        case .fortnightly:
+            rawStockEndDate = calendar.date(byAdding: .day, value: jumpsRequired * 14, to: nextDosageDate) ?? nextDosageDate
+            
+        case .monthly:
+            rawStockEndDate = calendar.date(byAdding: .month, value: jumpsRequired, to: nextDosageDate) ?? nextDosageDate
+            
+        case .quarterly:
+            rawStockEndDate = calendar.date(byAdding: .month, value: jumpsRequired * 3, to: nextDosageDate) ?? nextDosageDate
+            
+        case .biannually:
+            rawStockEndDate = calendar.date(byAdding: .month, value: jumpsRequired * 6, to: nextDosageDate) ?? nextDosageDate
+            
+        case .annually:
+            rawStockEndDate = calendar.date(byAdding: .year, value: jumpsRequired, to: nextDosageDate) ?? nextDosageDate
+            
+        case .custom:
+            let futureDates = dosage.selectedDates.compactMap { calendar.date(from: $0) }
+                .map { calendar.startOfDay(for: $0) }
+                .filter { $0 >= nextDosageDate }
+                .sorted()
+            
+            // If the total scheduled future dates <= fullDaysCovered, they don't run out.
+            if futureDates.count > fullDaysCovered {
+                rawStockEndDate = futureDates[jumpsRequired] // futureDates[fullDaysCovered - 1]
+            } else {
+                return nil
             }
         }
         

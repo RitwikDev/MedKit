@@ -9,6 +9,7 @@ import CloudKit
 import SwiftUI
 
 struct MedicineListItemView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(NavigationRouter.self) private var router
     @Environment(MedicineViewModel.self) private var medicineViewModel
     
@@ -62,8 +63,16 @@ struct MedicineListItemView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .font(.subheadline)
         .padding()
-        .roundedRectBackground(colour: Color(uiColor: .systemBackground))
-        .shadow(color: .gray, radius: 10)
+        .roundedRectBackground(
+            colour: colorScheme == .dark ?
+            Color(uiColor: .systemGray4) :
+                Color(uiColor: .systemBackground)
+        )
+        .shadow(
+            color: colorScheme == .dark ? .black :
+                    .gray,
+            radius: 10
+        )
         .padding(.vertical, 5)
     }
 }

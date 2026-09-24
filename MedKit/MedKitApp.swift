@@ -19,7 +19,7 @@ struct MedKitApp: App {
     @State private var notificationViewModel = NotificationViewModel(notificationManager: NotificationManager.shared)
     
     init() {
-        notificationViewModel.registerCategories()
+        NotificationManager.shared.registerCategories()
     }
     
     var body: some Scene {

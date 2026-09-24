@@ -53,7 +53,11 @@ struct StockSectionView: View {
             }
             .onAppear {
                 if let quantity = medicineViewModel.medicine.stock?.quantity {
-                    quantityString = String(quantity)
+                    if quantity.truncatingRemainder(dividingBy: 1) == 0 {
+                        quantityString = String(Int(quantity))
+                    } else {
+                        quantityString = String(quantity)
+                    }
                 }
                 if let unit = medicineViewModel.medicine.stock?.unit {
                     unitString = unit
@@ -134,15 +138,26 @@ struct StockSectionView: View {
             let newQuantity = MedicineStockQuantityUpdater.update(
                 isIncrement: isIncrement,
                 quantity: quantity,
-                dosage: medicineViewModel.medicine.dosage,
+                dosage: medicineViewModel.medicine.dosage
             )
-            quantityString = String(newQuantity)
+            
+            if newQuantity.truncatingRemainder(dividingBy: 1) == 0 {
+                quantityString = String(Int(newQuantity))
+            } else {
+                quantityString = String(newQuantity)
+            }
         }
     }
     
     private func handleQuantityChanged(_ old: String, _ new: String) -> Void {
+        if new.trimmedIsEmpty {
+            quantityString = ""
+            updateStock(newQuantity: 0, newUnit: unitString)
+            return
+        }
+        
         guard let quantity = Float(new.trimmed) else {
-            quantityString = new.trimmed == "" ? "" : old
+            quantityString = old
             return
         }
 
@@ -158,14 +173,17 @@ struct StockSectionView: View {
     }
     
     private func updateStock(newQuantity: Float?, newUnit: String?) {
-        if (!isValid) {
-            return
-        }
+        // ALWAYS push intermediate state up so the ViewModel can see exactly what the user typed.
+        let isQuantityEmpty = quantityString.trimmedIsEmpty
+        let isUnitEmpty = unitString.trimmedIsEmpty
         
-        if let quantity = newQuantity, let unit = newUnit {
-            medicineViewModel.medicine.stock = StockModel(quantity: quantity, unit: unit)
-        } else {
+        if isQuantityEmpty && isUnitEmpty {
             medicineViewModel.medicine.stock = nil
+        } else {
+            medicineViewModel.medicine.stock = StockModel(
+                quantity: newQuantity ?? 0,
+                unit: newUnit ?? ""
+            )
         }
     }
 }

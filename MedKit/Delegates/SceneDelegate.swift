@@ -19,8 +19,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
         
+        // Notify UI to show processing spinner
+        NotificationCenter.default.post(name: NotificationManager.shareProcessingStarted, object: nil)
+        
         // Accept the share
         container.acceptShareInvitations(from: [cloudKitShareMetadata], into: sharedStore) { _, error in
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: NotificationManager.shareProcessingFinished, object: nil)
+            }
             if let error = error {
                 print("Accept Share Error: \(error.localizedDescription)")
             } else {

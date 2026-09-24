@@ -44,6 +44,7 @@ class MedicineWriteManager {
             entity.expiryDate = medicine.expiryDate
             entity.strengthAmount = medicine.strengthAmount ?? 0
             entity.strengthUnit = medicine.strengthUnit
+            entity.isOnShoppingList = medicine.isOnShoppingList
             
             // 2. Map Ingredients
             let existingIngredients = (entity.composition as? Set<IngredientEntity>) ?? []
@@ -69,29 +70,27 @@ class MedicineWriteManager {
                 }
             }
             
-            // 3. Map Tags (Many-to-Many Shared)
+            // 3. Map Tags (Isolate per medicine)
+            let existingTags = (entity.tags as? Set<TagEntity>) ?? []
             var linkedTags = Set<TagEntity>()
             for structTag in medicine.tags {
-                let tagReq: NSFetchRequest<TagEntity> = TagEntity.fetchRequest()
-                tagReq.predicate = NSPredicate(format: "id == %@", structTag.id as CVarArg)
-                
-                // Restrict the search to the medicine's store
-                if let store = targetStore {
-                    tagReq.affectedStores = [store]
-                }
-                
-                if let existingTag = try context.fetch(tagReq).first {
-                    linkedTags.insert(existingTag)
+                if let existingTag = existingTags.first(where: { $0.id == structTag.id }) {
+                    if let meds = existingTag.medicines, meds.count > 1 {
+                        existingTag.removeFromMedicines(entity)
+                        let clonedTag = TagEntity(context: context)
+                        clonedTag.id = structTag.id
+                        clonedTag.value = structTag.value
+                        if let store = targetStore { context.assign(clonedTag, to: store) }
+                        linkedTags.insert(clonedTag)
+                    } else {
+                        existingTag.value = structTag.value
+                        linkedTags.insert(existingTag)
+                    }
                 } else {
                     let newTag = TagEntity(context: context)
                     newTag.id = structTag.id
                     newTag.value = structTag.value
-                    
-                    // Explicitly create the new tag in the same store
-                    if let store = targetStore {
-                        context.assign(newTag, to: store)
-                    }
-                    
+                    if let store = targetStore { context.assign(newTag, to: store) }
                     linkedTags.insert(newTag)
                 }
             }
@@ -142,25 +141,26 @@ class MedicineWriteManager {
                 }
                 
                 if let definition = structCF.definition {
-                    let defReq: NSFetchRequest<CustomFieldEntity> = CustomFieldEntity.fetchRequest()
-                    defReq.predicate = NSPredicate(format: "id == %@", definition.id as CVarArg)
-                    
-                    if let store = targetStore {
-                        defReq.affectedStores = [store]
-                    }
-                    
-                    if let existingDef = try context.fetch(defReq).first {
-                        cfEntity.definition = existingDef
+                    if let existingDef = cfEntity.definition, existingDef.id == definition.id {
+                        if let values = existingDef.values, values.count > 1 {
+                            existingDef.removeFromValues(cfEntity)
+                            let clonedDef = CustomFieldEntity(context: context)
+                            clonedDef.id = definition.id
+                            clonedDef.label = definition.label
+                            clonedDef.dataType = definition.dataType.rawValue
+                            cfEntity.definition = clonedDef
+                            if let store = targetStore { context.assign(clonedDef, to: store) }
+                        } else {
+                            existingDef.label = definition.label
+                            existingDef.dataType = definition.dataType.rawValue
+                        }
                     } else {
                         let newDef = CustomFieldEntity(context: context)
                         newDef.id = definition.id
                         newDef.label = definition.label
                         newDef.dataType = definition.dataType.rawValue
                         cfEntity.definition = newDef
-                        
-                        if let store = targetStore {
-                            context.assign(newDef, to: store)
-                        }
+                        if let store = targetStore { context.assign(newDef, to: store) }
                     }
                 }
             }
@@ -229,9 +229,35 @@ class MedicineWriteManager {
                 context.delete(existingStock)
             }
             
+            // 7. Map DoseLogs
+            let existingLogs = (entity.doseLogs as? Set<DoseLogEntity>) ?? []
+            var matchedLogIDs = Set<UUID>()
+            
+            for logStruct in medicine.doseLogs {
+                matchedLogIDs.insert(logStruct.id)
+                
+                let logEntity = existingLogs.first(where: { $0.id == logStruct.id })
+                               ?? DoseLogEntity(context: context)
+                
+                logEntity.id = logStruct.id
+                logEntity.date = logStruct.date
+                logEntity.isTaken = logStruct.isTaken
+                logEntity.takenByUserName = logStruct.takenByUserName
+                logEntity.medicine = entity
+            }
+            
+            for oldLog in existingLogs {
+                if let oldID = oldLog.id, !matchedLogIDs.contains(oldID) {
+                    context.delete(oldLog)
+                }
+            }
+            
             // Execute the save
             if context.hasChanges {
                 try context.save()
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: NotificationManager.dataDidChangeNotification, object: nil)
+                }
             }
             
         } catch {
@@ -250,6 +276,9 @@ class MedicineWriteManager {
             if let entity = try context.fetch(request).first {
                 context.delete(entity)
                 try context.save()
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: NotificationManager.dataDidChangeNotification, object: nil)
+                }
             }
         } catch {
             throw error
@@ -271,6 +300,9 @@ class MedicineWriteManager {
             
             if context.hasChanges {
                 try context.save()
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: NotificationManager.dataDidChangeNotification, object: nil)
+                }
             }
         } catch {
             throw error
@@ -282,6 +314,7 @@ class MedicineWriteManager {
     /// Generates a CloudKit Share for a specific medicine.
     /// - Parameter medicine: The medicine struct to share.
     /// - Returns: A tuple containing the new (or existing) CKShare and the CKContainer.
+    @MainActor
     public func fetchOrCreateShare(for medicine: Medicine) async throws -> (CKShare, CKContainer) {
         let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", medicine.id as CVarArg)
@@ -293,6 +326,9 @@ class MedicineWriteManager {
         // 1. Flush any pending changes to the SQLite store before sharing
         if context.hasChanges {
             try context.save()
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: NotificationManager.dataDidChangeNotification, object: nil)
+            }
         }
         
         let container = PersistenceController.shared.container

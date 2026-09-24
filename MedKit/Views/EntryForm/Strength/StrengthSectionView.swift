@@ -49,7 +49,12 @@ struct StrengthSectionView: View {
             }
             .onAppear {
                 if let amount = amount {
-                    amountString = String(amount)
+                    // Check if it has decimal places that are 0 to keep it looking integer-like
+                    if amount.truncatingRemainder(dividingBy: 1) == 0 {
+                        amountString = String(Int(amount))
+                    } else {
+                        amountString = String(amount)
+                    }
                 }
                 if let unit = unit {
                     unitString = unit
@@ -91,8 +96,14 @@ struct StrengthSectionView: View {
     }
     
     private func handleAmountChanged(_ old: String, _ new: String) -> Void {
+        if new.trimmedIsEmpty {
+            amountString = ""
+            updateStrength(newAmount: nil, newUnit: unitString)
+            return
+        }
+        
         guard let amount = Float(new.trimmed) else {
-            amountString = new.trimmed == "" ? "" : old
+            amountString = old
             return
         }
 
@@ -108,16 +119,17 @@ struct StrengthSectionView: View {
     }
     
     private func updateStrength(newAmount: Float?, newUnit: String?) {
-        if (!isValid) {
-            return
+        // We always push the current state up to the bindings so the view model sees exactly what the user typed.
+        if amountString.trimmedIsEmpty {
+            self.amount = nil
+        } else {
+            self.amount = newAmount
         }
         
-        if let amount = newAmount, let unit = newUnit {
-            self.amount = amount
-            self.unit = unit
+        if unitString.trimmedIsEmpty {
+            self.unit = nil // or "" depending on preference, but nil matches initial state
         } else {
-            self.amount = nil
-            self.unit = nil
+            self.unit = newUnit ?? ""
         }
     }
 }
@@ -126,7 +138,7 @@ struct StrengthSectionView: View {
     Form {
         StrengthSectionView(
             amount: .constant(1),
-            unit: .constant("mg"),
+            unit: .constant("mg")
         )
             .environment(MedicineEditorViewModel())
             .environment(GlobalDataViewModel())

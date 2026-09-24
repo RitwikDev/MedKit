@@ -25,45 +25,21 @@ struct MedicinePDFExporter: Transferable {
         }
     }
     
-    private func generateMergedPDFData() async -> Data {
-        // 1. Render the base SwiftUI view with perfect Native CGContext Pagination
+    public func generateMergedPDFData() async -> Data {
+        await MainActor.run {
+            NotificationCenter.default.post(name: NotificationManager.shareProcessingStarted, object: nil)
+        }
+        
+        defer {
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: NotificationManager.shareProcessingFinished, object: nil)
+            }
+        }
+        
+        // 1. Generate beautifully paginated HTML-based PDF
         let basePDFData = await MainActor.run {
-            let pdfView = MedicinePDFTemplate(medicine: medicine)
-            let renderer = ImageRenderer(content: pdfView)
-            
-            let pageWidth: CGFloat = 595
-            let pageHeight: CGFloat = 842
-            
-            renderer.proposedSize = ProposedViewSize(width: pageWidth, height: nil)
-            
-            let data = NSMutableData()
-            var box = CGRect(x: 0, y: 0, width: pageWidth, height: pageHeight)
-            
-            guard let consumer = CGDataConsumer(data: data as CFMutableData),
-                  let pdfContext = CGContext(consumer: consumer, mediaBox: &box, nil) else {
-                return Data()
-            }
-            
-            renderer.render { size, renderContext in
-                let totalPages = max(1, Int(ceil(size.height / pageHeight)))
-                let baseTranslation = pageHeight - size.height
-                
-                for page in 0..<totalPages {
-                    pdfContext.beginPDFPage(nil)
-                    pdfContext.saveGState()
-                    
-                    let yOffset = baseTranslation + (CGFloat(page) * pageHeight)
-                    pdfContext.translateBy(x: 0, y: yOffset)
-                    
-                    renderContext(pdfContext)
-                    
-                    pdfContext.restoreGState()
-                    pdfContext.endPDFPage()
-                }
-            }
-            
-            pdfContext.closePDF()
-            return data as Data
+            let htmlString = generateHTMLForMedicine()
+            return renderHTMLToPDF(html: htmlString)
         }
         
         guard let combinedPDF = PDFDocument(data: basePDFData) else { return basePDFData }
@@ -120,6 +96,186 @@ struct MedicinePDFExporter: Transferable {
         }
         
         return combinedPDF.dataRepresentation() ?? basePDFData
+    }
+    
+    // MARK: - HTML Generation
+    
+    private func generateHTMLForMedicine() -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateStyle = .none
+        timeFormatter.timeStyle = .short
+        
+        var html = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="utf-8">
+        <style>
+        body { font-family: -apple-system, system-ui, Helvetica, sans-serif; padding: 0; margin: 0; color: #1c1c1e; line-height: 1.4; }
+        .header { background-color: #f2f2f7; padding: 24px; border-radius: 12px; margin-bottom: 24px; page-break-inside: avoid; }
+        h1 { margin: 0 0 8px 0; font-size: 32px; color: #000; font-weight: 700; }
+        .header-value { font-size: 18px; font-weight: 600; color: #3a3a3c; margin-bottom: 12px; }
+        .tag-container { margin-top: 12px; }
+        .tag { display: inline-block; background-color: #e5e5ea; color: #1c1c1e; padding: 5px 12px; border-radius: 16px; font-size: 13px; margin-right: 6px; margin-bottom: 6px; font-weight: 600; }
+        h2 { font-size: 20px; color: #007aff; border-bottom: 2px solid #007aff; padding-bottom: 6px; margin-top: 32px; margin-bottom: 16px; page-break-after: avoid; }
+        .grid { display: flex; flex-wrap: wrap; margin-bottom: 16px; }
+        .cell { width: 50%; margin-bottom: 16px; page-break-inside: avoid; }
+        .label { font-size: 11px; text-transform: uppercase; color: #8e8e93; font-weight: 700; letter-spacing: 0.6px; margin-bottom: 4px; display: block; }
+        .value { font-size: 16px; font-weight: 500; color: #1c1c1e; }
+        ul { margin: 0; padding-left: 24px; }
+        li { margin-bottom: 8px; font-size: 16px; font-weight: 500; }
+        .bullet-label { font-weight: normal; color: #636366; font-size: 14px; }
+        .section { page-break-inside: auto; }
+        .item-block { margin-bottom: 12px; page-break-inside: avoid; }
+        </style>
+        </head>
+        <body>
+        """
+        
+        // Header
+        html += "<div class='header'>"
+        html += "<h1>\(medicine.name)</h1>"
+        if let strength = medicine.strengthAmount, let unit = medicine.strengthUnit {
+            let val = strength.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", strength) : String(format: "%.2f", strength)
+            html += "<div class='header-value'>Strength: \(val) \(unit)</div>"
+        }
+        if !medicine.tags.isEmpty {
+            html += "<div class='tag-container'>"
+            for tag in medicine.tags {
+                html += "<span class='tag'>\(tag.value)</span>"
+            }
+            html += "</div>"
+        }
+        html += "</div>"
+        
+        // Basic Info
+        if medicine.manufacturedDate != nil || medicine.expiryDate != nil {
+            html += "<div class='section'><h2>Basic Information</h2><div class='grid'>"
+            if let mfg = medicine.manufacturedDate {
+                html += "<div class='cell'><span class='label'>Manufactured Date</span><span class='value'>\(formatter.string(from: mfg))</span></div>"
+            }
+            if let exp = medicine.expiryDate {
+                html += "<div class='cell'><span class='label'>Expiry Date</span><span class='value'>\(formatter.string(from: exp))</span></div>"
+            }
+            html += "</div></div>"
+        }
+        
+        // Composition
+        if !medicine.composition.isEmpty {
+            html += "<div class='section'><h2>Composition</h2><ul>"
+            for ing in medicine.composition {
+                var text = "<strong>\(ing.name)</strong>"
+                if let a = ing.strengthAmount, let u = ing.strengthUnit {
+                    let val = a.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", a) : String(format: "%.2f", a)
+                    text += " <span class='bullet-label'>(\(val) \(u))</span>"
+                }
+                html += "<li style='page-break-inside: avoid;'>\(text)</li>"
+            }
+            html += "</ul></div>"
+        }
+        
+        // Dosage
+        if let dosage = medicine.dosage {
+            html += "<div class='section'><h2>Dosage & Routine</h2><div class='grid'>"
+            if let q = dosage.dosageQuantity {
+                let val = q.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", q) : String(format: "%.2f", q)
+                html += "<div class='cell'><span class='label'>Quantity per Dose</span><span class='value'>\(val)</span></div>"
+            }
+            html += "<div class='cell'><span class='label'>Routine Type</span><span class='value'>\(dosage.repeatType.rawValue.capitalized)</span></div>"
+            if let s = dosage.startDate {
+                html += "<div class='cell'><span class='label'>Start Date</span><span class='value'>\(formatter.string(from: s))</span></div>"
+            }
+            if let e = dosage.endDate {
+                html += "<div class='cell'><span class='label'>End Date</span><span class='value'>\(formatter.string(from: e))</span></div>"
+            }
+            if !dosage.reminderTimes.isEmpty {
+                let times = dosage.reminderTimes.map { timeFormatter.string(from: $0.time) }.joined(separator: ", ")
+                html += "<div class='cell'><span class='label'>Reminder Times</span><span class='value'>\(times)</span></div>"
+            }
+            if !dosage.selectedDays.isEmpty {
+                let days = dosage.selectedDays.map { $0.rawValue.prefix(3) }.joined(separator: ", ")
+                html += "<div class='cell'><span class='label'>Active Days</span><span class='value'>\(days)</span></div>"
+            }
+            html += "</div></div>"
+        }
+        
+        // Stock
+        if let stock = medicine.stock {
+            html += "<div class='section'><h2>Inventory</h2><div class='grid'>"
+            let val = stock.quantity.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", stock.quantity) : String(format: "%.2f", stock.quantity)
+            html += "<div class='cell'><span class='label'>Currently Available</span><span class='value'>\(val) \(stock.unit)</span></div>"
+            if stock.endDate != .distantFuture {
+                html += "<div class='cell'><span class='label'>Estimated Depletion</span><span class='value'>\(formatter.string(from: stock.endDate))</span></div>"
+            }
+            html += "</div></div>"
+        }
+        
+        // Custom Fields
+        let customFields = medicine.getCustomFieldsSortedByLabel()
+        if !customFields.isEmpty {
+            html += "<div class='section'><h2>Additional Information</h2>"
+            for field in customFields {
+                html += "<div class='item-block'>"
+                html += "<span class='label'>\(field.getLabel())</span>"
+                switch field.getValue() {
+                case .text(let t):
+                    html += "<div class='value'>\(t)</div>"
+                case .date(let d):
+                    html += "<div class='value'>\(formatter.string(from: d))</div>"
+                case .list(let arr):
+                    html += "<ul>"
+                    for item in arr { html += "<li>\(item)</li>" }
+                    html += "</ul>"
+                case .documents(let docs):
+                    html += "<ul>"
+                    for doc in docs {
+                        let e = doc.documentExtension.lowercased()
+                        let p = ["pdf", "jpg", "jpeg", "png", "heic", "txt", "text", "docx", "doc", "xlsx", "xls", "pages", "numbers"].contains(e) || doc.documentType == .photo
+                        let name = "\(doc.name).\(doc.documentExtension)"
+                        if p {
+                            html += "<li>\(name) <span class='bullet-label'>(Attached)</span></li>"
+                        } else {
+                            html += "<li>\(name) <span class='bullet-label'>(Not printable)</span></li>"
+                        }
+                    }
+                    html += "</ul>"
+                case .none:
+                    html += "<div class='value' style='color: #8e8e93;'>(Empty)</div>"
+                }
+                html += "</div>"
+            }
+            html += "</div>"
+        }
+        
+        html += "</body></html>"
+        return html
+    }
+    
+    private func renderHTMLToPDF(html: String) -> Data {
+        let fmt = UIMarkupTextPrintFormatter(markupText: html)
+        let render = UIPrintPageRenderer()
+        render.addPrintFormatter(fmt, startingAtPageAt: 0)
+        
+        let paperRect = CGRect(x: 0, y: 0, width: 595, height: 842)
+        let printableRect = paperRect.insetBy(dx: 48, dy: 48)
+        
+        render.setValue(NSValue(cgRect: paperRect), forKey: "paperRect")
+        render.setValue(NSValue(cgRect: printableRect), forKey: "printableRect")
+        
+        let pdfData = NSMutableData()
+        UIGraphicsBeginPDFContextToData(pdfData, paperRect, nil)
+        
+        for i in 0..<render.numberOfPages {
+            UIGraphicsBeginPDFPage()
+            render.drawPage(at: i, in: UIGraphicsGetPDFContextBounds())
+        }
+        
+        UIGraphicsEndPDFContext()
+        return pdfData as Data
     }
     
     // MARK: - Helpers
@@ -319,7 +475,7 @@ class RichDocumentConverter: NSObject, WKNavigationDelegate {
         renderer.addPrintFormatter(webView.viewPrintFormatter(), startingAtPageAt: 0)
         
         let paperRect = CGRect(x: 0, y: 0, width: 595, height: 842)
-        let printableRect = paperRect.insetBy(dx: 40, dy: 40)
+        let printableRect = paperRect.insetBy(dx: 48, dy: 48)
         
         renderer.setValue(NSValue(cgRect: paperRect), forKey: "paperRect")
         renderer.setValue(NSValue(cgRect: printableRect), forKey: "printableRect")

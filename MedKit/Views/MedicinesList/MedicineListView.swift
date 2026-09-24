@@ -10,6 +10,7 @@ import SwiftUI
 import NotificationCenter
 
 struct MedicineListView: View {
+    @Environment(\.colorScheme) private var colourScheme
     @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     @Environment(NavigationRouter.self) private var router
     @Environment(NotificationViewModel.self) private var notificationViewModel
@@ -38,6 +39,10 @@ struct MedicineListView: View {
             
             return searchMatches && hasTags && expirationMatches
         }
+    }
+    
+    private var backgroundColour: Color {
+        Color(uiColor: .secondarySystemBackground)
     }
     
     var body: some View {
@@ -77,6 +82,7 @@ struct MedicineListView: View {
                             }
                         }
                         .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
                     }
                 }
             }
@@ -123,6 +129,7 @@ struct MedicineListView: View {
             } message: { medicine in
                 Text("Are you sure you want to delete \(medicine.name)?")
             }
+            .background(backgroundColour)
         }
         .searchable(text: $searchQuery)
         .sheet(isPresented: $isControlsSheetOpen) {

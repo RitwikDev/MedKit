@@ -34,6 +34,7 @@ struct SelectableChipsView: View {
 struct ChipItemView: View {
     let title: String
     let delay: Double
+    var tint: Color = .blue
     let onSelect: () -> Void
     
     @State private var isAppeared = false
@@ -44,7 +45,7 @@ struct ChipItemView: View {
         } label: {
             Text(title)
         }
-        .tint(.blue)
+        .tint(tint)
         .buttonStyle(.bordered)
         .opacity(isAppeared ? 1 : 0)
         .scaleEffect(isAppeared ? 1.0 : 0.5)

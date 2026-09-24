@@ -93,13 +93,25 @@ class MedicineListItemManager {
                 dosage: dosage,
             ) {
                 stockEntity.endDate = endDate
+            } else {
+                stockEntity.endDate = .distantFuture
             }
             
             stockEntity.quantity = quantity
             entity.stock = stockEntity
             
+            // Populate shopping list if within 7 days
+            if ShoppingListPopulationHelper.shouldPopulate(stockEndDate: stockEntity.endDate, expiryDate: entity.expiryDate) {
+                entity.isOnShoppingList = true
+            } else {
+                entity.isOnShoppingList = false
+            }
+            
             if (context.hasChanges) {
                 try context.save()
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: NotificationManager.dataDidChangeNotification, object: nil)
+                }
             }
         } catch {
             context.rollback()

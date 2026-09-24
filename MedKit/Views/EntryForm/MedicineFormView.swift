@@ -32,12 +32,12 @@ struct MedicineFormView: View {
             
             StrengthSectionView(
                 amount: $medicineEditorViewModel.medicine.strengthAmount,
-                unit: $medicineEditorViewModel.medicine.strengthUnit,
+                unit: $medicineEditorViewModel.medicine.strengthUnit
             )
             
             DatesSectionView(
                 manufacturedDate: $medicineEditorViewModel.medicine.manufacturedDate,
-                expiryDate: $medicineEditorViewModel.medicine.expiryDate,
+                expiryDate: $medicineEditorViewModel.medicine.expiryDate
             )
 
             CompositionSectionView()
@@ -72,8 +72,14 @@ struct MedicineFormView: View {
                 }
             }
         }
-        .alert("Failed to save \(medicine.name.trimmedIsEmpty ? "medicine" : medicine.name)", isPresented: $showAlert) {
+        .alert("Failed to save \(isNewMedicine ? "medicine" : medicine.name)", isPresented: $showAlert) {
             Button("Dismiss", role: .cancel) { showAlert = false }
+        } message: {
+            if let errorMessage = medicineEditorViewModel.errorMessage {
+                Text(errorMessage)
+            } else {
+                Text("An unknown error occurred.")
+            }
         }
         .sheet(item: $shareContext) { context in
             CloudSharingView(share: context.share, container: context.container)

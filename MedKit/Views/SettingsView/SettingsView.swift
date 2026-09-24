@@ -9,7 +9,7 @@ import SwiftData
 import SwiftUI
 import UserNotifications
 
-private enum DataType: String {
+fileprivate enum DataType: String {
     case all = "All Data"
     case medicines = "All Medicines"
     case ingredients = "All Ingredients"
@@ -21,26 +21,23 @@ struct SettingsView: View {
     @Environment(GlobalDataViewModel.self) private var globalDataViewModel
     @State private var medicineListViewModel: MedicineViewModel = .init()
     @State private var enableNotifications: Bool = false
-    @State private var showDeleteConfirmationDialog: Bool = false
-    @State private var dataType: DataType = .all
     @State private var isNotificationListViewPresented: Bool = false
+    
+    var applicationVersion: String {
+        return Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "Unknown"
+    }
     
     var body: some View {
         NavigationStack {
             VStack {
                 Form {
-                    Section("Notifications") {
-                        Toggle("Enable Notifications", isOn: $enableNotifications)
-                    }
-                    
                     Section("Ingredients") {
                         if (globalDataViewModel.allIngredients.isEmpty) {
                             EmptyEntryView(text: "No Ingredients Added")
                         } else {
-                            ForEach(globalDataViewModel.allIngredients) { ingredient in
-                                Text(ingredient.fullName)
+                            NavigationLink("All Ingredients") {
+                                SettingsIngredientsListView()
                             }
-                            .onDelete(perform: globalDataViewModel.deleteIngredient)
                         }
                     }
                     
@@ -48,10 +45,9 @@ struct SettingsView: View {
                         if (globalDataViewModel.allTags.isEmpty) {
                             EmptyEntryView(text: "No Tags Added")
                         } else {
-                            ForEach(globalDataViewModel.allTags) { tag in
-                                Text(tag.value)
+                            NavigationLink("All Tags") {
+                                SettingsTagsListView()
                             }
-                            .onDelete(perform: globalDataViewModel.deleteTag)
                         }
                     }
                     
@@ -59,75 +55,21 @@ struct SettingsView: View {
                         if (globalDataViewModel.allCustomFields.isEmpty) {
                             EmptyEntryView(text: "No Custom Fields Added")
                         } else {
-                            ForEach(globalDataViewModel.allCustomFields) { customField in
-                                VStack(alignment: .leading) {
-                                    Text(customField.label)
-                                    Text(customField.dataType.rawValue)
-                                        .foregroundStyle(.secondary)
-                                        .font(.callout)
-                                }
+                            NavigationLink("All Custom Fields") {
+                                SettingsCustomFieldsListView()
                             }
-                            .onDelete(perform: globalDataViewModel.deleteCustomField)
                         }
                     }
                     
                     Section("Reset Application") {
-                        Button("Delete All Data", role: .destructive) {
-                            dataType = .all
-                            showDeleteConfirmationDialog.toggle()
+                        NavigationLink("Reset Application") {
+                            SettingsResetApplicationView(medicineListViewModel: medicineListViewModel)
                         }
-                        .disabled(
-                            medicineListViewModel.medicines.isEmpty
-                            && globalDataViewModel.allIngredients.isEmpty
-                            && globalDataViewModel.allTags.isEmpty
-                            && globalDataViewModel.allCustomFields.isEmpty
-                        )
-                        
-                        Button("Delete All Medicines", role: .destructive) {
-                            dataType = .medicines
-                            showDeleteConfirmationDialog.toggle()
-                        }
-                        .disabled(medicineListViewModel.medicines.isEmpty)
-                        
-                        Button("Delete All Ingredients", role: .destructive) {
-                            dataType = .ingredients
-                            showDeleteConfirmationDialog.toggle()
-                        }
-                        .disabled(globalDataViewModel.allIngredients.isEmpty)
-                        
-                        Button("Delete All Tags", role: .destructive) {
-                            dataType = .tags
-                            showDeleteConfirmationDialog.toggle()
-                        }
-                        .disabled(globalDataViewModel.allTags.isEmpty)
-
-                        Button("Delete All Custom Fields", role: .destructive) {
-                            dataType = .customFields
-                            showDeleteConfirmationDialog.toggle()
-                        }
-                        .disabled(globalDataViewModel.allCustomFields.isEmpty)
                     }
-                    .confirmationDialog(
-                        "Are you sure?",
-                        isPresented: $showDeleteConfirmationDialog,
-                        titleVisibility: .visible) {
-                            Button("Delete \(dataType.rawValue)", role: .destructive) {
-                                switch dataType {
-                                case .all:
-                                    handleDeleteAllData()
-                                case .medicines:
-                                    handleDeleteAllMedicines()
-                                case .ingredients:
-                                    handleDeleteAllIngredients()
-                                case .tags:
-                                    handleDeleteAllTags()
-                                case .customFields:
-                                    handleDeleteAllCustomFields()
-                                }
-                            }
-                        } message: {
-                            Text("This action cannot be undone.")
-                        }
+                    
+                    Section("Version") {
+                        Text(applicationVersion)
+                    }
                 }
             }
             .toolbar {
@@ -149,6 +91,126 @@ struct SettingsView: View {
                 globalDataViewModel.fetchAllData()
             }
         }
+    }
+}
+
+struct SettingsIngredientsListView: View {
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
+    
+    var body: some View {
+        List {
+            ForEach(globalDataViewModel.allIngredients) { ingredient in
+                Text(ingredient.fullName)
+            }
+            .onDelete(perform: globalDataViewModel.deleteIngredient)
+        }
+        .navigationTitle("All Ingredients")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct SettingsTagsListView: View {
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
+    
+    var body: some View {
+        List {
+            ForEach(globalDataViewModel.allTags) { tag in
+                Text(tag.value)
+            }
+            .onDelete(perform: globalDataViewModel.deleteTag)
+        }
+        .navigationTitle("All Tags")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct SettingsCustomFieldsListView: View {
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
+    
+    var body: some View {
+        List {
+            ForEach(globalDataViewModel.allCustomFields) { customField in
+                VStack(alignment: .leading) {
+                    Text(customField.label)
+                    Text(customField.dataType.rawValue)
+                        .foregroundStyle(.secondary)
+                        .font(.callout)
+                }
+            }
+            .onDelete(perform: globalDataViewModel.deleteCustomField)
+        }
+        .navigationTitle("All Custom Fields")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+struct SettingsResetApplicationView: View {
+    @Environment(GlobalDataViewModel.self) private var globalDataViewModel
+    var medicineListViewModel: MedicineViewModel
+    
+    @State private var showDeleteConfirmationDialog: Bool = false
+    @State private var dataType: DataType = .all
+
+    var body: some View {
+        Form {
+            Button("Delete All Data", role: .destructive) {
+                dataType = .all
+                showDeleteConfirmationDialog.toggle()
+            }
+            .disabled(
+                medicineListViewModel.medicines.isEmpty
+                && globalDataViewModel.allIngredients.isEmpty
+                && globalDataViewModel.allTags.isEmpty
+                && globalDataViewModel.allCustomFields.isEmpty
+            )
+            
+            Button("Delete All Medicines", role: .destructive) {
+                dataType = .medicines
+                showDeleteConfirmationDialog.toggle()
+            }
+            .disabled(medicineListViewModel.medicines.isEmpty)
+            
+            Button("Delete All Ingredients", role: .destructive) {
+                dataType = .ingredients
+                showDeleteConfirmationDialog.toggle()
+            }
+            .disabled(globalDataViewModel.allIngredients.isEmpty)
+            
+            Button("Delete All Tags", role: .destructive) {
+                dataType = .tags
+                showDeleteConfirmationDialog.toggle()
+            }
+            .disabled(globalDataViewModel.allTags.isEmpty)
+
+            Button("Delete All Custom Fields", role: .destructive) {
+                dataType = .customFields
+                showDeleteConfirmationDialog.toggle()
+            }
+            .disabled(globalDataViewModel.allCustomFields.isEmpty)
+        }
+        .navigationTitle("Reset Application")
+        .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog(
+            "Are you sure?",
+            isPresented: $showDeleteConfirmationDialog,
+            titleVisibility: .visible) {
+                Button("Delete \(dataType.rawValue)", role: .destructive) {
+                    switch dataType {
+                    case .all:
+                        handleDeleteAllData()
+                    case .medicines:
+                        handleDeleteAllMedicines()
+                    case .ingredients:
+                        handleDeleteAllIngredients()
+                    case .tags:
+                        handleDeleteAllTags()
+                    case .customFields:
+                        handleDeleteAllCustomFields()
+                    }
+                }
+            } message: {
+                Text("This action cannot be undone.")
+            }
     }
     
     private func handleDeleteAllData() {

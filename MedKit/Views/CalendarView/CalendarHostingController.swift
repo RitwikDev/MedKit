@@ -8,10 +8,10 @@
 import UIKit
 import SwiftUI
 
-class CalendarHostingController: UIHostingController<CalendarPageContentView> {
+class CalendarHostingController: UIHostingController<AnyView> {
     var pageDate: Date
     
-    init(rootView: CalendarPageContentView, pageDate: Date) {
+    init(rootView: AnyView, pageDate: Date) {
         self.pageDate = pageDate
         super.init(rootView: rootView)
     }

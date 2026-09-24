@@ -17,6 +17,14 @@ class MedicineReadManager {
         self.context = context
     }
     
+    public func fetchShoppingList() throws -> [Medicine] {
+        let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "isOnShoppingList == YES")
+        
+        let results = try context.fetch(request)
+        return results.map { mapToStruct(entity: $0) }
+    }
+
     public func fetchById(_ id: UUID) throws -> Medicine {
         let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)
@@ -98,6 +106,9 @@ class MedicineReadManager {
             )
         }
         
+        let doseLogEntities = entity.doseLogs as? Set<DoseLogEntity> ?? []
+        let doseLogs = doseLogEntities.compactMap { DoseLogModel.fromEntity($0) }
+        
         // 4. Construct Final Medicine Struct
         return Medicine(
             id: entity.id ?? UUID(),
@@ -109,8 +120,10 @@ class MedicineReadManager {
             composition: ingredients,
             dosage: DosageModel.fromMedicineEntity(entity),
             stock: stock,
+            isOnShoppingList: entity.isOnShoppingList,
             tags: tags,
             customFields: customFields,
+            doseLogs: doseLogs
         )
     }
 }

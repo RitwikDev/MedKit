@@ -22,6 +22,10 @@ enum AttachmentError: LocalizedError {
     }
 }
 
+struct ValidationError: LocalizedError {
+    let errorDescription: String?
+}
+
 struct ShareContext: Identifiable {
     let id = UUID()
     let share: CKShare
@@ -31,6 +35,7 @@ struct ShareContext: Identifiable {
 /// Powers the medicine creation and editing form.
 /// Acts as a temporary scratchpad until the user taps "Save".
 @Observable
+@MainActor
 class MedicineEditorViewModel {
     
     /// The temporary draft being edited on screen.
@@ -159,10 +164,119 @@ class MedicineEditorViewModel {
     
     /// Validates the draft and hands the finalised pure struct to the Manager for database persistence.
     func saveMedicine() throws {
-        guard !medicine.name.isEmpty else {
-            // TODO: - Add Data Validation Here...
-            errorMessage = "Errors in medicine information."
-            return
+        let trimmedName = medicine.name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            errorMessage = "Medicine name is required."
+            throw ValidationError(errorDescription: errorMessage)
+        }
+        
+        let invalidCharacters = CharacterSet.alphanumerics.union(.whitespaces).inverted
+        guard trimmedName.rangeOfCharacter(from: invalidCharacters) == nil else {
+            errorMessage = "Medicine name must not contain special characters."
+            throw ValidationError(errorDescription: errorMessage)
+        }
+        
+        if let mfgDate = medicine.manufacturedDate, let expDate = medicine.expiryDate {
+            guard mfgDate < expDate else {
+                errorMessage = "Manufactured date must precede the expiry date."
+                throw ValidationError(errorDescription: errorMessage)
+            }
+        }
+        
+        let hasStrengthAmount = (medicine.strengthAmount != nil)
+        let hasStrengthUnit = !(medicine.strengthUnit ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        
+        if hasStrengthAmount != hasStrengthUnit {
+            errorMessage = "Both strength value and unit must be provided together."
+            throw ValidationError(errorDescription: errorMessage)
+        }
+        
+        if let strength = medicine.strengthAmount {
+            guard strength > 0 else {
+                errorMessage = "Strength must be greater than zero."
+                throw ValidationError(errorDescription: errorMessage)
+            }
+        }
+        
+        for ingredient in medicine.composition {
+            let hasIngAmount = (ingredient.strengthAmount != nil)
+            let hasIngUnit = !(ingredient.strengthUnit ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            
+            if hasIngAmount != hasIngUnit {
+                errorMessage = "Both strength value and unit must be provided together for all ingredients."
+                throw ValidationError(errorDescription: errorMessage)
+            }
+            
+            if let amount = ingredient.strengthAmount {
+                guard amount > 0 else {
+                    errorMessage = "Ingredient amounts must be greater than zero."
+                    throw ValidationError(errorDescription: errorMessage)
+                }
+            }
+        }
+        
+        if let stock = medicine.stock {
+            let isQuantityZero = stock.quantity == 0
+            let isUnitEmpty = stock.unit.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            
+            if isQuantityZero != isUnitEmpty {
+                errorMessage = "Both stock quantity and unit must be provided together."
+                throw ValidationError(errorDescription: errorMessage)
+            }
+            
+            guard stock.quantity >= 0 else {
+                errorMessage = "Stock quantity cannot be negative."
+                throw ValidationError(errorDescription: errorMessage)
+            }
+        }
+        
+        if let dosage = medicine.dosage {
+            if let quantity = dosage.dosageQuantity {
+                guard quantity > 0 else {
+                    errorMessage = "Dosage quantity must be greater than zero."
+                    throw ValidationError(errorDescription: errorMessage)
+                }
+            }
+            
+            if let startDate = dosage.startDate, let endDate = dosage.endDate {
+                guard startDate <= endDate else {
+                    errorMessage = "Dosage start date must precede or equal the end date."
+                    throw ValidationError(errorDescription: errorMessage)
+                }
+            }
+        }
+        
+        // Remove empty text or empty list custom fields natively before validation
+        medicine.customFields.removeAll { field in
+            guard let type = field.definition?.dataType else { return false }
+            switch type {
+            case .text:
+                let text = field.textValue ?? ""
+                return text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            case .list:
+                return (field.listValue ?? []).isEmpty
+            default:
+                return false
+            }
+        }
+        
+        // Validate remaining custom fields
+        for field in medicine.customFields {
+            if let type = field.definition?.dataType {
+                switch type {
+                case .list:
+                    if let list = field.listValue {
+                        for item in list {
+                            if item.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                                errorMessage = "Custom list fields cannot contain empty items."
+                                throw ValidationError(errorDescription: errorMessage)
+                            }
+                        }
+                    }
+                default:
+                    break
+                }
+            }
         }
         
         do {
@@ -175,6 +289,13 @@ class MedicineEditorViewModel {
             clearExistingNotifications(for: medicine)
             try NotificationManager.shared.scheduleInitialNotification(for: medicine)
             
+            // Populate shopping list if within 7 days
+            if ShoppingListPopulationHelper.shouldPopulate(stockEndDate: medicine.stock?.endDate, expiryDate: medicine.expiryDate) {
+                medicine.isOnShoppingList = true
+            } else {
+                medicine.isOnShoppingList = false
+            }
+            
             try MedicineWriteManager.shared.save(medicine)
         } catch {
             errorMessage = error.localizedDescription
@@ -185,9 +306,11 @@ class MedicineEditorViewModel {
     func calculateStockEndDate() -> Void {
         if let endDate = MedicineStockEndDateCalculator.calculate(
             stock: medicine.stock,
-            dosage: medicine.dosage,
+            dosage: medicine.dosage
         ) {
             medicine.stock?.endDate = endDate
+        } else {
+            medicine.stock?.endDate = .distantFuture
         }
     }
     

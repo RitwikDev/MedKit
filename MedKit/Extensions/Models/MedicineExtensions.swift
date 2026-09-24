@@ -30,7 +30,9 @@ extension Medicine {
         self.id = UUID()
         self.stock = nil
         self.dosage = nil
+        self.isOnShoppingList = false
         self.tags = []
         self.customFields = []
+        self.doseLogs = []
     }
 }

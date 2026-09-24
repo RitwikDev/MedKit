@@ -26,12 +26,16 @@ class CalendarMedicineReadManager {
     }
     
     private func mapMedicine(entity: MedicineEntity) -> CalendarMedicine {
-        CalendarMedicine(
+        let doseLogEntities = entity.doseLogs as? Set<DoseLogEntity> ?? []
+        let doseLogs = doseLogEntities.compactMap { DoseLogModel.fromEntity($0) }
+        
+        return CalendarMedicine(
             id: entity.id ?? UUID(),
             name: entity.name ?? "",
             expiryDate: entity.expiryDate,
             dosage: DosageModel.fromMedicineEntity(entity),
             stock: StockModel.fromMedicineEntity(entity),
+            doseLogs: doseLogs
         )
     }
 }

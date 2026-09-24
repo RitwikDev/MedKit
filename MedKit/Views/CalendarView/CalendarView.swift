@@ -14,6 +14,7 @@ struct CalendarView: View {
         VStack {
             CalendarPageViewController(
                 currentDate: $viewModel.currentMonth,
+                viewModel: viewModel
             )
         }
         .padding()

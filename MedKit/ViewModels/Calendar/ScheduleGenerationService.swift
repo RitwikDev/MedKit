@@ -7,11 +7,12 @@
 
 
 import Foundation
+import SwiftUI
 
 actor ScheduleGenerationService {
     private let calendar = Calendar.current
     
-    func generateEvents(for targetMonth: Date, medicines: [CalendarMedicine]) -> [Date: [CalendarEvent]] {
+    func generateEvents(for targetMonth: Date, medicines: [CalendarMedicine], currentRecordName: String) -> [Date: [CalendarEvent]] {
         var computedEvents: [Date: [CalendarEvent]] = [:]
         
         guard let firstOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: targetMonth)),
@@ -24,7 +25,7 @@ actor ScheduleGenerationService {
         for medicine in medicines {
             // 1. Expiry Events
             if let expiry = medicine.expiryDate, calendar.isDate(expiry, equalTo: targetMonth, toGranularity: .month) {
-                let event = CalendarEvent(date: expiry, title: "Expiring: \(medicine.name)", color: .red)
+                let event = CalendarEvent(date: expiry, title: "Expiring: \(medicine.name)", color: .red, eventType: .expiry)
                 let dateKey = calendar.startOfDay(for: expiry)
                 computedEvents[dateKey, default: []].append(event)
             }
@@ -32,7 +33,7 @@ actor ScheduleGenerationService {
             // 2. Stock End Events
             let stockEndDate = medicine.stock?.endDate ?? .distantFuture
             if calendar.isDate(stockEndDate, equalTo: targetMonth, toGranularity: .month) {
-                let event = CalendarEvent(date: stockEndDate, title: "Stockout: \(medicine.name)", color: .red)
+                let event = CalendarEvent(date: stockEndDate, title: "Stockout: \(medicine.name)", color: .red, eventType: .stockout)
                 let dateKey = calendar.startOfDay(for: stockEndDate)
                 computedEvents[dateKey, default: []].append(event)
             }
@@ -51,12 +52,12 @@ actor ScheduleGenerationService {
                             guard let scheduledDate = calendar.date(from: eventDateComponents) else { continue }
                             let normalizedScheduledDate = calendar.startOfDay(for: scheduledDate)
                             
-                            appendReminderEvents(for: medicine, dosage: dosage, on: normalizedScheduledDate, dayComponents: eventDateComponents, into: &computedEvents)
+                            appendReminderEvents(for: medicine, dosage: dosage, on: normalizedScheduledDate, dayComponents: eventDateComponents, currentRecordName: currentRecordName, into: &computedEvents)
                         }
                     }
                 } else if let startDate = dosage.startDate {
                     let dosageEndDate = dosage.endDate ?? .distantFuture
-                    let effectiveEndDate = min(stockEndDate, dosageEndDate)
+                    let effectiveEndDate = dosageEndDate
                     
                     let normalizedStartDate = calendar.startOfDay(for: startDate)
                     let normalizedEffectiveEndDate = calendar.startOfDay(for: effectiveEndDate)
@@ -73,7 +74,7 @@ actor ScheduleGenerationService {
                         }
                         
                         if isMedicineScheduled(on: normalizedCurrentDate, for: dosage, startDate: normalizedStartDate) {
-                            appendReminderEvents(for: medicine, dosage: dosage, on: normalizedCurrentDate, dayComponents: dayComponents, into: &computedEvents)
+                            appendReminderEvents(for: medicine, dosage: dosage, on: normalizedCurrentDate, dayComponents: dayComponents, currentRecordName: currentRecordName, into: &computedEvents)
                         }
                     }
                 }
@@ -83,20 +84,35 @@ actor ScheduleGenerationService {
         return computedEvents
     }
     
-    private func appendReminderEvents(for medicine: CalendarMedicine, dosage: DosageModel, on targetDate: Date, dayComponents: DateComponents, into eventsDict: inout [Date: [CalendarEvent]]) {
+    private func appendReminderEvents(for medicine: CalendarMedicine, dosage: DosageModel, on targetDate: Date, dayComponents: DateComponents, currentRecordName: String, into eventsDict: inout [Date: [CalendarEvent]]) {
         for reminder in dosage.reminderTimes {
             let timeComponents = calendar.dateComponents([.hour, .minute], from: reminder.time)
             var eventDateComponents = dayComponents
             eventDateComponents.hour = timeComponents.hour
             eventDateComponents.minute = timeComponents.minute
             
-            if let finalEventDate = calendar.date(from: eventDateComponents) {
-                let event = CalendarEvent(date: finalEventDate, title: "Take \(medicine.name)", color: .blue)
+                        if let finalEventDate = calendar.date(from: eventDateComponents) {
+                let isTaken = medicine.doseLogs.contains(where: { 
+                    calendar.isDate($0.date, equalTo: finalEventDate, toGranularity: .minute) &&
+                    ($0.takenByUserName == currentRecordName || $0.takenByUserName == "You" || currentRecordName == "You")
+                })
+                
+                let title = isTaken ? "\(medicine.name) taken" : "Take \(medicine.name)"
+                let color: SwiftUI.Color = isTaken ? .green : .blue
+                
+                let event = CalendarEvent(
+                    date: finalEventDate,
+                    title: title,
+                    color: color,
+                    medicineID: medicine.id,
+                    isTaken: isTaken,
+                    takenByUserID: nil,
+                    eventType: .dosage
+                )
                 eventsDict[targetDate, default: []].append(event)
             }
         }
     }
-    
     private func isMedicineScheduled(on targetDate: Date, for dosage: DosageModel, startDate: Date) -> Bool {
         switch dosage.repeatType {
         case .never:

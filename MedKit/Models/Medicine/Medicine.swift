@@ -19,8 +19,10 @@ struct Medicine: Identifiable, Equatable, Hashable {
     var composition: [Ingredient]
     var dosage: DosageModel?
     var stock: StockModel?
+    var isOnShoppingList: Bool
     var tags: [Tag]
     var customFields: [CustomFieldValue]
+    var doseLogs: [DoseLogModel]
     
     init(
         id: UUID = UUID(),
@@ -32,8 +34,10 @@ struct Medicine: Identifiable, Equatable, Hashable {
         composition: [Ingredient] = [],
         dosage: DosageModel? = nil,
         stock: StockModel? = nil,
+        isOnShoppingList: Bool = false,
         tags: [Tag] = [],
         customFields: [CustomFieldValue] = [],
+        doseLogs: [DoseLogModel] = [],
     ) {
         self.id = id
         self.name = name
@@ -44,8 +48,10 @@ struct Medicine: Identifiable, Equatable, Hashable {
         self.composition = composition
         self.dosage = dosage
         self.stock = stock
+        self.isOnShoppingList = isOnShoppingList
         self.tags = tags
         self.customFields = customFields
+        self.doseLogs = doseLogs
     }
     
     public func getCustomFieldsSortedByLabel() -> [CustomFieldValue] {
@@ -54,5 +60,29 @@ struct Medicine: Identifiable, Equatable, Hashable {
     
     public func getNotificationIdentifier(for reminderID: UUID) -> String {
         "medicine-\(self.id.uuidString)-reminder-\(reminderID.uuidString)"
+    }
+}
+
+struct DoseLogModel: Identifiable, Equatable, Hashable {
+    let id: UUID
+    var date: Date
+    var isTaken: Bool
+    var takenByUserName: String?
+    
+    init(id: UUID = UUID(), date: Date, isTaken: Bool = false, takenByUserName: String? = nil) {
+        self.id = id
+        self.date = date
+        self.isTaken = isTaken
+        self.takenByUserName = takenByUserName
+    }
+    
+    public static func fromEntity(_ entity: DoseLogEntity) -> DoseLogModel? {
+        guard let id = entity.id, let date = entity.date else { return nil }
+        return DoseLogModel(
+            id: id,
+            date: date,
+            isTaken: entity.isTaken,
+            takenByUserName: entity.takenByUserName
+        )
     }
 }

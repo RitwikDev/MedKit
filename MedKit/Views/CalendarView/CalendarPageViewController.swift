@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CalendarPageViewController: UIViewControllerRepresentable {
     @Binding var currentDate: Date
+    var viewModel: CalendarViewModel
     
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -49,7 +50,8 @@ struct CalendarPageViewController: UIViewControllerRepresentable {
         
         func makeViewController(for date: Date) -> CalendarHostingController {
             let contentView = CalendarPageContentView(date: date)
-            return CalendarHostingController(rootView: contentView, pageDate: date)
+                .environment(parent.viewModel)
+            return CalendarHostingController(rootView: AnyView(contentView), pageDate: date)
         }
         
         func pageViewController(
