@@ -44,7 +44,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     func registerCategories() {
         let takenAction = UNNotificationAction(
             identifier: actionTaken,
-            title: "Mark As Taken",
+            title: "Mark as Taken",
             options: []
         )
         
@@ -326,7 +326,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             medicine.stock?.endDate = stockEndDate ?? .distantFuture
             
             let wasOnShoppingList = medicine.isOnShoppingList
-            if ShoppingListPopulationHelper.shouldPopulate(stockEndDate: stockEndDate, expiryDate: medicine.expiryDate) {
+            if ShoppingListPopulationHelper.shouldPopulate(stockEndDate: stockEndDate, expiryDate: medicine.expiryDate, stockQuantity: medicine.stock?.quantity) {
                 medicine.isOnShoppingList = true
                 if !wasOnShoppingList {
                     await self.scheduleImmediateShoppingListNotification(for: medicine)
@@ -459,8 +459,8 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     }
     private func scheduleImmediateShoppingListNotification(for medicine: Medicine) async {
         let content = UNMutableNotificationContent()
-        content.title = "Added to Shopping List"
-        content.body = "\(medicine.name) has been automatically added to your shopping list."
+        content.title = "Stock is Running Low"
+        content.body = "Added \(medicine.name) to your shopping list."
         content.sound = .default
         
         content.userInfo = ["medicineId": medicine.id.uuidString, "medicineName": medicine.name]

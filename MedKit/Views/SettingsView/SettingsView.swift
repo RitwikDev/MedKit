@@ -209,7 +209,7 @@ struct SettingsResetApplicationView: View {
                     }
                 }
             } message: {
-                Text("This action cannot be undone.")
+                Text("You cannot undo this action.")
             }
     }
     

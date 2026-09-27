@@ -34,6 +34,8 @@ struct MedicineListItemExpiryView: View {
             dosage: nil,
             expiryDate: .now,
             tags: [],
+            isOnShoppingList: false,
+            isShared: false,
         )
     )
 }

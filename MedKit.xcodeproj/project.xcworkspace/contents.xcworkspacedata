@@ -4,4 +4,21 @@
    <FileRef
       location = "self:">
    </FileRef>
+   <Group
+      location = "group:MedKitTests"
+      name = "MedKitTests">
+      <Group
+         location = "group:Mocks"
+         name = "Mocks">
+         <FileRef
+            location = "group:Mocks.swift">
+         </FileRef>
+      </Group>
+      <FileRef
+         location = "group:MedicineViewModelTests.swift">
+      </FileRef>
+      <FileRef
+         location = "group:MedicineStockQuantityUpdaterTests.swift">
+      </FileRef>
+   </Group>
 </Workspace>

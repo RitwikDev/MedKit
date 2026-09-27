@@ -7,8 +7,14 @@
 
 import CoreData
 import Foundation
+import CloudKit
 
-class MedicineListItemManager {
+protocol MedicineListItemManagerProtocol {
+    func fetchMedicineList(sortOn: MedicineListSortOptionsEnum) throws -> [MedicineListItemModel]
+    func updateStockQuantity(medicineId: UUID, quantity: Float, dosage: DosageModel?)
+}
+
+class MedicineListItemManager: MedicineListItemManagerProtocol {
     static let shared: MedicineListItemManager = .init()
     
     private let context: NSManagedObjectContext
@@ -18,7 +24,7 @@ class MedicineListItemManager {
     }
     
     public func fetchMedicineList(
-        sortOn: MedicineListSortOptionsEnum = .nameAscending,
+        sortOn: MedicineListSortOptionsEnum = .nameAscending
     ) throws -> [MedicineListItemModel] {
         let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
         
@@ -38,11 +44,18 @@ class MedicineListItemManager {
         }
         
         let entities = try context.fetch(request)
+        let objectIDs = entities.map { $0.objectID }
+        let shares = (try? PersistenceController.shared.container.fetchShares(matching: objectIDs)) ?? [:]
         
-        return entities.map { mapMedicine(entity: $0) }
+        return entities.map { entity in
+            let isSharedStore = entity.objectID.persistentStore?.url?.lastPathComponent == "Shared.sqlite"
+            let share = shares[entity.objectID]
+            let hasShare = share != nil && (share!.participants.count > 1 || share!.publicPermission != .none)
+            return mapMedicine(entity: entity, isShared: isSharedStore || hasShare)
+        }
     }
     
-    private func mapMedicine(entity: MedicineEntity) -> MedicineListItemModel {
+    private func mapMedicine(entity: MedicineEntity, isShared: Bool) -> MedicineListItemModel {
         MedicineListItemModel(
             id: entity.id ?? UUID(),
             name: entity.name ?? "",
@@ -52,6 +65,8 @@ class MedicineListItemManager {
             dosage: DosageModel.fromMedicineEntity(entity),
             expiryDate: entity.expiryDate,
             tags: mapTags(medicineEntity: entity),
+            isOnShoppingList: entity.isOnShoppingList,
+            isShared: isShared
         )
     }
     
@@ -70,7 +85,7 @@ class MedicineListItemManager {
     public func updateStockQuantity(
         medicineId: UUID,
         quantity: Float,
-        dosage: DosageModel?,
+        dosage: DosageModel?
     ) -> Void {
         let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", medicineId as CVarArg)
@@ -85,12 +100,12 @@ class MedicineListItemManager {
                 id: stockEntity.id ?? UUID(),
                 quantity: quantity,
                 unit: stockEntity.unit ?? "",
-                endDate: stockEntity.endDate ?? .distantFuture,
+                endDate: stockEntity.endDate ?? .distantFuture
             )
             
             if let endDate = MedicineStockEndDateCalculator.calculate(
                 stock: stock,
-                dosage: dosage,
+                dosage: dosage
             ) {
                 stockEntity.endDate = endDate
             } else {
@@ -101,7 +116,7 @@ class MedicineListItemManager {
             entity.stock = stockEntity
             
             // Populate shopping list if within 7 days
-            if ShoppingListPopulationHelper.shouldPopulate(stockEndDate: stockEntity.endDate, expiryDate: entity.expiryDate) {
+            if ShoppingListPopulationHelper.shouldPopulate(stockEndDate: stockEntity.endDate, expiryDate: entity.expiryDate, stockQuantity: stockEntity.quantity) {
                 entity.isOnShoppingList = true
             } else {
                 entity.isOnShoppingList = false

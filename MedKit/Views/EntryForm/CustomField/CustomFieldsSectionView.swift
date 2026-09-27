@@ -16,6 +16,17 @@ struct IdentifiableUIImage: Identifiable {
     }
 }
 
+extension CustomFieldsSectionView {
+    static func extractURL(from text: String) -> URL? {
+        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return nil }
+        let matches = detector.matches(in: text, options: [], range: NSRange(location: 0, length: text.utf16.count))
+        if let match = matches.first {
+            return match.url
+        }
+        return nil
+    }
+}
+
 struct CustomFieldsSectionView: View {
     @Environment(NavigationRouter.self) private var router
     @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
@@ -23,7 +34,12 @@ struct CustomFieldsSectionView: View {
     @State private var text: String = ""
     @State private var imageToPreview: IdentifiableUIImage?
     @State private var documentToPreview: Document?
+
     
+    @FocusState private var focusedFieldID: UUID?
+    @State private var editingFields = Set<UUID>()
+
+
     var body: some View {
         @Bindable var bindableViewModel = medicineEditorViewModel
         
@@ -31,10 +47,51 @@ struct CustomFieldsSectionView: View {
             Section(customField.wrappedValue.getLabel()) {
                 switch customField.wrappedValue.definition?.dataType {
                 case .text:
-                    TextField("Enter value", text: Binding(
-                        get: { customField.wrappedValue.textValue ?? "" },
-                        set: { customField.wrappedValue.textValue = $0 }
-                    ), axis: .vertical)
+                    let textValue = customField.wrappedValue.textValue ?? ""
+                    let isActivelyEditing = editingFields.contains(customField.wrappedValue.id)
+                    let isFocused = focusedFieldID == customField.wrappedValue.id
+                    let url = CustomFieldsSectionView.extractURL(from: textValue)
+                    if let u = url, !isActivelyEditing, !isFocused {
+                        HStack {
+                            Button {
+                                UIApplication.shared.open(u)
+                            } label: {
+                                Text(textValue)
+                                    .lineLimit(1)
+                                    .truncationMode(.tail)
+                            }
+                            .buttonStyle(.borderless)
+                            
+                            Spacer()
+                            
+                            Button {
+                                editingFields.insert(customField.wrappedValue.id)
+                            } label: {
+                                Image(systemName: "pencil")
+                            }
+                            .buttonStyle(.borderless)
+                        }
+                    } else {
+                        HStack {
+                            TextField("Enter value", text: Binding(
+                                get: { textValue },
+                                set: { customField.wrappedValue.textValue = $0 }
+                            ), axis: .vertical)
+
+                            .focused($focusedFieldID, equals: customField.wrappedValue.id)
+                            
+                            if url != nil && isActivelyEditing {
+                                Button {
+                                    editingFields.remove(customField.wrappedValue.id);
+                                    focusedFieldID = nil
+                                } label: {
+                                    Image(systemName: "checkmark")
+                                }
+                                .buttonStyle(.borderless)
+                            }
+                        }
+                    }
+
                     
                 case .date:
                     DatePicker("Select Date", selection: Binding(

@@ -64,14 +64,14 @@ struct StrengthSectionView: View {
             Text("Strength")
         }, footer: {
             if (!isValid) {
-                Text("Invalid input")
+                Text("Invalid input.")
                     .foregroundStyle(.red)
             }
         })
     }
     
     private var unitView: some View {
-        TextField("mg/ml...", text: $unitString)
+        TextField("mg / ml...", text: $unitString)
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
             .focused($isUnitFocused)

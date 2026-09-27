@@ -41,7 +41,7 @@ struct MedicineCustomFieldFormView: View {
                     TextField("Write something...", text: $text, axis: .vertical)
                         .lineLimit(5)
                 case .date:
-                    DatePicker("Choose date", selection: $date, displayedComponents: .date)
+                    DatePicker("Choose Date", selection: $date, displayedComponents: .date)
                 case .list:
                     listOptions
                 case .documents:

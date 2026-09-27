@@ -76,6 +76,14 @@ struct MedicineListView: View {
                                     }
                                     .tint(.red)
                                 }
+                                .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                    Button {
+                                        medicineViewModel.toggleShoppingList(for: medicine.id)
+                                    } label: {
+                                        Label(medicine.isOnShoppingList ? "Remove from List" : "Add to List", systemImage: medicine.isOnShoppingList ? "cart.badge.minus" : "cart.badge.plus")
+                                    }
+                                    .tint(medicine.isOnShoppingList ? .red : .blue)
+                                }
                                 .listRowSeparator(.hidden)
                                 .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                                 .listRowBackground(Color.clear)

@@ -78,7 +78,7 @@ struct MedicineFormView: View {
             if let errorMessage = medicineEditorViewModel.errorMessage {
                 Text(errorMessage)
             } else {
-                Text("An unknown error occurred.")
+                Text("Something went wrong.")
             }
         }
         .sheet(item: $shareContext) { context in

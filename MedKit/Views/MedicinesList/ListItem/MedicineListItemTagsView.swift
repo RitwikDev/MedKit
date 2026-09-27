@@ -39,6 +39,8 @@ struct MedicineListItemTagsView: View {
                 Tag(value: "Chills"),
                 Tag(value: "Stomach ache"),
             ],
+            isOnShoppingList: false,
+            isShared: false
         )
     )
 }

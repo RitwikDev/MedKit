@@ -15,7 +15,7 @@ class MedicineStockEndDateCalculator
         startingFrom baseDate: Date? = nil
     ) -> Date? {
         guard let stock = stock,
-              stock.quantity > 0,
+              stock.quantity >= 0,
               let dosage = dosage,
               let dosageQuantity = dosage.dosageQuantity,
               dosageQuantity > 0,

@@ -65,7 +65,7 @@ struct NotificationListView: View {
                 }
                 
                 VStack(alignment: .leading) {
-                    Text("Number of Pending Notifications: \(notificationVM.notificationRequests.count)")
+                    Text("Number of pending notifications: \(notificationVM.notificationRequests.count)")
                 }
                 .font(.subheadline)
                 

@@ -16,6 +16,8 @@ struct MedicineListItemModel: Identifiable, Hashable {
     let dosage: DosageModel?
     let expiryDate: Date?
     let tags: [Tag]
+    let isOnShoppingList: Bool
+    let isShared: Bool
     
     var isExpiringSoon: Bool {
         guard let expiryDate = self.expiryDate else { return false }

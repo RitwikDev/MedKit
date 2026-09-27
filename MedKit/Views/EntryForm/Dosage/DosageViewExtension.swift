@@ -94,7 +94,7 @@ extension DosageView {
             if let startDate = draftDosage.wrappedValue.startDate, calendar.startOfDay(for: newDate) < calendar.startOfDay(for: startDate) {
                 autoAdvanceEndDate(
                     from: startDate,
-                    message: "End date must be after start date. Adjusted automatically.",
+                    message: "Ensure the end date is after the start date. We adjusted it automatically.",
                     draftDosage: draftDosage,
                     validDays: validDays, // Pass the correct array
                     showToast: showToast,

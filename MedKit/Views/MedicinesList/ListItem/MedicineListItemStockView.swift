@@ -26,7 +26,6 @@ struct MedicineListItemStockView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(8)
-//        .background((Color(uiColor: .systemBackground)).shadow(.inner(radius: 10)))
         .background((Color(uiColor: #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1))).shadow(.inner(radius: 10)))
         .foregroundStyle(.white)
         .clipShape(.rect(cornerRadius: 10))

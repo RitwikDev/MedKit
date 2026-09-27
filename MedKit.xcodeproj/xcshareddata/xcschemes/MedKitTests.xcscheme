@@ -1,27 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "2630"
+   LastUpgradeVersion = "2700"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
       buildArchitectures = "Automatic">
-      <BuildActionEntries>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "362E636B2FB94D5E00CFB7AB"
-               BuildableName = "MedKit.app"
-               BlueprintName = "MedKit"
-               ReferencedContainer = "container:MedKit.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-      </BuildActionEntries>
    </BuildAction>
    <TestAction
       buildConfiguration = "Debug"
@@ -35,8 +19,8 @@
             parallelizable = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BA310AE230655902006F7A1A"
-               BuildableName = "MedKitTestsX.xctest"
+               BlueprintIdentifier = "BA310AD8306557D2006F7A1A"
+               BuildableName = "MedKitTests.xctest"
                ReferencedContainer = "container:MedKit.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -51,17 +35,8 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
-      allowLocationSimulation = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "362E636B2FB94D5E00CFB7AB"
-            BuildableName = "MedKit.app"
-            BlueprintName = "MedKit"
-            ReferencedContainer = "container:MedKit.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
+      allowLocationSimulation = "YES"
+      queueDebuggingEnabled = "No">
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -69,16 +44,6 @@
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
       debugDocumentVersioning = "YES">
-      <BuildableProductRunnable
-         runnableDebuggingMode = "0">
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "362E636B2FB94D5E00CFB7AB"
-            BuildableName = "MedKit.app"
-            BlueprintName = "MedKit"
-            ReferencedContainer = "container:MedKit.xcodeproj">
-         </BuildableReference>
-      </BuildableProductRunnable>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">

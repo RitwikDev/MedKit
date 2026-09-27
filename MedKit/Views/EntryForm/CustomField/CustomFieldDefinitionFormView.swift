@@ -38,7 +38,7 @@ struct CustomFieldDefinitionFormView: View {
                         Text("Label")
                     }, footer: {
                         if (customFieldExists) {
-                            Text("Another field with the same label already exists")
+                            Text("Another field with the same label already exists.")
                                 .foregroundStyle(.red)
                                 .font(.caption)
                         }

@@ -15,7 +15,7 @@ struct MedicineListFiltersExpirationView: View {
             Text("Expiration")
                 .font(.headline)
             
-            Toggle("Show only those medicines that are expiring soon", isOn: $showOnlyExpiringSoon)
+            Toggle("Show only medicines expiring soon", isOn: $showOnlyExpiringSoon)
         }
         .padding()
         .roundedRectBackground(colour: Color(uiColor: .secondarySystemBackground))

@@ -88,6 +88,8 @@ struct MedicineListItemView: View {
             dosage: nil,
             expiryDate: .now,
             tags: [],
+            isOnShoppingList: false,
+            isShared: false,
         )
     )
     .environment(NavigationRouter())

@@ -8,7 +8,12 @@
 import CoreData
 import Foundation
 
-class MedicineReadManager {
+protocol MedicineReadManagerProtocol {
+    func fetchShoppingList() throws -> [Medicine]
+    func fetchById(_ id: UUID) throws -> Medicine
+}
+
+class MedicineReadManager: MedicineReadManagerProtocol {
     static let shared: MedicineReadManager = .init()
     
     private let context: NSManagedObjectContext
@@ -102,7 +107,7 @@ class MedicineReadManager {
                 id: stockEntity.id ?? UUID(),
                 quantity: stockEntity.quantity,
                 unit: stockEntity.unit ?? "",
-                endDate: stockEntity.endDate ?? .distantFuture,
+                endDate: stockEntity.endDate ?? .distantFuture
             )
         }
         

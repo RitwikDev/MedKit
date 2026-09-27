@@ -45,7 +45,7 @@ struct DosageSectionView: View {
             },
             footer: {
                 if (isDisabled) {
-                    Text("Stock is required for adding dosage")
+                    Text("Please add stock to add dosage.")
                 }
             }
         )

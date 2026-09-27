@@ -227,7 +227,7 @@ struct DosageView: View {
             Text("Days")
         }, footer : {
             if (draftDosage.selectedDays.isEmpty) {
-                Text("A reminder day is required.")
+                Text("Please select a reminder day.")
             }
         })
     }
@@ -304,7 +304,7 @@ struct DosageView: View {
     @ViewBuilder
     private var datesSectionFooterView: some View {
         if (draftDosage.startDate == nil) {
-            Text("A start date is required.")
+            Text("Please select a start date.")
         }
     }
     
@@ -351,7 +351,7 @@ struct DosageView: View {
             Text("Times")
         }, footer: {
             if (draftDosage.repeatType != .never && draftDosage.reminderTimes.isEmpty) {
-                Text("A reminder time is required.")
+                Text("Please add a reminder time.")
             }
         })
     }

@@ -166,19 +166,19 @@ class MedicineEditorViewModel {
     func saveMedicine() throws {
         let trimmedName = medicine.name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else {
-            errorMessage = "Medicine name is required."
+            errorMessage = "Please enter a medicine name."
             throw ValidationError(errorDescription: errorMessage)
         }
         
         let invalidCharacters = CharacterSet.alphanumerics.union(.whitespaces).inverted
         guard trimmedName.rangeOfCharacter(from: invalidCharacters) == nil else {
-            errorMessage = "Medicine name must not contain special characters."
+            errorMessage = "Please remove special characters from the medicine name."
             throw ValidationError(errorDescription: errorMessage)
         }
         
         if let mfgDate = medicine.manufacturedDate, let expDate = medicine.expiryDate {
             guard mfgDate < expDate else {
-                errorMessage = "Manufactured date must precede the expiry date."
+                errorMessage = "Ensure the manufactured date is before the expiry date."
                 throw ValidationError(errorDescription: errorMessage)
             }
         }
@@ -187,13 +187,13 @@ class MedicineEditorViewModel {
         let hasStrengthUnit = !(medicine.strengthUnit ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         
         if hasStrengthAmount != hasStrengthUnit {
-            errorMessage = "Both strength value and unit must be provided together."
+            errorMessage = "Please provide both the strength value and unit."
             throw ValidationError(errorDescription: errorMessage)
         }
         
         if let strength = medicine.strengthAmount {
             guard strength > 0 else {
-                errorMessage = "Strength must be greater than zero."
+                errorMessage = "Enter a strength greater than zero."
                 throw ValidationError(errorDescription: errorMessage)
             }
         }
@@ -203,13 +203,13 @@ class MedicineEditorViewModel {
             let hasIngUnit = !(ingredient.strengthUnit ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             
             if hasIngAmount != hasIngUnit {
-                errorMessage = "Both strength value and unit must be provided together for all ingredients."
+                errorMessage = "Please provide both the strength value and unit for all ingredients."
                 throw ValidationError(errorDescription: errorMessage)
             }
             
             if let amount = ingredient.strengthAmount {
                 guard amount > 0 else {
-                    errorMessage = "Ingredient amounts must be greater than zero."
+                    errorMessage = "Enter ingredient amounts greater than zero."
                     throw ValidationError(errorDescription: errorMessage)
                 }
             }
@@ -220,12 +220,12 @@ class MedicineEditorViewModel {
             let isUnitEmpty = stock.unit.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             
             if isQuantityZero != isUnitEmpty {
-                errorMessage = "Both stock quantity and unit must be provided together."
+                errorMessage = "Please provide both the stock quantity and unit."
                 throw ValidationError(errorDescription: errorMessage)
             }
             
             guard stock.quantity >= 0 else {
-                errorMessage = "Stock quantity cannot be negative."
+                errorMessage = "Enter a non-negative stock quantity."
                 throw ValidationError(errorDescription: errorMessage)
             }
         }
@@ -233,14 +233,14 @@ class MedicineEditorViewModel {
         if let dosage = medicine.dosage {
             if let quantity = dosage.dosageQuantity {
                 guard quantity > 0 else {
-                    errorMessage = "Dosage quantity must be greater than zero."
+                    errorMessage = "Enter a dosage quantity greater than zero."
                     throw ValidationError(errorDescription: errorMessage)
                 }
             }
             
             if let startDate = dosage.startDate, let endDate = dosage.endDate {
                 guard startDate <= endDate else {
-                    errorMessage = "Dosage start date must precede or equal the end date."
+                    errorMessage = "Ensure the dosage start date is before or equal to the end date."
                     throw ValidationError(errorDescription: errorMessage)
                 }
             }
@@ -268,7 +268,7 @@ class MedicineEditorViewModel {
                     if let list = field.listValue {
                         for item in list {
                             if item.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                errorMessage = "Custom list fields cannot contain empty items."
+                                errorMessage = "Please remove empty items from custom list fields."
                                 throw ValidationError(errorDescription: errorMessage)
                             }
                         }
@@ -290,7 +290,7 @@ class MedicineEditorViewModel {
             try NotificationManager.shared.scheduleInitialNotification(for: medicine)
             
             // Populate shopping list if within 7 days
-            if ShoppingListPopulationHelper.shouldPopulate(stockEndDate: medicine.stock?.endDate, expiryDate: medicine.expiryDate) {
+            if ShoppingListPopulationHelper.shouldPopulate(stockEndDate: medicine.stock?.endDate, expiryDate: medicine.expiryDate, stockQuantity: medicine.stock?.quantity) {
                 medicine.isOnShoppingList = true
             } else {
                 medicine.isOnShoppingList = false

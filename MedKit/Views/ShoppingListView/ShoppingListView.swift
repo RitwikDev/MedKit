@@ -9,7 +9,7 @@ struct ShoppingListView: View {
     @Environment(\.colorScheme) private var colourScheme
     @Environment(NavigationRouter.self) private var router
     @Environment(ShoppingListViewModel.self) private var viewModel
-
+    
     @State private var showConfirmationDialog: Bool = false
     
     private let pub = NotificationCenter.default.publisher(for: NotificationManager.dataDidChangeNotification)
@@ -44,11 +44,19 @@ struct ShoppingListView: View {
                                     
                                     VStack(alignment: .leading) {
                                         if let stock = medicine.stock {
-                                            Text("\(Int(stock.quantity)) \(stock.unit) remaining")
+                                            if stock.quantity > 0 {
+                                                Text("Stock running low (\(Int(stock.quantity)) \(stock.unit) remaining)")
+                                            } else {
+                                                Text("Stockout")
+                                            }
                                         }
                                         
                                         if let expiryDate = medicine.expiryDate {
-                                            Text("Expiring on \(expiryDate.formatted(date: .abbreviated, time: .omitted))")
+                                            if Calendar.current.startOfDay(for: expiryDate) <= Calendar.current.startOfDay(for: .now) {
+                                                Text("Expired on \(expiryDate.formatted(date: .abbreviated, time: .omitted))")
+                                            } else {
+                                                Text("Expiring on \(expiryDate.formatted(date: .abbreviated, time: .omitted))")
+                                            }
                                         }
                                     }
                                     .font(.subheadline)
@@ -56,7 +64,7 @@ struct ShoppingListView: View {
                                     
                                     ScrollView(.horizontal, showsIndicators: false) {
                                         LazyHStack {
-                                            ForEach(Array(ShoppingListPopulationHelper.getReason(stockEndDate: medicine.stock?.endDate, expiryDate: medicine.expiryDate).enumerated()), id: \.element) { index, reason in
+                                            ForEach(Array(ShoppingListPopulationHelper.getReason(stockEndDate: medicine.stock?.endDate, expiryDate: medicine.expiryDate, stockQuantity: medicine.stock?.quantity).enumerated()), id: \.element) { index, reason in
                                                 ChipItemView(
                                                     title: reason,
                                                     delay: Double(index) * 0.08,
@@ -100,7 +108,7 @@ struct ShoppingListView: View {
         Button(role: .destructive) {
             showConfirmationDialog.toggle()
         } label: {
-            Label("Clear shopping list", systemImage: "trash")
+            Label("Clear Shopping List", systemImage: "trash")
                 .labelStyle(.iconOnly)
         }
         .disabled(viewModel.items.isEmpty)
@@ -115,7 +123,7 @@ struct ShoppingListView: View {
                 Label("Clear", systemImage: "trash")
             }
         } message: {
-            Text("This action cannot be undone.")
+            Text("You cannot undo this action.")
         }
     }
     

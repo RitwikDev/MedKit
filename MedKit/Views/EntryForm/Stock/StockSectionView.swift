@@ -67,7 +67,7 @@ struct StockSectionView: View {
             Text("Stock")
         }, footer: {
             if (!isValid) {
-                Text("Invalid input")
+                Text("Invalid input.")
                     .foregroundStyle(.red)
             }
         })
@@ -109,7 +109,7 @@ struct StockSectionView: View {
     }
     
     private var unitView: some View {
-        TextField("Tablet/Bottle...", text: $unitString)
+        TextField("Tablet / bottle...", text: $unitString)
             .autocorrectionDisabled()
             .textInputAutocapitalization(.never)
             .focused($isUnitFocused)

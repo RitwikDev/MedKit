@@ -13,7 +13,16 @@ class MedicineViewModel {
     var medicines: [MedicineListItemModel] = []
     var errorMessage: String? = nil
     
-    init() {
+    // Injectable dependencies
+    private let listItemManager: MedicineListItemManagerProtocol
+    private let readManager: MedicineReadManagerProtocol
+    
+    init(
+        listItemManager: MedicineListItemManagerProtocol = MedicineListItemManager.shared,
+        readManager: MedicineReadManagerProtocol = MedicineReadManager.shared
+    ) {
+        self.listItemManager = listItemManager
+        self.readManager = readManager
         fetchAllMedicines()
         
         Task {
@@ -29,18 +38,36 @@ class MedicineViewModel {
     
     /// Asks the Manager to fetch the latest data from the database.
     func fetchAllMedicines(
-        sortOn: MedicineListSortOptionsEnum = .nameAscending,
+        sortOn: MedicineListSortOptionsEnum = .nameAscending
     ) {
         do {
-            self.medicines = try MedicineListItemManager.shared.fetchMedicineList(sortOn: sortOn)
+            self.medicines = try listItemManager.fetchMedicineList(sortOn: sortOn)
         } catch {
             errorMessage = error.localizedDescription
         }
     }
     
+    /// Returns the Medicine corresponding to the given id.
+    ///
+    /// - Parameter id: The UUID of the medicine to be fetched.
+    /// - Returns: The Medicine object corresponding to the given id.
+    /// 
+    func toggleShoppingList(for medicineId: UUID) {
+        do {
+            if var medicine = getById(medicineId) {
+                medicine.isOnShoppingList.toggle()
+                try MedicineWriteManager.shared.save(medicine)
+                fetchAllMedicines()
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+
     func getById(_ id: UUID) -> Medicine? {
         do {
-            return try MedicineReadManager.shared.fetchById(id)
+            return try readManager.fetchById(id)
         } catch {
             errorMessage = error.localizedDescription
             return nil
@@ -86,9 +113,9 @@ class MedicineViewModel {
     func updateStockQuantity(
         medicineId: UUID,
         quantity: Float,
-        dosage: DosageModel?,
+        dosage: DosageModel?
     ) {
-        MedicineListItemManager.shared.updateStockQuantity(
+        listItemManager.updateStockQuantity(
             medicineId: medicineId,
             quantity: quantity,
             dosage: dosage

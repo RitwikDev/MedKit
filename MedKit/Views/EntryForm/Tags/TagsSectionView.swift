@@ -64,7 +64,7 @@ struct TagsSectionView: View {
     
     private var newTagInputView: some View {
         HStack {
-            TextField("Add Tag", text: $newTagValue)
+            TextField("Add tag", text: $newTagValue)
                 .focused($isTagTextFieldFocussed)
                 .toolbar {
                     if(showSuggestions) {
