@@ -5,14 +5,9 @@
 //  Created by Ritwik Dev on 13/07/26.
 //
 
+import CloudKit
 import CoreData
 import Foundation
-import CloudKit
-
-protocol MedicineListItemManagerProtocol {
-    func fetchMedicineList(sortOn: MedicineListSortOptionsEnum) throws -> [MedicineListItemModel]
-    func updateStockQuantity(medicineId: UUID, quantity: Float, dosage: DosageModel?)
-}
 
 class MedicineListItemManager: MedicineListItemManagerProtocol {
     static let shared: MedicineListItemManager = .init()
@@ -132,4 +127,12 @@ class MedicineListItemManager: MedicineListItemManagerProtocol {
             context.rollback()
         }
     }
+
+    #if DEBUG
+    /// Creates a fresh instance specifically for testing with an in-memory context.
+    /// Do not use in production code; use `.shared` instead.
+    static func createForTesting(context: NSManagedObjectContext) -> MedicineListItemManager {
+        return MedicineListItemManager(context: context)
+    }
+    #endif
 }

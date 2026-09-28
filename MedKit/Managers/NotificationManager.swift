@@ -9,7 +9,7 @@ import CoreData
 import Foundation
 import UserNotifications
 
-class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
+class NotificationManager: NSObject, UNUserNotificationCenterDelegate, NotificationManagerProtocol {
     
     static let shared = NotificationManager()
     static let dataDidChangeNotification = Notification.Name("NotificationManagerDataDidChange")

@@ -62,7 +62,7 @@ class GeminiManager {
         )
     }
     
-    func analyseImage(_ uiImage: UIImage, isMock: Bool = false, shouldFail: Bool = false) {
+    func analyseImage(_ uiImage: UIImage) {
         guard let imageData = uiImage.jpegData(compressionQuality: 0.8) else {
             errorMessage = "Error processing image data."
             analysisStatus = .failure
@@ -75,39 +75,7 @@ class GeminiManager {
             do {
                 let jsonData: Data
                 
-                if (isMock) {
-                    try await Task.sleep(nanoseconds: 1_500_000_000)
-                    
-                    let mockJSONString = """
-                                        {
-                                            "name": "Amoxicillin 500mg",
-                                            "manufacturedDate": "2025-10-12",
-                                            "expiryDate": "2027-10-12",
-                                            "strengthAmount": 500.0,
-                                            "strengthUnit": "mg",
-                                            "composition": [
-                                                {
-                                                    "name": "Amoxicillin Trihydrate",
-                                                    "strengthAmount": 500.0,
-                                                    "strengthUnit": "mg"
-                                                },
-                                                {
-                                                    "name": "Vernimoltan Babchuris",
-                                                    "strengthAmount": 100.0,
-                                                    "strengthUnit": "mg"
-                                                }
-                                            ]
-                                        }
-                                        """
-                    if (shouldFail) {
-                         throw DecodingError.dataCorrupted(.init(codingPath: [], debugDescription: "Simulated bad data"))
-                    }
-                    
-                    guard let data = mockJSONString.data(using: .utf8) else { return }
-                    
-                    jsonData = data
-                } else {
-                    let prompt = """
+                let prompt = """
                 Extract medicine package information from this image.
                 Return ONLY a JSON object. Do not use markdown formatting.
                 Use this exact structure:
@@ -126,22 +94,21 @@ class GeminiManager {
                     ]
                 }
                 """
-                    
-                    let imagePart = InlineDataPart(data: imageData, mimeType: "image/jpeg")
-                    
-                    let response = try await model.generateContent(prompt, imagePart)
-                    
-                    guard let jsonText = response.text,
-                          let data = jsonText.data(using: .utf8) else {
-                        await MainActor.run {
-                            self.errorMessage = "Empty or invalid response from Gemini."
-                            self.analysisStatus = .failure
-                        }
-                        return
+                
+                let imagePart = InlineDataPart(data: imageData, mimeType: "image/jpeg")
+                
+                let response = try await model.generateContent(prompt, imagePart)
+                
+                guard let jsonText = response.text,
+                      let data = jsonText.data(using: .utf8) else {
+                    await MainActor.run {
+                        self.errorMessage = "Empty or invalid response from Gemini."
+                        self.analysisStatus = .failure
                     }
-                    jsonData = data
+                    return
                 }
-                                
+                jsonData = data
+                
                 let decoder = JSONDecoder()
 
                 let dateFormatter = DateFormatter()

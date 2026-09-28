@@ -25,14 +25,14 @@ struct MedicineStockQuantityUpdaterTests {
     
     @Test
     func updateIncrementWithDosage() {
-        let dosage = DosageModel(id: UUID(), dosageQuantity: 2.5, repeatType: .daily)
+        let dosage = DosageModel(id: UUID(), dosageQuantity: 2.5, repeatType: .never)
         let result = MedicineStockQuantityUpdater.update(isIncrement: true, quantity: 10, dosage: dosage)
         #expect(result == 12.5)
     }
     
     @Test
     func updateDecrementWithDosage() {
-        let dosage = DosageModel(id: UUID(), dosageQuantity: 2.5, repeatType: .daily)
+        let dosage = DosageModel(id: UUID(), dosageQuantity: 2.5, repeatType: .never)
         let result = MedicineStockQuantityUpdater.update(isIncrement: false, quantity: 10, dosage: dosage)
         #expect(result == 7.5)
     }

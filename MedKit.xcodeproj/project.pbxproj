@@ -18,7 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		BA310AE730655902006F7A1A /* PBXContainerItemProxy */ = {
+		BAB9899E306A058200CBE832 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 362E63642FB94D5E00CFB7AB /* Project object */;
 			proxyType = 1;
@@ -31,7 +31,7 @@
 		362E636C2FB94D5E00CFB7AB /* MedKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MedKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		362E637D2FB9525100CFB7AB /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		BA310AD9306557D2006F7A1A /* MedKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MedKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		BA310AE330655902006F7A1A /* MedKitTestsX.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MedKitTestsX.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAB9899A306A058200CBE832 /* MedKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MedKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAE238B12FE45ED100C34F62 /* MedKit.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MedKit.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -54,9 +54,9 @@
 			path = MedKit;
 			sourceTree = "<group>";
 		};
-		BA310AE430655902006F7A1A /* MedKitTestsX */ = {
+		BAB9899B306A058200CBE832 /* MedKitTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = MedKitTestsX;
+			path = MedKitTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,14 +75,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BA310AD6306557D2006F7A1A /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BA310AE030655902006F7A1A /* Frameworks */ = {
+		BAB98997306A058200CBE832 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -98,7 +91,7 @@
 				BAE238B02FE45ED100C34F62 /* MedKit.xcdatamodeld */,
 				362E637D2FB9525100CFB7AB /* .gitignore */,
 				362E636E2FB94D5E00CFB7AB /* MedKit */,
-				BA310AE430655902006F7A1A /* MedKitTestsX */,
+				BAB9899B306A058200CBE832 /* MedKitTests */,
 				BA9586692FB95CC80095C2E2 /* Frameworks */,
 				362E636D2FB94D5E00CFB7AB /* Products */,
 			);
@@ -109,7 +102,7 @@
 			children = (
 				362E636C2FB94D5E00CFB7AB /* MedKit.app */,
 				BA310AD9306557D2006F7A1A /* MedKitTests.xctest */,
-				BA310AE330655902006F7A1A /* MedKitTestsX.xctest */,
+				BAB9899A306A058200CBE832 /* MedKitTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -152,46 +145,27 @@
 			productReference = 362E636C2FB94D5E00CFB7AB /* MedKit.app */;
 			productType = "com.apple.product-type.application";
 		};
-		BA310AD8306557D2006F7A1A /* MedKitTests */ = {
+		BAB98999306A058200CBE832 /* MedKitTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = BA310ADC306557D2006F7A1A /* Build configuration list for PBXNativeTarget "MedKitTests" */;
+			buildConfigurationList = BAB989A0306A058200CBE832 /* Build configuration list for PBXNativeTarget "MedKitTests" */;
 			buildPhases = (
-				BA310AD5306557D2006F7A1A /* Sources */,
-				BA310AD6306557D2006F7A1A /* Frameworks */,
-				BA310AD7306557D2006F7A1A /* Resources */,
+				BAB98996306A058200CBE832 /* Sources */,
+				BAB98997306A058200CBE832 /* Frameworks */,
+				BAB98998306A058200CBE832 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				BAB9899F306A058200CBE832 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				BAB9899B306A058200CBE832 /* MedKitTests */,
 			);
 			name = MedKitTests;
 			packageProductDependencies = (
 			);
 			productName = MedKitTests;
-			productReference = BA310AD9306557D2006F7A1A /* MedKitTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		BA310AE230655902006F7A1A /* MedKitTestsX */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = BA310AE930655902006F7A1A /* Build configuration list for PBXNativeTarget "MedKitTestsX" */;
-			buildPhases = (
-				BA310ADF30655902006F7A1A /* Sources */,
-				BA310AE030655902006F7A1A /* Frameworks */,
-				BA310AE130655902006F7A1A /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				BA310AE830655902006F7A1A /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				BA310AE430655902006F7A1A /* MedKitTestsX */,
-			);
-			name = MedKitTestsX;
-			packageProductDependencies = (
-			);
-			productName = MedKitTestsX;
-			productReference = BA310AE330655902006F7A1A /* MedKitTestsX.xctest */;
+			productReference = BAB9899A306A058200CBE832 /* MedKitTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -207,10 +181,7 @@
 					362E636B2FB94D5E00CFB7AB = {
 						CreatedOnToolsVersion = 16.0;
 					};
-					BA310AD8306557D2006F7A1A = {
-						CreatedOnToolsVersion = 27.0;
-					};
-					BA310AE230655902006F7A1A = {
+					BAB98999306A058200CBE832 = {
 						CreatedOnToolsVersion = 27.0;
 						TestTargetID = 362E636B2FB94D5E00CFB7AB;
 					};
@@ -238,8 +209,7 @@
 			projectRoot = "";
 			targets = (
 				362E636B2FB94D5E00CFB7AB /* MedKit */,
-				BA310AD8306557D2006F7A1A /* MedKitTests */,
-				BA310AE230655902006F7A1A /* MedKitTestsX */,
+				BAB98999306A058200CBE832 /* MedKitTests */,
 			);
 		};
 /* End PBXProject section */
@@ -253,14 +223,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BA310AD7306557D2006F7A1A /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BA310AE130655902006F7A1A /* Resources */ = {
+		BAB98998306A058200CBE832 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -278,14 +241,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		BA310AD5306557D2006F7A1A /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		BA310ADF30655902006F7A1A /* Sources */ = {
+		BAB98996306A058200CBE832 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -295,10 +251,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		BA310AE830655902006F7A1A /* PBXTargetDependency */ = {
+		BAB9899F306A058200CBE832 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 362E636B2FB94D5E00CFB7AB /* MedKit */;
-			targetProxy = BA310AE730655902006F7A1A /* PBXContainerItemProxy */;
+			targetProxy = BAB9899E306A058200CBE832 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -494,103 +450,47 @@
 			};
 			name = Release;
 		};
-		BA310ADA306557D2006F7A1A /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
-				MACOSX_DEPLOYMENT_TARGET = 27.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.MedKitTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 27.0;
-			};
-			name = Debug;
-		};
-		BA310ADB306557D2006F7A1A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
-				MACOSX_DEPLOYMENT_TARGET = 27.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yourcompany.MedKitTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
-				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
-				XROS_DEPLOYMENT_TARGET = 27.0;
-			};
-			name = Release;
-		};
-		BA310AEA30655902006F7A1A /* Debug */ = {
+		BAB989A1306A058200CBE832 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 4BKL74V4YU;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
-				MACOSX_DEPLOYMENT_TARGET = 27.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.rss.MedKit.MedKitTestsX;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sre.MedKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MedKit.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MedKit";
-				XROS_DEPLOYMENT_TARGET = 27.0;
 			};
 			name = Debug;
 		};
-		BA310AEB30655902006F7A1A /* Release */ = {
+		BAB989A2306A058200CBE832 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = 4BKL74V4YU;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
-				MACOSX_DEPLOYMENT_TARGET = 27.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.rss.MedKit.MedKitTestsX;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sre.MedKitTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = NO;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MedKit.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/MedKit";
-				XROS_DEPLOYMENT_TARGET = 27.0;
 			};
 			name = Release;
 		};
@@ -615,20 +515,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BA310ADC306557D2006F7A1A /* Build configuration list for PBXNativeTarget "MedKitTests" */ = {
+		BAB989A0306A058200CBE832 /* Build configuration list for PBXNativeTarget "MedKitTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				BA310ADA306557D2006F7A1A /* Debug */,
-				BA310ADB306557D2006F7A1A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		BA310AE930655902006F7A1A /* Build configuration list for PBXNativeTarget "MedKitTestsX" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BA310AEA30655902006F7A1A /* Debug */,
-				BA310AEB30655902006F7A1A /* Release */,
+				BAB989A1306A058200CBE832 /* Debug */,
+				BAB989A2306A058200CBE832 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

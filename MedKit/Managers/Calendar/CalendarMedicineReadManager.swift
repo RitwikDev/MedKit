@@ -8,7 +8,7 @@
 import CoreData
 import Foundation
 
-class CalendarMedicineReadManager {
+class CalendarMedicineReadManager: CalendarMedicineReadManagerProtocol {
     static let shared: CalendarMedicineReadManager = .init()
     
     private let context: NSManagedObjectContext
@@ -38,4 +38,12 @@ class CalendarMedicineReadManager {
             doseLogs: doseLogs
         )
     }
+
+    #if DEBUG
+    /// Creates a fresh instance specifically for testing with an in-memory context.
+    /// Do not use in production code; use `.shared` instead.
+    static func createForTesting(context: NSManagedObjectContext) -> CalendarMedicineReadManager {
+        return CalendarMedicineReadManager(context: context)
+    }
+    #endif
 }

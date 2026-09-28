@@ -44,9 +44,14 @@ class MedicineEditorViewModel {
     
     private var maxFileSizeInBytes: Int { 5 * 1024 * 1024 }
 
+    private let notificationManager: NotificationManagerProtocol
+    private let writeManager: MedicineWriteManagerProtocol
+
     /// Initialises the editor. Pass an existing medicine to edit, or nil to create a new one.
-    init(medicine: Medicine = .init()) {
+    init(medicine: Medicine = .init(), notificationManager: NotificationManagerProtocol = NotificationManager.shared, writeManager: MedicineWriteManagerProtocol = MedicineWriteManager.shared) {
         self.medicine = medicine
+        self.notificationManager = notificationManager
+        self.writeManager = writeManager
     }
 
     // MARK: - Ingredient Management
@@ -287,7 +292,7 @@ class MedicineEditorViewModel {
             }
             
             clearExistingNotifications(for: medicine)
-            try NotificationManager.shared.scheduleInitialNotification(for: medicine)
+            try notificationManager.scheduleInitialNotification(for: medicine)
             
             // Populate shopping list if within 7 days
             if ShoppingListPopulationHelper.shouldPopulate(stockEndDate: medicine.stock?.endDate, expiryDate: medicine.expiryDate, stockQuantity: medicine.stock?.quantity) {
@@ -296,7 +301,7 @@ class MedicineEditorViewModel {
                 medicine.isOnShoppingList = false
             }
             
-            try MedicineWriteManager.shared.save(medicine)
+            try writeManager.save(medicine)
         } catch {
             errorMessage = error.localizedDescription
             throw error
@@ -316,7 +321,7 @@ class MedicineEditorViewModel {
     
     func shareMedicine() async -> ShareContext? {
         do {
-            let data = try await MedicineWriteManager.shared.fetchOrCreateShare(for: medicine)
+            let data = try await writeManager.fetchOrCreateShare(for: medicine)
             
             return ShareContext(share: data.0, container: data.1)
         } catch {
@@ -333,6 +338,6 @@ class MedicineEditorViewModel {
             medicine.getNotificationIdentifier(for: reminder.id)
         }
         
-        NotificationManager.shared.removePendingNotificationRequests(withIdentifiers: identifiersToCancel)
+        notificationManager.removePendingNotificationRequests(withIdentifiers: identifiersToCancel)
     }
 }

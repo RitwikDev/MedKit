@@ -64,24 +64,8 @@ struct PhotoPreviewView: View {
             }
             
             ToolbarItem(placement: .confirmationAction) {
-                Menu {
-                    Button("Analyse") {
-                        geminiManager.analyseImage(photo)
-                    }
-                                        
-                    Menu {
-                        Button("Analyse") {
-                            geminiManager.analyseImage(photo, isMock: true)
-                        }
-                        
-                        Button("Fail") {
-                            geminiManager.analyseImage(photo, isMock: true, shouldFail: true)
-                        }
-                    } label: {
-                        Text("Mock")
-                    }
-                } label: {
-                    Label("Analysis Menu", systemImage: "ellipsis")
+                Button("Analyse") {
+                    geminiManager.analyseImage(photo)
                 }
                 .disabled(shouldDisableView)
             }
@@ -109,7 +93,7 @@ struct PhotoPreviewView: View {
     NavigationStack {
         PhotoPreviewView(
             cameraService: CameraService(),
-            photo: UIImage(named: "cat")!
+            photo: UIImage()
         ) {
             print("Dismiss")
         }

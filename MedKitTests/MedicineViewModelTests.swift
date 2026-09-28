@@ -2,14 +2,45 @@ import Testing
 import Foundation
 @testable import MedKit
 
+struct MVMMocks {
+    class MockMedicineListItemManager: MedicineListItemManagerProtocol {
+        var mockedList: [MedicineListItemModel] = []
+        var updateStockQuantityCalled = false
+        
+        func fetchMedicineList(sortOn: MedicineListSortOptionsEnum) throws -> [MedicineListItemModel] {
+            return mockedList
+        }
+        
+        func updateStockQuantity(medicineId: UUID, quantity: Float, dosage: DosageModel?) {
+            updateStockQuantityCalled = true
+        }
+    }
+    
+    class MockMedicineReadManager: MedicineReadManagerProtocol {
+        var fetchShoppingListMock: [Medicine] = []
+        var fetchByIdMock: Medicine? = nil
+        var fetchByIdCalled = false
+        
+        func fetchShoppingList() throws -> [Medicine] {
+            return fetchShoppingListMock
+        }
+        
+        func fetchById(_ id: UUID) throws -> Medicine {
+            fetchByIdCalled = true
+            if let mock = fetchByIdMock { return mock }
+            throw NSError(domain: "MockError", code: 404)
+        }
+    }
+}
+
 @Suite
 @MainActor
 struct MedicineViewModelTests {
     
     @Test
     func fetchAllMedicines_success() {
-        let mockListManager = Mocks.MockMedicineListItemManager()
-        let mockReadManager = Mocks.MockMedicineReadManager()
+        let mockListManager = MVMMocks.MockMedicineListItemManager()
+        let mockReadManager = MVMMocks.MockMedicineReadManager()
         
         let expectedItem = MedicineListItemModel(
             id: UUID(),
@@ -19,7 +50,9 @@ struct MedicineViewModelTests {
             stock: nil,
             dosage: nil,
             expiryDate: nil,
-            tags: []
+            tags: [],
+            isOnShoppingList: false,
+            isShared: false
         )
         mockListManager.mockedList = [expectedItem]
         
@@ -28,15 +61,14 @@ struct MedicineViewModelTests {
             readManager: mockReadManager
         )
         
-        // Wait since init triggers it asynchronously or synchronously? The init calls fetchAllMedicines() synchronously.
         #expect(viewModel.medicines.count == 1)
         #expect(viewModel.medicines.first?.name == "Paracetamol")
     }
     
     @Test
     func getById_success() {
-        let mockListManager = Mocks.MockMedicineListItemManager()
-        let mockReadManager = Mocks.MockMedicineReadManager()
+        let mockListManager = MVMMocks.MockMedicineListItemManager()
+        let mockReadManager = MVMMocks.MockMedicineReadManager()
         
         let medicineId = UUID()
         let expectedMedicine = Medicine(
@@ -68,8 +100,8 @@ struct MedicineViewModelTests {
     
     @Test
     func updateStockQuantity() {
-        let mockListManager = Mocks.MockMedicineListItemManager()
-        let mockReadManager = Mocks.MockMedicineReadManager()
+        let mockListManager = MVMMocks.MockMedicineListItemManager()
+        let mockReadManager = MVMMocks.MockMedicineReadManager()
         
         let viewModel = MedicineViewModel(
             listItemManager: mockListManager,

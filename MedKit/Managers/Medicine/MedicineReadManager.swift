@@ -8,11 +8,6 @@
 import CoreData
 import Foundation
 
-protocol MedicineReadManagerProtocol {
-    func fetchShoppingList() throws -> [Medicine]
-    func fetchById(_ id: UUID) throws -> Medicine
-}
-
 class MedicineReadManager: MedicineReadManagerProtocol {
     static let shared: MedicineReadManager = .init()
     
@@ -131,4 +126,12 @@ class MedicineReadManager: MedicineReadManagerProtocol {
             doseLogs: doseLogs
         )
     }
+
+    #if DEBUG
+    /// Creates a fresh instance specifically for testing with an in-memory context.
+    /// Do not use in production code; use `.shared` instead.
+    static func createForTesting(context: NSManagedObjectContext) -> MedicineReadManager {
+        return MedicineReadManager(context: context)
+    }
+    #endif
 }

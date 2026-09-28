@@ -9,7 +9,7 @@ import CoreData
 import Foundation
 import CloudKit
 
-class GlobalDataManager {
+class GlobalDataManager: GlobalDataManagerProtocol {
     /// The shared singleton instance.
     static let shared = GlobalDataManager()
     
@@ -288,4 +288,12 @@ class GlobalDataManager {
             return nil
         }
     }
+
+    #if DEBUG
+    /// Creates a fresh instance specifically for testing with an in-memory context.
+    /// Do not use in production code; use `.shared` instead.
+    static func createForTesting(context: NSManagedObjectContext) -> GlobalDataManager {
+        return GlobalDataManager(context: context)
+    }
+    #endif
 }

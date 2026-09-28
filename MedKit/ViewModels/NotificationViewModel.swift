@@ -2,8 +2,6 @@
 //  NotificationViewModel.swift
 //  MedKit
 //
-//  Created by Rishik Dev on 21/08/26.
-//
 
 import Foundation
 import UserNotifications
@@ -11,10 +9,10 @@ import UserNotifications
 @Observable
 @MainActor
 class NotificationViewModel {
-    let notificationManager: NotificationManager
+    let notificationManager: NotificationManagerProtocol
     var notificationRequests: [UNNotificationRequest] = []
     
-    init(notificationManager: NotificationManager) {
+    init(notificationManager: NotificationManagerProtocol = NotificationManager.shared) {
         self.notificationManager = notificationManager
     }
     

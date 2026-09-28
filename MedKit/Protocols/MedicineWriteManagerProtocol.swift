@@ -2,12 +2,10 @@
 //  MedicineWriteManagerProtocol.swift
 //  MedKit
 //
-//  Created by Auto.
+//  Created by Rishik Dev on 27/09/26.
 //
 
 import CloudKit
-import CoreData
-import Foundation
 
 protocol MedicineWriteManagerProtocol {
     func save(_ medicine: Medicine) throws

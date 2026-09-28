@@ -32,12 +32,30 @@ class CalendarViewModel {
     var medicines: [CalendarMedicine] = []
     
     private let calendar = Calendar.current
-    private let scheduleService = ScheduleGenerationService() // Inject the background actor
+    
+    private let globalDataManager: GlobalDataManagerProtocol
+    private let calendarMedicineReadManager: CalendarMedicineReadManagerProtocol
+    private let medicineReadManager: MedicineReadManagerProtocol
+    private let medicineWriteManager: MedicineWriteManagerProtocol
+    private let scheduleService: any ScheduleGenerationServiceProtocol
+    
     private var eventGenerationTask: Task<Void, Never>?
+    
+    init(globalDataManager: GlobalDataManagerProtocol = GlobalDataManager.shared,
+         calendarMedicineReadManager: CalendarMedicineReadManagerProtocol = CalendarMedicineReadManager.shared,
+         medicineReadManager: MedicineReadManagerProtocol = MedicineReadManager.shared,
+         medicineWriteManager: MedicineWriteManagerProtocol = MedicineWriteManager.shared,
+         scheduleService: any ScheduleGenerationServiceProtocol = ScheduleGenerationService()) {
+        self.globalDataManager = globalDataManager
+        self.calendarMedicineReadManager = calendarMedicineReadManager
+        self.medicineReadManager = medicineReadManager
+        self.medicineWriteManager = medicineWriteManager
+        self.scheduleService = scheduleService
+    }
     
     private func fetchRecordName() {
         Task {
-            let name = await GlobalDataManager.shared.fetchCurrentRecordName() ?? "You"
+            let name = await globalDataManager.fetchCurrentRecordName() ?? "You"
             await MainActor.run {
                 self.currentRecordName = name
                 self.triggerEventGeneration()
@@ -48,7 +66,7 @@ class CalendarViewModel {
     public func initialiseMedicines() {
         fetchRecordName()
         do {
-            try medicines = CalendarMedicineReadManager.shared.getMedicines()
+            try medicines = calendarMedicineReadManager.getMedicines()
             triggerEventGeneration()
         } catch {
             print(error)
@@ -107,7 +125,7 @@ class CalendarViewModel {
         Task {
             do {
                 let localID = self.currentRecordName
-                let medicine = try MedicineReadManager.shared.fetchById(medicineID)
+                let medicine = try medicineReadManager.fetchById(medicineID)
                 var updatedLogs = medicine.doseLogs
                 
                 if let idx = updatedLogs.firstIndex(where: { 
@@ -127,7 +145,7 @@ class CalendarViewModel {
                 var mutableMedicine = medicine
                 mutableMedicine.doseLogs = updatedLogs
                 
-                try MedicineWriteManager.shared.save(mutableMedicine)
+                try medicineWriteManager.save(mutableMedicine)
                 
                 await MainActor.run {
                     self.initialiseMedicines() // Reload data and regenerate events

@@ -36,7 +36,17 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "BA310AE230655902006F7A1A"
-               BuildableName = "MedKitTestsX.xctest"
+               BuildableName = "MedKitTests.xctest"
+               ReferencedContainer = "container:MedKit.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "BAB98999306A058200CBE832"
+               BuildableName = "MedKitTests.xctest"
                ReferencedContainer = "container:MedKit.xcodeproj">
             </BuildableReference>
          </TestableReference>

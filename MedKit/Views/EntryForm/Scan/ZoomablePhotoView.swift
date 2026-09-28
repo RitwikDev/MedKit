@@ -153,5 +153,5 @@ public class PhotoScrollView: UIScrollView {
 }
 
 #Preview {
-    ZoomablePhotoView(photo: UIImage(named: "cat")!)
+    ZoomablePhotoView(photo: UIImage())
 }

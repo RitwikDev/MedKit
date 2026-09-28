@@ -30,6 +30,9 @@ public final class PersistenceController {
         
         if inMemory {
             defaultDescription.url = URL(fileURLWithPath: "/dev/null")
+            defaultDescription.type = NSInMemoryStoreType
+            defaultDescription.cloudKitContainerOptions = nil
+            container.persistentStoreDescriptions = [defaultDescription]
         } else {
             let storesURL = defaultDescription.url!.deletingLastPathComponent()
             let containerIdentifier = "iCloud.com.rss.MedKit"
@@ -67,4 +70,12 @@ public final class PersistenceController {
         container.viewContext.automaticallyMergesChangesFromParent = true
         container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
     }
+    
+#if DEBUG
+    /// Creates a fresh instance specifically for testing with an in-memory context.
+    /// Do not use in production code; use `.shared` instead.
+    public static func createForTesting(inMemory: Bool = true) -> PersistenceController {
+        return PersistenceController(inMemory: inMemory)
+    }
+#endif
 }

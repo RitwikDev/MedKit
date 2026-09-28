@@ -5,11 +5,10 @@
 //  Created by Ritwik Dev on 03/08/26.
 //
 
-
 import Foundation
 import SwiftUI
 
-actor ScheduleGenerationService {
+actor ScheduleGenerationService: ScheduleGenerationServiceProtocol {
     private let calendar = Calendar.current
     
     func generateEvents(for targetMonth: Date, medicines: [CalendarMedicine], currentRecordName: String) -> [Date: [CalendarEvent]] {

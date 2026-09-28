@@ -12,7 +12,7 @@ import Foundation
 /// A singleton manager responsible for all database transactions.
 /// It translates pure Swift structs into Core Data entities and vice versa,
 /// ensuring the UI and ViewModels remain completely decoupled from the database framework.
-class MedicineWriteManager {
+class MedicineWriteManager: MedicineWriteManagerProtocol {
     
     /// The shared singleton instance.
     static let shared = MedicineWriteManager()
@@ -371,4 +371,11 @@ class MedicineWriteManager {
         }
     }
 
+    #if DEBUG
+    /// Creates a fresh instance specifically for testing with an in-memory context.
+    /// Do not use in production code; use `.shared` instead.
+    static func createForTesting(context: NSManagedObjectContext) -> MedicineWriteManager {
+        return MedicineWriteManager(context: context)
+    }
+    #endif
 }

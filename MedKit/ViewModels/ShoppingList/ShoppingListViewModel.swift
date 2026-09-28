@@ -10,9 +10,18 @@ import Observation
 class ShoppingListViewModel {
     var items: [Medicine] = []
     
+    private let readManager: MedicineReadManagerProtocol
+    private let writeManager: MedicineWriteManagerProtocol
+
+    init(readManager: MedicineReadManagerProtocol = MedicineReadManager.shared,
+         writeManager: MedicineWriteManagerProtocol = MedicineWriteManager.shared) {
+        self.readManager = readManager
+        self.writeManager = writeManager
+    }
+    
     func fetchShoppingList() {
         do {
-            items = try MedicineReadManager.shared.fetchShoppingList()
+            items = try readManager.fetchShoppingList()
         } catch {
             print("Failed to fetch shopping list")
         }
@@ -23,7 +32,7 @@ class ShoppingListViewModel {
             var medicine = items[index]
             medicine.isOnShoppingList = false
             do {
-                try MedicineWriteManager.shared.save(medicine)
+                try writeManager.save(medicine)
             } catch {
                 print("Failed to remove item")
             }
@@ -35,7 +44,7 @@ class ShoppingListViewModel {
         for var medicine in items {
             medicine.isOnShoppingList = false
             do {
-                try MedicineWriteManager.shared.save(medicine)
+                try writeManager.save(medicine)
             } catch {
                 print("Failed to clear shopping list")
             }
