@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EmptyEntryView: View {
-    let text: String
+    let text: LocalizedStringKey
     
     var body: some View {
         Text(text)

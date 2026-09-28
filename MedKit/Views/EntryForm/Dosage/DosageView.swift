@@ -162,7 +162,7 @@ struct DosageView: View {
                    selection: $draftDosage.repeatType.animation()
             ) {
                 ForEach(RepeatType.allCases) { repeatType in
-                    Text(repeatType.rawValue)
+                    Text(repeatType.localizedName)
                         .tag(repeatType)
                 }
             }
@@ -212,7 +212,7 @@ struct DosageView: View {
                     }
                 } label: {
                     HStack {
-                        Text(day.rawValue)
+                        Text(day.localizedName)
                         
                         if (draftDosage.selectedDays.contains(day)) {
                             Spacer()
@@ -236,7 +236,7 @@ struct DosageView: View {
         Section("Day") {
             Picker("Remind On", selection: $selectedDay) {
                 ForEach(Day.allCases) { day in
-                    Text(day.rawValue)
+                    Text(day.localizedName)
                         .tag(day)
                 }
             }

@@ -1,0 +1,35 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "CFBundleName": {
+      "comment": "Bundle name",
+      "extractionState": "extracted_with_value",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "MedKit"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MedKit"
+          }
+        }
+      }
+    },
+    "NSCameraUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "दवा के पैकेजों की तस्वीरें लेने के लिए कैमरे और फ़ोटो तक पहुंच की आवश्यकता है। प्रमुख उत्पाद विवरण निकालने के लिए एआई द्वारा छवि का विश्लेषण किया जाएगा।"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

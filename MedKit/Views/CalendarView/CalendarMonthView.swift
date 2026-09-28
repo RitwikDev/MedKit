@@ -12,7 +12,7 @@ struct CalendarMonthView: View {
     
     let date: Date
     
-    private let daysOfWeek = ["S", "M", "T", "W", "T", "F", "S"]
+    private let daysOfWeek = Calendar.current.veryShortWeekdaySymbols
     private let columns = Array(repeating: GridItem(.flexible()), count: 7)
     
     var body: some View {

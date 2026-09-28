@@ -45,9 +45,9 @@ struct CustomFieldDefinitionFormView: View {
                     }
                 )
                 
-                Picker("Type", selection: $type) {
+                Picker("Field Type", selection: $type) {
                     ForEach(CustomFieldDataType.allCases) { type in
-                        Text(type.rawValue)
+                        Text(type.localizedName)
                     }
                 }
                 .pickerStyle(.inline)

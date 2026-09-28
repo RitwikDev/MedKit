@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct DatePickerView: View {
-    let label: String
+    let label: LocalizedStringKey
     @Binding var date: Date?
     
     @State private var showDeleteConfirmation: Bool = false

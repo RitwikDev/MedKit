@@ -13,8 +13,8 @@ struct DatesSectionView: View {
     
     var body: some View {
         Section("Dates") {
-            DatePickerView(label: "\(manufacturedDate == nil ? "Add Manufacture Date" : "Manufacture Date")", date: $manufacturedDate)
-            DatePickerView(label: "\(manufacturedDate == nil ? "Add Expiry Date" : "Expiry Date")", date: $expiryDate)
+            DatePickerView(label: manufacturedDate == nil ? "Add Manufacture Date" : "Manufacture Date", date: $manufacturedDate)
+            DatePickerView(label: expiryDate == nil ? "Add Expiry Date" : "Expiry Date", date: $expiryDate)
         }
     }
 }

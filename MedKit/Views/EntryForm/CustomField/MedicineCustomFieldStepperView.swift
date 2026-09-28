@@ -37,14 +37,14 @@ struct MedicineCustomFieldStepperView: View {
             onComplete: handleCompleted
         ) {
             AddCustomFieldsView(selectedCustomField: $selectedCustomField, medicineEditorViewModel: medicineEditorViewModel)
-                .stepItem(index: StepsEnum.chooseField.rawValue, title: "Choose Field")
+                .stepItem(index: StepsEnum.chooseField.rawValue, title: String(localized: "Choose Field"))
             
             MedicineCustomFieldFormView(
                 medicineEditorViewModel: bindableViewModel,
                 customFieldDefinition: selectedCustomField,
                 customFieldValue: $customFieldValue,
             )
-            .stepItem(index: StepsEnum.addValues.rawValue, title: "Add Value")
+            .stepItem(index: StepsEnum.addValues.rawValue, title: String(localized: "Add Value"))
         }
         .navigationTitle("Add Field")
         .navigationBarTitleDisplayMode(.inline)

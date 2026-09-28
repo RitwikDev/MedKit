@@ -27,28 +27,28 @@ class ShoppingListPopulationHelper {
     
     static func getReason(stockEndDate: Date?, expiryDate: Date?, stockQuantity: Float? = nil) -> [String] {
         let calendar = Calendar.current
-        guard let cutoffDate = calendar.date(byAdding: .day, value: 7, to: Date()) else { return ["Added to list"] }
+        guard let cutoffDate = calendar.date(byAdding: .day, value: 7, to: Date()) else { return [(String(localized: "Added to list"))] }
         
         let isStockout = (stockQuantity != nil && stockQuantity! <= 0)
         let stockEmpty = isStockout || (stockEndDate != nil && stockEndDate != .distantFuture && stockEndDate! <= cutoffDate)
-        let stockReason = isStockout ? "Stockout" : "Stock running low"
+        let stockReason = isStockout ? String(localized: "Stockout") : String(localized: "Stock running low")
         let expiring = (expiryDate != nil && expiryDate! <= cutoffDate)
         
         if stockEmpty && expiring {
             if let expiryDate, expiryDate < .now {
-                return [stockReason, "Expired"]
+                return [stockReason, String(localized: "Expired")]
             }
             
-            return [stockReason, "Expiring soon"]
+            return [stockReason, String(localized: "Expiring soon")]
         } else if stockEmpty {
             return [stockReason]
         } else if expiring {
             if let expiryDate, expiryDate < .now {
-                return ["Expired"]
+                return [String(localized: "Expired")]
             }
-            return ["Expiring soon"]
+            return [String(localized: "Expiring soon")]
         } else {
-            return ["Manually added"]
+            return [String(localized: "Manually added")]
         }
     }
 }

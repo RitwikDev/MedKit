@@ -87,13 +87,13 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
                 
                 // Prepare new notification content
                 let content = UNMutableNotificationContent()
-                content.title = "Time to Take \(medicine.name)."
+                content.title = String(localized: "Time to take \(medicine.name)")
                 
-                var bodyText = "Please Take Your Medication."
+                var bodyText = String(localized: "Please Take Your Medication.")
                 
                 if let dosage = medicine.dosage?.dosageQuantity {
                     let unit = medicine.stock?.unit ?? ""
-                    bodyText = "Take \(dosage) \(unit)."
+                    bodyText = String(localized: "Take \(dosage) \(unit).")
                 }
                 
                 content.body = bodyText
@@ -215,8 +215,8 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             if let targetDate = calendar.date(byAdding: .day, value: -7, to: stockOutDate), 
                let triggerDate = injectTime(targetDate), triggerDate > now {
                 let content = UNMutableNotificationContent()
-                content.title = "\(medicine.name) is running low"
-                content.body = "You will run out of \(medicine.name) in about a week."
+                content.title = String(localized: "\(medicine.name) is running low")
+                content.body = String(localized: "You will run out of \(medicine.name) in about a week.")
                 content.sound = .default
                 content.categoryIdentifier = inventoryCategoryIdentifier
                 content.userInfo = ["medicineId": baseId, "medicineName": medicine.name]
@@ -230,8 +230,8 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
             if let targetDate = calendar.date(byAdding: .day, value: -7, to: expiryDate),
                let triggerDate = injectTime(targetDate), triggerDate > now {
                 let content = UNMutableNotificationContent()
-                content.title = "\(medicine.name) is expiring soon"
-                content.body = "\(medicine.name) expires in one week."
+                content.title = String(localized: "\(medicine.name) is expiring soon")
+                content.body = String(localized: "\(medicine.name) expires in one week.")
                 content.sound = .default
                 content.categoryIdentifier = inventoryCategoryIdentifier
                 content.userInfo = ["medicineId": baseId, "medicineName": medicine.name]
@@ -418,7 +418,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
         guard let finalDate = calendar.date(from: nextComponents) else { return }
         
         let content = UNMutableNotificationContent()
-        content.title = "Time to take \(entity.name ?? "your medicine")"
+        content.title = String(localized: "Time to take \(entity.name ?? "your medicine")")
         content.sound = .default
         content.categoryIdentifier = categoryIdentifier
         
@@ -459,8 +459,8 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate {
     }
     private func scheduleImmediateShoppingListNotification(for medicine: Medicine) async {
         let content = UNMutableNotificationContent()
-        content.title = "Stock is Running Low"
-        content.body = "Added \(medicine.name) to your shopping list."
+        content.title = String(localized: "Stock is running low")
+        content.body = String(localized: "Added \(medicine.name) to your shopping list.")
         content.sound = .default
         
         content.userInfo = ["medicineId": medicine.id.uuidString, "medicineName": medicine.name]

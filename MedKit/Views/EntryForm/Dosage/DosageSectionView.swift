@@ -21,7 +21,7 @@ struct DosageSectionView: View {
             content: {
                 if let dosage = dosage,
                    dosage.repeatType != .never {
-                    Button(dosage.repeatType.rawValue) {
+                    Button(dosage.repeatType.localizedName) {
                         router.navigate(to: .medicineDosage(for: dosage, medicineEditorViewModel: medicineEditorViewModel))
                     }
                     .foregroundStyle(.primary)

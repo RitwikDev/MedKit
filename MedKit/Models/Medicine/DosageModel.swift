@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 struct DosageModel: Identifiable, Equatable, Hashable {
     let id: UUID
@@ -82,6 +83,10 @@ enum RepeatType: String, CaseIterable, Identifiable, Codable {
     case biannually = "Biannually"
     case annually = "Annually"
     case custom = "Custom"
+    
+    var localizedName: LocalizedStringKey {
+        return LocalizedStringKey(self.rawValue)
+    }
 }
 
 enum Day: String, CaseIterable, Identifiable, Codable {
@@ -108,16 +113,20 @@ enum Day: String, CaseIterable, Identifiable, Codable {
     }
     
     var weekdayNumber: Int {
-            switch self {
-            case .sunday: return 1
-            case .monday: return 2
-            case .tuesday: return 3
-            case .wednesday: return 4
-            case .thursday: return 5
-            case .friday: return 6
-            case .saturday: return 7
-            }
+        switch self {
+        case .sunday: return 1
+        case .monday: return 2
+        case .tuesday: return 3
+        case .wednesday: return 4
+        case .thursday: return 5
+        case .friday: return 6
+        case .saturday: return 7
         }
+    }
+    
+    var localizedName: LocalizedStringKey {
+        return LocalizedStringKey(self.rawValue)
+    }
 }
 
 struct ReminderTime: Identifiable, Equatable, Hashable, Codable {

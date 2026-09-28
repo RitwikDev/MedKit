@@ -12,10 +12,10 @@ import NotificationCenter
 struct MedicineListView: View {
     @Environment(\.colorScheme) private var colourScheme
     @Environment(GlobalDataViewModel.self) private var globalDataViewModel
+    @Environment(MedicineViewModel.self) private var medicineViewModel
     @Environment(NavigationRouter.self) private var router
     @Environment(NotificationViewModel.self) private var notificationViewModel
     
-    @State private var medicineViewModel: MedicineViewModel = .init()
     @State private var tabBarVisibility: Visibility = .automatic
     @State private var searchQuery: String = ""
     @State private var selectedTags: Set<UUID> = []
@@ -145,7 +145,7 @@ struct MedicineListView: View {
                 isPresented: $isControlsSheetOpen,
                 selectedTags: $selectedTags,
                 showOnlyExpiringSoon: $showOnlyExpiringSoon,
-                sortSelection: $sortSelection,
+                sortSelection: $sortSelection
             )
             .interactiveDismissDisabled()
         }

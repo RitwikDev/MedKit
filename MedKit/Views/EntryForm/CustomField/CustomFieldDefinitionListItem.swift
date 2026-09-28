@@ -14,7 +14,7 @@ struct CustomFieldDefinitionListItem: View {
         VStack(alignment: .leading) {
             Text(self.customField.label)
             
-            Text("Type: \(self.customField.dataType.rawValue)")
+            Text("Field Type") + Text(": ") + Text(self.customField.dataType.localizedName)
                 .foregroundStyle(.secondary)
                 .font(.subheadline)
         }

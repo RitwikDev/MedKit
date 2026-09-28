@@ -25,7 +25,7 @@ actor ScheduleGenerationService {
         for medicine in medicines {
             // 1. Expiry Events
             if let expiry = medicine.expiryDate, calendar.isDate(expiry, equalTo: targetMonth, toGranularity: .month) {
-                let event = CalendarEvent(date: expiry, title: "Expiring: \(medicine.name)", color: .red, eventType: .expiry)
+                let event = CalendarEvent(date: expiry, title: String(localized: "Expiring: \(medicine.name)"), color: .red, eventType: .expiry)
                 let dateKey = calendar.startOfDay(for: expiry)
                 computedEvents[dateKey, default: []].append(event)
             }
@@ -33,7 +33,7 @@ actor ScheduleGenerationService {
             // 2. Stock End Events
             let stockEndDate = medicine.stock?.endDate ?? .distantFuture
             if calendar.isDate(stockEndDate, equalTo: targetMonth, toGranularity: .month) {
-                let event = CalendarEvent(date: stockEndDate, title: "Stockout: \(medicine.name)", color: .red, eventType: .stockout)
+                let event = CalendarEvent(date: stockEndDate, title: String(localized: "Stockout: \(medicine.name)"), color: .red, eventType: .stockout)
                 let dateKey = calendar.startOfDay(for: stockEndDate)
                 computedEvents[dateKey, default: []].append(event)
             }
@@ -97,7 +97,7 @@ actor ScheduleGenerationService {
                     ($0.takenByUserName == currentRecordName || $0.takenByUserName == "You" || currentRecordName == "You")
                 })
                 
-                let title = isTaken ? "\(medicine.name) taken" : "Take \(medicine.name)"
+                let title = isTaken ? String(localized: "\(medicine.name) taken") : String(localized: "Take \(medicine.name)")
                 let color: SwiftUI.Color = isTaken ? .green : .blue
                 
                 let event = CalendarEvent(

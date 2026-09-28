@@ -72,7 +72,7 @@ struct MedicineFormView: View {
                 }
             }
         }
-        .alert("Failed to save \(isNewMedicine ? "medicine" : medicine.name)", isPresented: $showAlert) {
+        .alert(isNewMedicine ? Text("Failed to save medicine") : Text("Failed to save \(medicine.name)"), isPresented: $showAlert) {
             Button("Dismiss", role: .cancel) { showAlert = false }
         } message: {
             if let errorMessage = medicineEditorViewModel.errorMessage {
@@ -90,7 +90,7 @@ struct MedicineFormView: View {
                 .presentationDetents([.fraction(0.25)])
         }
         .scrollDismissesKeyboard(.interactively)
-        .navigationTitle("\(isNewMedicine ? "New Medicine" :  medicine.name)")
+        .navigationTitle(isNewMedicine ? Text("New Medicine") : Text(medicine.name))
     }
     
     private var shareSheet: some View {

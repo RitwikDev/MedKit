@@ -18,7 +18,7 @@ struct MedicineListSortControlsView: View {
             
             Picker("Select", selection: $selectedOption) {
                 ForEach(MedicineListSortOptionsEnum.allCases) { option in
-                    Text(option.rawValue).tag(option.rawValue)
+                    Text(option.localizedName).tag(option.rawValue)
                 }
             }
             .pickerStyle(.wheel)

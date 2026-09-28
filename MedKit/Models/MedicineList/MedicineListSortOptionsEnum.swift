@@ -17,3 +17,10 @@ enum MedicineListSortOptionsEnum: String, Codable, CaseIterable, Identifiable {
     
     var id: Self { self }
 }
+import SwiftUI
+
+extension MedicineListSortOptionsEnum {
+    var localizedName: LocalizedStringKey {
+        return LocalizedStringKey(self.rawValue)
+    }
+}
