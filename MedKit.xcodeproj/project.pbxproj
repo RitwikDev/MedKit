@@ -392,13 +392,14 @@
 				CODE_SIGN_ENTITLEMENTS = MedKit/MedKit.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_ASSET_PATHS = "\"MedKit/Preview Content\"";
 				DEVELOPMENT_TEAM = 4BKL74V4YU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MedKit/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Camera and photos access is needed to take photos of medicine packages. The image will be analysed by AI to extract key product details.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "MedKit requires camera access to take pictures of medicine packages. The image will be analyzed by AI to automatically extract key product details.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -431,7 +432,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = MedKit/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
-				INFOPLIST_KEY_NSCameraUsageDescription = "Camera and photos access is needed to take photos of medicine packages. The image will be analysed by AI to extract key product details.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "MedKit requires camera access to take pictures of medicine packages. The image will be analyzed by AI to automatically extract key product details.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
