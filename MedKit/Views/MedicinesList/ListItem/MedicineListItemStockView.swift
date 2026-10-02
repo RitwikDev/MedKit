@@ -18,7 +18,7 @@ struct MedicineListItemStockView: View {
         HStack {
             decrementButton
             
-            Text("\(String(format: "%.2f", stock.quantity)) \(stock.unit)")
+            Text("\(String(stock.quantity.formatted(.number))) \(stock.unit)")
                 .frame(maxWidth: .infinity)
                 .fontWeight(.heavy)
             

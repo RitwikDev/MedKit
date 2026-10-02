@@ -39,7 +39,7 @@ struct MedicineListItemView: View {
             
             if let strengthAmount = medicine.strengthAmount,
                 let strengthUnit = medicine.strengthUnit {
-                Text("\(String(format: "%.3f", strengthAmount)) \(strengthUnit)")
+                Text("\(strengthAmount.formatted(.number)) \(strengthUnit)")
             }
             
             MedicineListItemExpiryView(medicine: medicine)

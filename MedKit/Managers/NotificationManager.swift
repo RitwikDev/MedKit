@@ -44,13 +44,13 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate, Notificat
     func registerCategories() {
         let takenAction = UNNotificationAction(
             identifier: actionTaken,
-            title: "Mark as Taken",
+            title: String(localized: "Mark as Taken"),
             options: []
         )
         
         let remindAction = UNNotificationAction(
             identifier: actionRemind,
-            title: "Remind Me in 15 Minutes",
+            title: String(localized:"Remind Me in 15 Minutes"),
             options: []
         )
         
