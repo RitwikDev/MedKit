@@ -42,6 +42,8 @@ class MedicineStockEndDateCalculator
         var rawStockEndDate = nextDosageDate
         
         switch dosage.repeatType {
+        case .daily:
+            rawStockEndDate = calendar.date(byAdding: .day, value: jumpsRequired, to: nextDosageDate) ?? nextDosageDate
         case .never:
             // Since fullDaysCovered >= 1, they have enough for this single dose.
             return nil

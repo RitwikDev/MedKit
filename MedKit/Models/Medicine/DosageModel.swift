@@ -76,6 +76,7 @@ struct DosageModel: Identifiable, Equatable, Hashable {
 enum RepeatType: String, CaseIterable, Identifiable, Codable {
     var id: Self { self }
     case never = "Never"
+    case daily = "Daily"
     case selectDays = "Select Days"
     case fortnightly = "Fortnightly"
     case monthly = "Monthly"

@@ -31,6 +31,7 @@ class MedicineDosageHelper
             }
             
             switch dosage.repeatType {
+            case .daily: return baseOfDay
             case .custom: return nil // Handled above
             case .never: return nil
                 

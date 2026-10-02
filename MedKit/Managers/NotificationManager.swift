@@ -93,7 +93,8 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate, Notificat
                 
                 if let dosage = medicine.dosage?.dosageQuantity {
                     let unit = medicine.stock?.unit ?? ""
-                    bodyText = String(localized: "Take \(dosage) \(unit).")
+                    let formattedDosage = dosage.formatted(.number)
+                    bodyText = String(localized: "Take \(formattedDosage) \(unit).")
                 }
                 
                 content.body = bodyText
@@ -171,6 +172,12 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate, Notificat
                         let notificationIdentifier = "\(baseId)-\(reminder.id)-never"
                         
                         let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: false)
+                        let request = UNNotificationRequest(identifier: notificationIdentifier, content: content, trigger: trigger)
+                        try await centre.add(request)
+                    case .daily:
+                        let notificationIdentifier = "\(baseId)-\(reminder.id)-daily"
+                        
+                        let trigger = UNCalendarNotificationTrigger(dateMatching: triggerComponents, repeats: true)
                         let request = UNNotificationRequest(identifier: notificationIdentifier, content: content, trigger: trigger)
                         try await centre.add(request)
                     default:

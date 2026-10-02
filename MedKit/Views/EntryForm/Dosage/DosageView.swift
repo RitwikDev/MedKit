@@ -81,7 +81,7 @@ struct DosageView: View {
             if (draftDosage.selectedDays.isEmpty || draftDosage.startDate == nil || draftDosage.reminderTimes.isEmpty) {
                 return true
             }
-        case .fortnightly, .monthly, .quarterly, .biannually, .annually:
+        case .daily, .fortnightly, .monthly, .quarterly, .biannually, .annually:
             if (draftDosage.startDate == nil || draftDosage.reminderTimes.isEmpty) {
                 return true
             }
@@ -186,7 +186,7 @@ struct DosageView: View {
     @ViewBuilder
     private var conditionalSelectorSectionView: some View {
         switch draftDosage.repeatType {
-        case .never, .monthly, .quarterly, .biannually, .annually:
+        case .never, .daily, .monthly, .quarterly, .biannually, .annually:
             EmptyView()
         case .selectDays:
             selectDaysView

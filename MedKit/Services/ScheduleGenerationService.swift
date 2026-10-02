@@ -114,6 +114,8 @@ actor ScheduleGenerationService: ScheduleGenerationServiceProtocol {
     }
     private func isMedicineScheduled(on targetDate: Date, for dosage: DosageModel, startDate: Date) -> Bool {
         switch dosage.repeatType {
+        case .daily:
+            return true
         case .never:
             return targetDate == startDate
             
