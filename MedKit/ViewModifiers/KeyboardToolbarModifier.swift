@@ -7,18 +7,11 @@
 
 import SwiftUI
 
-struct KeyboardToolbarModifier<PrimaryContent: View>: ViewModifier {
-    @ViewBuilder let primaryContent: () -> PrimaryContent
-    
+struct KeyboardToolbarModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .toolbar {
-                ToolbarItemGroup(placement: .keyboard) {
-                    if (PrimaryContent.self != EmptyView.self) {
-                        Spacer()
-                        primaryContent()
-                    }
-                    Spacer()
+                ToolbarItem(placement: .keyboard) {
                     DismissKeyboardButtonView()
                 }
             }

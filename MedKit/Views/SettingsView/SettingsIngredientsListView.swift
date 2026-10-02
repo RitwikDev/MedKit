@@ -18,7 +18,6 @@ struct SettingsIngredientsListView: View {
             .onDelete(perform: globalDataViewModel.deleteIngredient)
         }
         .navigationTitle("All Ingredients")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

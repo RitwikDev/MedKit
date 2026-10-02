@@ -5,9 +5,11 @@
 //  Created by Rishik Dev on 25/06/26.
 //
 
+import CloudKit
+import CoreTransferable
 import Foundation
 
-extension Medicine {
+extension Medicine: Transferable {
     /// Converts an object of `CodableMedicineModel` to `Medicine`.
     /// - Parameter codableMedicineModel: Object of type `CodableMedicineModel` to be converted.
     init(fromCodable codableMedicineModel: CodableMedicineModel) {
@@ -34,5 +36,14 @@ extension Medicine {
         self.tags = []
         self.customFields = []
         self.doseLogs = []
+    }
+    
+    public static var transferRepresentation: some TransferRepresentation {
+        CKShareTransferRepresentation { (medicine: Medicine) in
+            return .prepareShare(container: .default()) {
+                let (share, _) = try await MedicineWriteManager.shared.fetchOrCreateShare(for: medicine)
+                return share
+            }
+        }
     }
 }

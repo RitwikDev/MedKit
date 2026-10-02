@@ -12,7 +12,7 @@ struct DismissKeyboardButtonView: View {
         Button {
             handleHideKeyboard()
         } label: {
-            Label("Hide keyboard", systemImage: "keyboard.chevron.compact.down")
+            Label("Dismiss keyboard", systemImage: "keyboard.chevron.compact.down")
                 .labelStyle(.iconOnly)
         }
     }

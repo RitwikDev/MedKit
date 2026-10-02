@@ -60,7 +60,6 @@ struct SettingsResetApplicationView: View {
             .disabled(globalDataViewModel.allCustomFields.isEmpty)
         }
         .navigationTitle("Reset Application")
-        .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(
             "Are you sure?",
             isPresented: $showDeleteConfirmationDialog,

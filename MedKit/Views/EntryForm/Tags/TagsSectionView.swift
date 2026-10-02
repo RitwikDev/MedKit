@@ -43,11 +43,6 @@ struct TagsSectionView: View {
     var body: some View {
         Section("Tags") {
             newTagInputView
-            
-//            if (showSuggestions) {
-//                tagHorizontalScrollView
-//            }
-            
             medicineTagsListView
         }
         .onChange(of: isTagTextFieldFocussed) { _, isFocused in

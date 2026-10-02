@@ -24,12 +24,16 @@ enum NavigationPathEnum: Hashable {
             CameraAndPhotoPickerView()
         case .medicineForm(let medicine):
             MedicineFormView(medicine: medicine)
+                .keyboardToolbar()
         case .ingredientForm(let ingredient, let medicineEditorViewModel):
             IngredientEntryView(ingredient: ingredient, medicineEditorViewModel: medicineEditorViewModel)
+                .keyboardToolbar()
         case .medicineDosage(let dosage, let medicineEditorViewModel):
             DosageView(dosage: dosage, medicineEditorViewModel: medicineEditorViewModel)
+                .keyboardToolbar()
         case .addCustomFields(let medicineEditorViewModel):
             MedicineCustomFieldStepperView(medicineEditorViewModel: medicineEditorViewModel)
+                .keyboardToolbar()
         case .documentPreview(let document):
             DocumentPreviewView(document: document)
                 .ignoresSafeArea()

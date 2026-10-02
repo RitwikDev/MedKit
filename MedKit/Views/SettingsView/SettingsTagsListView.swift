@@ -18,7 +18,6 @@ struct SettingsTagsListView: View {
             .onDelete(perform: globalDataViewModel.deleteTag)
         }
         .navigationTitle("All Tags")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 

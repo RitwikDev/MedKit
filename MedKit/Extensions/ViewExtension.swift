@@ -8,43 +8,12 @@
 import Foundation
 import SwiftUI
 
-struct SheetModifier: ViewModifier {
-    let title: String
-    
-    func body(content: Content) -> some View {
-        content
-            .interactiveDismissDisabled()
-            .scrollDismissesKeyboard(.interactively)
-            .navigationTitle(title)
-            .navigationBarTitleDisplayMode(.inline)
-    }
-}
-
-struct RoundedRectBackground: ViewModifier {
-    let colour: Color
-    
-    func body(content: Content) -> some View {
-        content
-            .background(colour)
-            .clipShape(.rect(cornerRadius: 10))
-    }
-}
-
 extension View {
-    func sheetModifier(titled title: String) -> some View {
-        modifier(SheetModifier(title: title))
+    func keyboardToolbar() -> some View {
+        self.modifier(KeyboardToolbarModifier())
     }
     
     func roundedRectBackground(colour: Color) -> some View {
-        modifier(RoundedRectBackground(colour: colour))
-    }
-    
-    @ViewBuilder
-    func clipRoundedRectangleIf(_ condition: Bool, cornerRadius: CGFloat) -> some View {
-        if condition {
-            self.clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-        } else {
-            self
-        }
+        modifier(RoundedRectBackgroundViewModifier(colour: colour))
     }
 }

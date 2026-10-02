@@ -13,12 +13,15 @@ struct MedicineFormView: View {
 
     @Environment(NavigationRouter.self) private var router
     @State private var medicineEditorViewModel: MedicineEditorViewModel
-    @State private var shareContext: ShareContext? = nil
     @State private var showShareSheet: Bool = false
     @State private var showAlert: Bool = false
     
-    var isNewMedicine: Bool {
+    private var isNewMedicine: Bool {
         medicine.name.trimmedIsEmpty
+    }
+    
+    private var navigationTitle: Text {
+        isNewMedicine ? Text("New Medicine") : Text(medicine.name)
     }
         
     init(medicine: Medicine) {
@@ -72,7 +75,10 @@ struct MedicineFormView: View {
                 }
             }
         }
-        .alert(isNewMedicine ? Text("Failed to save medicine") : Text("Failed to save \(medicine.name)"), isPresented: $showAlert) {
+        .alert(
+            isNewMedicine ? Text("Failed to save medicine") : Text("Failed to save \(medicine.name)"),
+            isPresented: $showAlert
+        ) {
             Button("Dismiss", role: .cancel) { showAlert = false }
         } message: {
             if let errorMessage = medicineEditorViewModel.errorMessage {
@@ -81,16 +87,12 @@ struct MedicineFormView: View {
                 Text("Something went wrong.")
             }
         }
-        .sheet(item: $shareContext) { context in
-            CloudSharingView(share: context.share, container: context.container)
-                .ignoresSafeArea()
-        }
         .sheet(isPresented: $showShareSheet) {
             shareSheet
                 .presentationDetents([.fraction(0.25)])
         }
         .scrollDismissesKeyboard(.interactively)
-        .navigationTitle(isNewMedicine ? Text("New Medicine") : Text(medicine.name))
+        .navigationTitle(navigationTitle)
     }
     
     private var shareSheet: some View {
@@ -102,11 +104,7 @@ struct MedicineFormView: View {
                 Label("Export as PDF", systemImage: "document.badge.arrow.up.fill")
             }
             
-            Button {
-                Task {
-                    shareContext = await medicineEditorViewModel.shareMedicine()
-                }
-            } label: {
+            ShareLink(item: medicine, preview: SharePreview("\(medicine.name)", image: Image(systemName: "person.crop.circle.badge.plus"))) {
                 Label("Share", systemImage: "person.crop.circle.badge.plus")
             }
         }

@@ -88,6 +88,7 @@ extension CameraAndPhotoPickerView {
                 .fontWeight(.bold)
         }
         .foregroundStyle(.red)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var cameraFeedLayer: some View {

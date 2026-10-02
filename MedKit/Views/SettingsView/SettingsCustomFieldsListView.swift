@@ -23,7 +23,6 @@ struct SettingsCustomFieldsListView: View {
             .onDelete(perform: globalDataViewModel.deleteCustomField)
         }
         .navigationTitle("All Custom Fields")
-        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
