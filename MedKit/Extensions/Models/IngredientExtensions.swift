@@ -10,7 +10,7 @@ import Foundation
 extension Ingredient {
     var fullName: String {
         if let amount = strengthAmount, let unit = strengthUnit {
-            return "\(name.trimmed) \(amount) \(unit.trimmed)"
+            return "\(name.trimmed) \(amount.formatted(.number)) \(unit.trimmed)"
         } else {
             return name
         }
