@@ -35,7 +35,7 @@ struct ShoppingListView: View {
                     List {
                         ForEach(viewModel.items) { medicine in
                             Button {
-                                router.navigate(to: .medicineForm(for: medicine))
+                                router.navigate(to: .medicineForm(for: medicine, isEditable: false))
                             } label: {
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(medicine.name)

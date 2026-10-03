@@ -17,6 +17,7 @@ struct CloudShareContext: Identifiable {
 
 struct MedicineFormView: View {
     let medicine: Medicine
+    let isEditable: Bool
 
     @Environment(NavigationRouter.self) private var router
     @State private var medicineEditorViewModel: MedicineEditorViewModel
@@ -32,53 +33,59 @@ struct MedicineFormView: View {
         isNewMedicine ? Text("New Medicine") : Text(medicine.name)
     }
         
-    init(medicine: Medicine) {
+    init(medicine: Medicine, isEditable: Bool = true) {
         self.medicine = medicine
+        self.isEditable = isEditable
         self._medicineEditorViewModel = State(initialValue: .init(medicine: medicine))
     }
     
     var body: some View {
         Form {
-            NameSectionView(name: $medicineEditorViewModel.medicine.name)
-            
-            StrengthSectionView(
-                amount: $medicineEditorViewModel.medicine.strengthAmount,
-                unit: $medicineEditorViewModel.medicine.strengthUnit
-            )
-            
-            DatesSectionView(
-                manufacturedDate: $medicineEditorViewModel.medicine.manufacturedDate,
-                expiryDate: $medicineEditorViewModel.medicine.expiryDate
-            )
-
-            CompositionSectionView()
-            
-            StockSectionView()
-            
-            DosageSectionView(dosage: $medicineEditorViewModel.medicine.dosage)
-
-            TagsSectionView()
-            
-            CustomFieldsSectionView()
+            Group {
+                NameSectionView(name: $medicineEditorViewModel.medicine.name)
+                
+                StrengthSectionView(
+                    amount: $medicineEditorViewModel.medicine.strengthAmount,
+                    unit: $medicineEditorViewModel.medicine.strengthUnit
+                )
+                
+                DatesSectionView(
+                    manufacturedDate: $medicineEditorViewModel.medicine.manufacturedDate,
+                    expiryDate: $medicineEditorViewModel.medicine.expiryDate
+                )
+                
+                CompositionSectionView()
+                
+                StockSectionView()
+                
+                DosageSectionView(dosage: $medicineEditorViewModel.medicine.dosage)
+                
+                TagsSectionView()
+                
+                CustomFieldsSectionView()
+            }
+            .disabled(!isEditable)
         }
         .environment(medicineEditorViewModel)
         .toolbar {
-            ToolbarItemGroup(placement: .topBarTrailing) {
-                if (!isNewMedicine) {
-                    Menu {
-                        shareSheet
-                    } label: {
-                        Label("Share", systemImage: "square.and.arrow.up")
+            if (isEditable) {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+                    if (!isNewMedicine) {
+                        Menu {
+                            shareSheet
+                        } label: {
+                            Label("Share", systemImage: "square.and.arrow.up")
+                        }
                     }
-                }
-                
-                Button("Save") {
-                    do {
-                        try medicineEditorViewModel.saveMedicine()
-                        router.popToRoot()
-                    } catch {
-                        showAlert.toggle()
-                        print(error)
+                    
+                    Button("Save") {
+                        do {
+                            try medicineEditorViewModel.saveMedicine()
+                            router.popToRoot()
+                        } catch {
+                            showAlert.toggle()
+                            print(error)
+                        }
                     }
                 }
             }
@@ -94,7 +101,8 @@ struct MedicineFormView: View {
             } else {
                 Text("Something went wrong.")
             }
-        }        .sheet(item: $activeShareContext) { context in
+        }
+        .sheet(item: $activeShareContext) { context in
             CloudSharingView(medicine: medicine, share: context.share, container: context.container)
         }
         .overlay {
