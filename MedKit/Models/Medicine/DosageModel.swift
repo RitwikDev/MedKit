@@ -85,8 +85,18 @@ enum RepeatType: String, CaseIterable, Identifiable, Codable {
     case annually = "Annually"
     case custom = "Custom"
     
-    var localizedName: LocalizedStringKey {
-        return LocalizedStringKey(self.rawValue)
+        var localizedName: LocalizedStringKey {
+        switch self {
+        case .never: return LocalizedStringKey("Never")
+        case .daily: return LocalizedStringKey("Daily")
+        case .selectDays: return LocalizedStringKey("Select Days")
+        case .fortnightly: return LocalizedStringKey("Fortnightly")
+        case .monthly: return LocalizedStringKey("Monthly")
+        case .quarterly: return LocalizedStringKey("Quarterly")
+        case .biannually: return LocalizedStringKey("Biannually")
+        case .annually: return LocalizedStringKey("Annually")
+        case .custom: return LocalizedStringKey("Custom")
+        }
     }
 }
 
@@ -125,8 +135,16 @@ enum Day: String, CaseIterable, Identifiable, Codable {
         }
     }
     
-    var localizedName: LocalizedStringKey {
-        return LocalizedStringKey(self.rawValue)
+        var localizedName: LocalizedStringKey {
+        switch self {
+        case .sunday: return LocalizedStringKey("Sunday")
+        case .monday: return LocalizedStringKey("Monday")
+        case .tuesday: return LocalizedStringKey("Tuesday")
+        case .wednesday: return LocalizedStringKey("Wednesday")
+        case .thursday: return LocalizedStringKey("Thursday")
+        case .friday: return LocalizedStringKey("Friday")
+        case .saturday: return LocalizedStringKey("Saturday")
+        }
     }
 }
 
