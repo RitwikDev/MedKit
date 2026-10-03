@@ -24,23 +24,6 @@ struct SettingsResetApplicationView: View {
 
     var body: some View {
         Form {
-            Button("Delete All Data", role: .destructive) {
-                dataType = .all
-                showDeleteConfirmationDialog.toggle()
-            }
-            .disabled(
-                medicineListViewModel.medicines.isEmpty
-                && globalDataViewModel.allIngredients.isEmpty
-                && globalDataViewModel.allTags.isEmpty
-                && globalDataViewModel.allCustomFields.isEmpty
-            )
-            
-            Button("Delete All Medicines", role: .destructive) {
-                dataType = .medicines
-                showDeleteConfirmationDialog.toggle()
-            }
-            .disabled(medicineListViewModel.medicines.isEmpty)
-            
             Button("Delete All Ingredients", role: .destructive) {
                 dataType = .ingredients
                 showDeleteConfirmationDialog.toggle()
@@ -58,6 +41,23 @@ struct SettingsResetApplicationView: View {
                 showDeleteConfirmationDialog.toggle()
             }
             .disabled(globalDataViewModel.allCustomFields.isEmpty)
+            
+            Button("Delete All Medicines", role: .destructive) {
+                dataType = .medicines
+                showDeleteConfirmationDialog.toggle()
+            }
+            .disabled(medicineListViewModel.medicines.isEmpty)
+            
+            Button("Delete All Data", role: .destructive) {
+                dataType = .all
+                showDeleteConfirmationDialog.toggle()
+            }
+            .disabled(
+                medicineListViewModel.medicines.isEmpty
+                && globalDataViewModel.allIngredients.isEmpty
+                && globalDataViewModel.allTags.isEmpty
+                && globalDataViewModel.allCustomFields.isEmpty
+            )
         }
         .navigationTitle("Reset Application")
         .confirmationDialog(

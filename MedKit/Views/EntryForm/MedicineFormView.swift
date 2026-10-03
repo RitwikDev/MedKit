@@ -7,14 +7,22 @@
 
 import PDFKit
 import SwiftUI
+import CloudKit
+
+struct CloudShareContext: Identifiable {
+    let id = UUID()
+    let share: CKShare
+    let container: CKContainer
+}
 
 struct MedicineFormView: View {
     let medicine: Medicine
 
     @Environment(NavigationRouter.self) private var router
     @State private var medicineEditorViewModel: MedicineEditorViewModel
-    @State private var showShareSheet: Bool = false
     @State private var showAlert: Bool = false
+    @State private var activeShareContext: CloudShareContext? = nil
+    @State private var isPreparingShare: Bool = false
     
     private var isNewMedicine: Bool {
         medicine.name.trimmedIsEmpty
@@ -86,10 +94,20 @@ struct MedicineFormView: View {
             } else {
                 Text("Something went wrong.")
             }
+        }        .sheet(item: $activeShareContext) { context in
+            CloudSharingView(medicine: medicine, share: context.share, container: context.container)
         }
-        .sheet(isPresented: $showShareSheet) {
-            shareSheet
-                .presentationDetents([.fraction(0.25)])
+        .overlay {
+            if isPreparingShare {
+                ZStack {
+                    Color.black.opacity(0.2)
+                        .ignoresSafeArea()
+                    ProgressView("Preparing Share...")
+                        .padding()
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(UIColor.systemBackground)))
+                        .shadow(radius: 10)
+                }
+            }
         }
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle(navigationTitle)
@@ -104,9 +122,34 @@ struct MedicineFormView: View {
                 Label("Export as PDF", systemImage: "document.badge.arrow.up.fill")
             }
             
-            ShareLink(item: medicine, preview: SharePreview("\(medicine.name)", image: Image(systemName: "person.crop.circle.badge.plus"))) {
-                Label("Share", systemImage: "person.crop.circle.badge.plus")
+            Button {
+                if let (share, container) = MedicineWriteManager.shared.fetchExistingShare(for: medicine) {
+                    activeShareContext = CloudShareContext(share: share, container: container)
+                } else {
+                    isPreparingShare = true
+                    Task {
+                        do {
+                            let (share, container) = try await MedicineWriteManager.shared.fetchOrCreateShare(for: medicine)
+                            await MainActor.run {
+                                activeShareContext = CloudShareContext(share: share, container: container)
+                                isPreparingShare = false
+                            }
+                        } catch {
+                            print(error)
+                            await MainActor.run {
+                                isPreparingShare = false
+                            }
+                        }
+                    }
+                }
+            } label: {
+                if isPreparingShare {
+                    Label("Preparing...", systemImage: "arrow.triangle.2.circlepath")
+                } else {
+                    Label("Share", systemImage: "person.crop.circle.badge.plus")
+                }
             }
+            .disabled(isPreparingShare)
         }
     }
 }

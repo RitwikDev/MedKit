@@ -314,6 +314,30 @@ class MedicineWriteManager: MedicineWriteManagerProtocol {
     /// Generates a CloudKit Share for a specific medicine.
     /// - Parameter medicine: The medicine struct to share.
     /// - Returns: A tuple containing the new (or existing) CKShare and the CKContainer.
+    public func fetchExistingShare(for medicine: Medicine) -> (CKShare, CKContainer)? {
+        let container = PersistenceController.shared.container
+        let context = container.viewContext
+        
+        var foundEntity: MedicineEntity?
+        context.performAndWait {
+            let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", medicine.id as CVarArg)
+            foundEntity = try? context.fetch(request).first
+        }
+        
+        guard let entity = foundEntity else { return nil }
+        guard let storeDescription = container.persistentStoreDescriptions.first,
+              let containerIdentifier = storeDescription.cloudKitContainerOptions?.containerIdentifier else { return nil }
+        
+        let actualCKContainer = CKContainer(identifier: containerIdentifier)
+        
+        if let existingShares = try? container.fetchShares(matching: [entity.objectID]),
+           let share = existingShares[entity.objectID] {
+            return (share, actualCKContainer)
+        }
+        return nil
+    }
+
     @MainActor
     public func fetchOrCreateShare(for medicine: Medicine) async throws -> (CKShare, CKContainer) {
         let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
