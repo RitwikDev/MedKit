@@ -13,6 +13,13 @@ xcuserdata/
 *.dSYM.zip
 *.dSYM
 
+## DS Store
+.DS_Store
+._.DS_Store
+**/.DS_Store
+**/._.DS_Store
+
+
 ## Playgrounds
 timeline.xctimeline
 playground.xcworkspace

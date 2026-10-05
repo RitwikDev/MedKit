@@ -17,7 +17,6 @@ struct CloudShareContext: Identifiable {
 
 struct MedicineFormView: View {
     let medicine: Medicine
-    let isEditable: Bool
 
     @Environment(NavigationRouter.self) private var router
     @State private var medicineEditorViewModel: MedicineEditorViewModel
@@ -33,9 +32,8 @@ struct MedicineFormView: View {
         isNewMedicine ? Text("New Medicine") : Text(medicine.name)
     }
         
-    init(medicine: Medicine, isEditable: Bool = true) {
+    init(medicine: Medicine) {
         self.medicine = medicine
-        self.isEditable = isEditable
         self._medicineEditorViewModel = State(initialValue: .init(medicine: medicine))
     }
     
@@ -64,11 +62,9 @@ struct MedicineFormView: View {
                 
                 CustomFieldsSectionView()
             }
-            .disabled(!isEditable)
         }
         .environment(medicineEditorViewModel)
         .toolbar {
-            if (isEditable) {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     if (!isNewMedicine) {
                         Menu {
@@ -80,15 +76,13 @@ struct MedicineFormView: View {
                     
                     Button("Save") {
                         do {
-                            try medicineEditorViewModel.saveMedicine()
-                            router.popToRoot()
+                            try handleSave()
                         } catch {
                             showAlert.toggle()
                             print(error)
                         }
                     }
                 }
-            }
         }
         .alert(
             isNewMedicine ? Text("Failed to save medicine") : Text("Failed to save \(medicine.name)"),
@@ -159,6 +153,11 @@ struct MedicineFormView: View {
             }
             .disabled(isPreparingShare)
         }
+    }
+    
+    private func handleSave() throws {
+        try medicineEditorViewModel.saveMedicine()
+        router.popToRoot()
     }
 }
 

@@ -35,47 +35,9 @@ struct ShoppingListView: View {
                     List {
                         ForEach(viewModel.items) { medicine in
                             Button {
-                                router.navigate(to: .medicineForm(for: medicine, isEditable: false))
+                                router.navigate(to: .readOnlyMedicineForm(for: medicine))
                             } label: {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(medicine.name)
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                    
-                                    VStack(alignment: .leading) {
-                                        if let stock = medicine.stock {
-                                            if stock.quantity > 0 {
-                                                Text("Stock running low (\(Int(stock.quantity)) \(stock.unit) remaining)")
-                                            } else {
-                                                Text("Stockout")
-                                            }
-                                        }
-                                        
-                                        if let expiryDate = medicine.expiryDate {
-                                            if Calendar.current.startOfDay(for: expiryDate) <= Calendar.current.startOfDay(for: .now) {
-                                                Text("Expired on \(expiryDate.formatted(date: .abbreviated, time: .omitted))")
-                                            } else {
-                                                Text("Expiring on \(expiryDate.formatted(date: .abbreviated, time: .omitted))")
-                                            }
-                                        }
-                                    }
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                                    
-                                    ScrollView(.horizontal, showsIndicators: false) {
-                                        LazyHStack {
-                                            ForEach(Array(ShoppingListPopulationHelper.getReason(stockEndDate: medicine.stock?.endDate, expiryDate: medicine.expiryDate, stockQuantity: medicine.stock?.quantity).enumerated()), id: \.element) { index, reason in
-                                                ChipItemView(
-                                                    title: reason,
-                                                    delay: Double(index) * 0.08,
-                                                    tint: .red,
-                                                    onSelect: {  }
-                                                )
-                                                .font(.footnote)
-                                            }
-                                        }
-                                    }
-                                }
+                                ShoppingListItemView(medicine: medicine)
                             }
                         }
                         .onDelete(perform: performOnDelete)

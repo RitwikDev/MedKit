@@ -16,17 +16,6 @@ struct IdentifiableUIImage: Identifiable {
     }
 }
 
-extension CustomFieldsSectionView {
-    static func extractURL(from text: String) -> URL? {
-        guard let detector = try? NSDataDetector(types: NSTextCheckingResult.CheckingType.link.rawValue) else { return nil }
-        let matches = detector.matches(in: text, options: [], range: NSRange(location: 0, length: text.utf16.count))
-        if let match = matches.first {
-            return match.url
-        }
-        return nil
-    }
-}
-
 struct CustomFieldsSectionView: View {
     @Environment(NavigationRouter.self) private var router
     @Environment(MedicineEditorViewModel.self) private var medicineEditorViewModel
@@ -50,11 +39,11 @@ struct CustomFieldsSectionView: View {
                     let textValue = customField.wrappedValue.textValue ?? ""
                     let isActivelyEditing = editingFields.contains(customField.wrappedValue.id)
                     let isFocused = focusedFieldID == customField.wrappedValue.id
-                    let url = CustomFieldsSectionView.extractURL(from: textValue)
-                    if let u = url, !isActivelyEditing, !isFocused {
+                    let url = textValue.getUrl()
+                    if let url, !isActivelyEditing, !isFocused {
                         HStack {
                             Button {
-                                UIApplication.shared.open(u)
+                                UIApplication.shared.open(url)
                             } label: {
                                 Text(textValue)
                                     .lineLimit(1)

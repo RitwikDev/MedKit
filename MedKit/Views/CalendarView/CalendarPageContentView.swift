@@ -9,20 +9,29 @@ import SwiftUI
 
 struct CalendarPageContentView: View {
     let date: Date
+    
     var body: some View {
-        VStack(spacing: 20) {
-            CalendarMonthView(date: date)
-            dashedLine
-            CalendarAgendaView()
+        GeometryReader { geometry in
+            let isLandscape = geometry.size.width > geometry.size.height
+            let layout = isLandscape ? AnyLayout(HStackLayout(spacing: 20)) : AnyLayout(VStackLayout(spacing: 20))
+            
+            layout {
+                CalendarMonthView(date: date)
+                
+                dashedLine(isLandscape: isLandscape)
+                
+                CalendarAgendaView()
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         }
-        .padding()
     }
     
-    private var dashedLine: some View {
-        LineView()
+    private func dashedLine(isLandscape: Bool) -> some View {
+        LineView(isVertical: isLandscape)
             .stroke(style: StrokeStyle(lineWidth: 2, dash: [5, 5]))
             .foregroundStyle(.separator)
-            .frame(height: 2)
+            .frame(width: isLandscape ? 2 : nil, height: isLandscape ? nil : 2)
     }
 }
 

@@ -3265,7 +3265,7 @@
         "bho" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "लीं %@"
+            "value" : "%@ लीं"
           }
         },
         "hi" : {
@@ -3282,7 +3282,7 @@
         "bho" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "लीं %1$@ %2$@।"
+            "value" : "%1$@ %2$@ लीं।"
           }
         },
         "hi" : {

@@ -5,7 +5,7 @@
 //  Created by Ritwik Dev on 03/08/26.
 //
 
-import Foundation
+import SwiftUI
 
 class MedicineDosageHelper
 {
@@ -94,5 +94,44 @@ class MedicineDosageHelper
         }
         
         return potentialNextDate
+    }
+    
+    @MainActor
+    public static func dosageSummary(
+        for dosage: DosageModel,
+        of medicine: Medicine
+    ) -> Text {
+        guard let quantity = dosage.dosageQuantity, quantity > 0 else {
+            return Text(dosage.repeatType.localizedName)
+        }
+        
+        let quantityStr = quantity.formatted(.number)
+        let unitStr = medicine.stock?.unit ?? ""
+        let timesCount = dosage.reminderTimes.count
+        
+        let repeatText: Text
+        switch dosage.repeatType {
+        case .selectDays:
+            if dosage.selectedDays.isEmpty {
+                repeatText = Text(dosage.repeatType.localizedName)
+            } else {
+                let joinedDays = dosage.selectedDays.map { String(localized: String.LocalizationValue($0.rawValue)) }.joined(separator: ", ")
+                repeatText = Text("on \(joinedDays)")
+            }
+        case .custom:
+            if dosage.selectedDates.isEmpty {
+                repeatText = Text(dosage.repeatType.localizedName)
+            } else {
+                repeatText = Text("on \(dosage.selectedDates.count) selected dates")
+            }
+        default:
+            repeatText = Text(dosage.repeatType.localizedName)
+        }
+        
+        if timesCount <= 1 {
+            return Text("\(quantityStr) \(unitStr) \(repeatText)")
+        } else {
+            return Text("\(quantityStr) \(unitStr), \(timesCount) times \(repeatText)")
+        }
     }
 }

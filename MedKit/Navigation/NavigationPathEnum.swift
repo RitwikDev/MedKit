@@ -10,20 +10,21 @@ import SwiftUI
 
 enum NavigationPathEnum: Hashable {
     case cameraAndPhotoPicker
-    case medicineForm(for: Medicine, isEditable: Bool = true)
+    case medicineForm(for: Medicine)
     case ingredientForm(for: Ingredient, medicineEditorViewModel: MedicineEditorViewModel)
     case medicineDosage(for: DosageModel, medicineEditorViewModel: MedicineEditorViewModel)
     case addCustomFields(medicineEditorViewModel: MedicineEditorViewModel)
     case documentPreview(document: Document)
     case zoomablePhotoView(image: UIImage)
+    case readOnlyMedicineForm(for: Medicine)
     
     @ViewBuilder
     var destination: some View {
         switch self {
         case .cameraAndPhotoPicker:
             CameraAndPhotoPickerView()
-        case .medicineForm(let medicine, let isEditable):
-            MedicineFormView(medicine: medicine, isEditable: isEditable)
+        case .medicineForm(let medicine):
+            MedicineFormView(medicine: medicine)
                 .keyboardToolbar()
         case .ingredientForm(let ingredient, let medicineEditorViewModel):
             IngredientEntryView(ingredient: ingredient, medicineEditorViewModel: medicineEditorViewModel)
@@ -40,6 +41,8 @@ enum NavigationPathEnum: Hashable {
         case .zoomablePhotoView(let photo):
             ZoomablePhotoView(photo: photo)
                 .ignoresSafeArea()
+        case .readOnlyMedicineForm(for: let medicine):
+            ReadOnlyMedicineFormView(medicine: medicine)
         }
     }
 }

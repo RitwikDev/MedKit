@@ -9,7 +9,8 @@ import SwiftUI
 
 struct DocumentCarouselCellView: View {
     let document: Document
-    let deleteButtonAction: () -> Void
+    var showDeleteButton: Bool = true
+    var deleteButtonAction: () -> Void = { }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -30,21 +31,23 @@ struct DocumentCarouselCellView: View {
         HStack {
             Text(document.documentExtension)
             
-            Spacer()
-            
-            Button {
-                withAnimation {
-                    deleteButtonAction()
-                }
-            } label: {
-                Image(systemName: "xmark")
-                    .foregroundStyle(.white)
-                    .fontWeight(.bold)
-                    .padding(5)
-                    .background {
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(.red)
+            if (showDeleteButton) {
+                Spacer()
+                
+                Button {
+                    withAnimation {
+                        deleteButtonAction()
                     }
+                } label: {
+                    Image(systemName: "xmark")
+                        .foregroundStyle(.white)
+                        .fontWeight(.bold)
+                        .padding(5)
+                        .background {
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(.red)
+                        }
+                }
             }
         }
         .font(.subheadline)
