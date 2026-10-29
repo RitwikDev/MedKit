@@ -25,6 +25,12 @@ class MedicineReadManager: MedicineReadManagerProtocol {
         return results.map { mapToStruct(entity: $0) }
     }
 
+    public func fetchAll() throws -> [Medicine] {
+        let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
+        let results = try context.fetch(request)
+        return results.map { mapToStruct(entity: $0) }
+    }
+
     public func fetchById(_ id: UUID) throws -> Medicine {
         let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
         request.predicate = NSPredicate(format: "id == %@", id as CVarArg)

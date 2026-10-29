@@ -64,6 +64,21 @@ struct SettingsView: View {
             .onAppear {
                 globalDataViewModel.fetchAllData()
             }
+            .alert(
+                "Error",
+                isPresented: Binding(
+                    get: { globalDataViewModel.errorMessage != nil },
+                    set: { if !$0 { globalDataViewModel.errorMessage = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) {
+                    globalDataViewModel.errorMessage = nil
+                }
+            } message: {
+                if let errorMsg = globalDataViewModel.errorMessage {
+                    Text(errorMsg)
+                }
+            }
         }
     }
 }

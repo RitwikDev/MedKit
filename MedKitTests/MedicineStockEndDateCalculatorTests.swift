@@ -44,4 +44,17 @@ struct MedicineStockEndDateCalculatorTests {
         let expectedDate = calendar.date(byAdding: .day, value: 14, to: today)
         #expect(result == expectedDate)
     }
+    
+    @Test
+    func calculateTest_alternateDays_exhaustsProperly() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let dosage = DosageModel(id: UUID(), dosageQuantity: 1.0, startDate: today, reminderTimes: [ReminderTime(time: Date())], repeatType: .alternateDays)
+        // Has 2.5 pills, uses 1 every 2 days
+        let stock = StockModel(quantity: 2.5, unit: "Pill")
+        
+        let result = MedicineStockEndDateCalculator.calculate(stock: stock, dosage: dosage)
+        let expectedDate = calendar.date(byAdding: .day, value: 2, to: today)
+        #expect(result == expectedDate)
+    }
 }

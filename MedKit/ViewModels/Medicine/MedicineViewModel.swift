@@ -43,7 +43,7 @@ class MedicineViewModel {
         do {
             self.medicines = try listItemManager.fetchMedicineList(sortOn: sortOn)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseFetchFailed.errorDescription
         }
     }
     
@@ -60,7 +60,7 @@ class MedicineViewModel {
                 fetchAllMedicines()
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.shoppingListUpdateFailed.errorDescription
         }
     }
 
@@ -69,7 +69,7 @@ class MedicineViewModel {
         do {
             return try readManager.fetchById(id)
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseFetchFailed.errorDescription
             return nil
         }
     }
@@ -88,7 +88,7 @@ class MedicineViewModel {
                 }
                 fetchAllMedicines()
             } catch {
-                errorMessage = error.localizedDescription
+                errorMessage = AppError.databaseDeleteFailed.errorDescription
             }
         }
     }
@@ -99,7 +99,7 @@ class MedicineViewModel {
             try MedicineWriteManager.shared.deleteAllMedicines()
             fetchAllMedicines()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseDeleteFailed.errorDescription
         }
     }
     

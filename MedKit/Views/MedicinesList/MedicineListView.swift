@@ -47,6 +47,7 @@ struct MedicineListView: View {
     
     var body: some View {
         @Bindable var router = router
+        @Bindable var medicineViewModel = medicineViewModel
         
         NavigationStack(path: $router.path) {
             VStack {
@@ -136,6 +137,21 @@ struct MedicineListView: View {
                 }
             } message: { medicine in
                 Text("Are you sure you want to delete \(medicine.name)?")
+            }
+            .alert(
+                "Error",
+                isPresented: Binding(
+                    get: { medicineViewModel.errorMessage != nil },
+                    set: { if !$0 { medicineViewModel.errorMessage = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) {
+                    medicineViewModel.errorMessage = nil
+                }
+            } message: {
+                if let errorMsg = medicineViewModel.errorMessage {
+                    Text(errorMsg)
+                }
             }
             .background(backgroundColour)
         }

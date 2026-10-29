@@ -1,5 +1,6 @@
-import SwiftUI
 import CloudKit
+import OSLog
+import SwiftUI
 import UIKit
 
 struct CloudSharingView: UIViewControllerRepresentable {
@@ -25,13 +26,21 @@ struct CloudSharingView: UIViewControllerRepresentable {
 
     class Coordinator: NSObject, UICloudSharingControllerDelegate {
         var parent: CloudSharingView
+        private let logger = Logger(subsystem: "com.rss.MedKit", category: "CloudSharingView")
 
         init(_ parent: CloudSharingView) {
             self.parent = parent
         }
 
         func cloudSharingController(_ csc: UICloudSharingController, failedToSaveShareWithError error: Error) {
-            print("Failed to save share: \(error)")
+            logger.error("Failed to save share: \(error.localizedDescription, privacy: .public)")
+            let alert = UIAlertController(
+                title: String(localized: "Sharing Error"),
+                message: AppError.cloudShareFailed.errorDescription,
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: String(localized: "OK"), style: .default))
+            csc.present(alert, animated: true)
         }
 
         func itemTitle(for csc: UICloudSharingController) -> String? {

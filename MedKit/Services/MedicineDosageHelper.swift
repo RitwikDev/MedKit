@@ -46,6 +46,13 @@ class MedicineDosageHelper
                 }
                 return nil
                 
+            case .alternateDays:
+                let components = calendar.dateComponents([.day], from: startOfDay, to: baseOfDay)
+                let daysPassed = components.day ?? 0
+                let remainder = daysPassed % 2
+                let daysToNextDose = remainder == 0 ? 0 : (2 - remainder)
+                return calendar.date(byAdding: .day, value: daysToNextDose, to: baseOfDay)
+                
             case .fortnightly:
                 let components = calendar.dateComponents([.day], from: startOfDay, to: baseOfDay)
                 let daysPassed = components.day ?? 0

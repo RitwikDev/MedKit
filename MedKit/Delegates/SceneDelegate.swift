@@ -6,16 +6,22 @@
 //
 
 import CloudKit
+import OSLog
 import SwiftUI
 
 // 1. The Scene Delegate (This catches the event in SwiftUI apps)
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
+    private let logger = Logger(subsystem: "com.rss.MedKit", category: "SceneDelegate")
     
     func windowScene(_ windowScene: UIWindowScene, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
         
         let container = PersistenceController.shared.container
         guard let sharedStore = container.persistentStoreCoordinator.persistentStores.first(where: { $0.url?.lastPathComponent == "Shared.sqlite" }) else {
-            print("Accept Share Error: Could not locate the Shared database store.")
+            logger.error("Accept Share Error: Could not locate the Shared database store.")
+            NotificationCenter.default.post(
+                name: NotificationManager.shareProcessingFailed,
+                object: AppError.shareAcceptFailed.errorDescription
+            )
             return
         }
         
@@ -23,14 +29,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         NotificationCenter.default.post(name: NotificationManager.shareProcessingStarted, object: nil)
         
         // Accept the share
-        container.acceptShareInvitations(from: [cloudKitShareMetadata], into: sharedStore) { _, error in
+        container.acceptShareInvitations(from: [cloudKitShareMetadata], into: sharedStore) { [weak self] _, error in
             DispatchQueue.main.async {
                 NotificationCenter.default.post(name: NotificationManager.shareProcessingFinished, object: nil)
             }
             if let error = error {
-                print("Accept Share Error: \(error.localizedDescription)")
+                self?.logger.error("Accept Share Error: \(error.localizedDescription, privacy: .public)")
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(
+                        name: NotificationManager.shareProcessingFailed,
+                        object: AppError.shareAcceptFailed.errorDescription
+                    )
+                }
             } else {
-                print("Successfully accepted the CloudKit share! Data is syncing...")
+                self?.logger.info("Successfully accepted the CloudKit share! Data is syncing...")
             }
         }
     }

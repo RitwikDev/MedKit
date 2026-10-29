@@ -13,15 +13,24 @@ struct DocumentPreviewSheetView: View {
     
     var body: some View {
         NavigationStack {
-            DocumentPreviewView(document: document)
-                .toolbar {
-                    ToolbarItem(placement: .confirmationAction) {
-                        Button("Done", action: buttonAction)
-                    }
+            Group {
+                if document.documentData.isEmpty {
+                    ContentUnavailableView(
+                        "Unable to Preview Document",
+                        systemImage: "doc.badge.ellipsis",
+                        description: Text(AppError.documentPreviewFailed.errorDescription ?? "")
+                    )
+                } else {
+                    DocumentPreviewView(document: document)
                 }
-                .navigationTitle(document.name)
-                .navigationBarTitleDisplayMode(.inline)
-                
+            }
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done", action: buttonAction)
+                }
+            }
+            .navigationTitle(document.name)
+            .navigationBarTitleDisplayMode(.inline)
         }
         .interactiveDismissDisabled()
     }

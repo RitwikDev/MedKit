@@ -11,6 +11,7 @@ import SwiftUI
 struct PhotoPickerView: View {
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedPhoto: Image?
+    @State private var errorMessage: String? = nil
     @Binding var selectedUIImage: UIImage?
     
     var body: some View {
@@ -39,6 +40,21 @@ struct PhotoPickerView: View {
                 await loadUIImage(from: selectedItem)
             }
         }
+        .alert(
+            "Error",
+            isPresented: Binding(
+                get: { errorMessage != nil },
+                set: { if !$0 { errorMessage = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) {
+                errorMessage = nil
+            }
+        } message: {
+            if let msg = errorMessage {
+                Text(msg)
+            }
+        }
     }
     
     private func loadUIImage(from item: PhotosPickerItem?) async {
@@ -55,7 +71,9 @@ struct PhotoPickerView: View {
                 }
             }
         } catch {
-            print("Failed to load image data: \(error.localizedDescription)")
+            await MainActor.run {
+                self.errorMessage = AppError.scanImageProcessingFailed.errorDescription
+            }
         }
     }
 }

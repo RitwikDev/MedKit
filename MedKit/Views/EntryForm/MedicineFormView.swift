@@ -79,7 +79,6 @@ struct MedicineFormView: View {
                             try handleSave()
                         } catch {
                             showAlert.toggle()
-                            print(error)
                         }
                     }
                 }
@@ -130,16 +129,15 @@ struct MedicineFormView: View {
                 } else {
                     isPreparingShare = true
                     Task {
-                        do {
-                            let (share, container) = try await MedicineWriteManager.shared.fetchOrCreateShare(for: medicine)
+                        if let context = await medicineEditorViewModel.shareMedicine() {
                             await MainActor.run {
-                                activeShareContext = CloudShareContext(share: share, container: container)
+                                activeShareContext = CloudShareContext(share: context.share, container: context.container)
                                 isPreparingShare = false
                             }
-                        } catch {
-                            print(error)
+                        } else {
                             await MainActor.run {
                                 isPreparingShare = false
+                                showAlert = true
                             }
                         }
                     }

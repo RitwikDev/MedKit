@@ -24,7 +24,11 @@ struct CVMMocks {
     
     class MockCalendarMedicineReadManager: CalendarMedicineReadManagerProtocol {
         var mockMedicines: [CalendarMedicine] = []
-        func getMedicines() throws -> [CalendarMedicine] { return mockMedicines }
+        var shouldThrow = false
+        func getMedicines() throws -> [CalendarMedicine] {
+            if shouldThrow { throw NSError(domain: "Test", code: 1) }
+            return mockMedicines
+        }
     }
     
     actor MockScheduleGenerationService: ScheduleGenerationServiceProtocol {
@@ -120,5 +124,23 @@ struct CalendarViewModelTests {
         #expect(writeMock.savedMedicine != nil)
         #expect(writeMock.savedMedicine?.doseLogs.count == 1)
         #expect(writeMock.savedMedicine?.doseLogs.first?.isTaken == true)
+    }
+    
+    @Test
+    func initialiseMedicines_errorSetsUserFriendlyMessage() {
+        let calManager = CVMMocks.MockCalendarMedicineReadManager()
+        calManager.shouldThrow = true
+        
+        let viewModel = CalendarViewModel(
+            globalDataManager: CVMMocks.MockGlobalDataManager(),
+            calendarMedicineReadManager: calManager,
+            medicineReadManager: CVMMocks.MockMedicineReadManager(),
+            medicineWriteManager: CVMMocks.MockMedicineWriteManager(),
+            scheduleService: CVMMocks.MockScheduleGenerationService()
+        )
+        
+        viewModel.initialiseMedicines()
+        #expect(viewModel.errorMessage == AppError.calendarLoadFailed.errorDescription)
+        #expect(viewModel.medicines.isEmpty)
     }
 }

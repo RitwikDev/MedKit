@@ -119,6 +119,11 @@ actor ScheduleGenerationService: ScheduleGenerationServiceProtocol {
         case .never:
             return targetDate == startDate
             
+        case .alternateDays:
+            let components = calendar.dateComponents([.day], from: startDate, to: targetDate)
+            guard let daysDifference = components.day else { return false }
+            return daysDifference % 2 == 0
+            
         case .selectDays:
             let weekday = calendar.component(.weekday, from: targetDate)
             guard let day = Day(weekdayNumber: weekday) else { return false }

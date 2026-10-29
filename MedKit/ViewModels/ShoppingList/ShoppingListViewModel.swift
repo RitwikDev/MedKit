@@ -9,6 +9,7 @@ import Observation
 @Observable
 class ShoppingListViewModel {
     var items: [Medicine] = []
+    var errorMessage: String? = nil
     
     private let readManager: MedicineReadManagerProtocol
     private let writeManager: MedicineWriteManagerProtocol
@@ -23,7 +24,7 @@ class ShoppingListViewModel {
         do {
             items = try readManager.fetchShoppingList()
         } catch {
-            print("Failed to fetch shopping list")
+            errorMessage = AppError.shoppingListUpdateFailed.errorDescription
         }
     }
     
@@ -34,7 +35,7 @@ class ShoppingListViewModel {
             do {
                 try writeManager.save(medicine)
             } catch {
-                print("Failed to remove item")
+                errorMessage = AppError.shoppingListUpdateFailed.errorDescription
             }
         }
         fetchShoppingList()
@@ -46,7 +47,7 @@ class ShoppingListViewModel {
             do {
                 try writeManager.save(medicine)
             } catch {
-                print("Failed to clear shopping list")
+                errorMessage = AppError.shoppingListUpdateFailed.errorDescription
             }
         }
         fetchShoppingList()

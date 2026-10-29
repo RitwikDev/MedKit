@@ -14,6 +14,8 @@ import SwiftUI
 struct MedKitApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
+    @Environment(\.scenePhase) private var scenePhase
+    
     @State private var globalDataViewModel = GlobalDataViewModel()
     @State private var medicineViewModel = MedicineViewModel()
     @State private var router = NavigationRouter()
@@ -30,6 +32,14 @@ struct MedKitApp: App {
                 .environment(medicineViewModel)
                 .environment(router)
                 .environment(notificationViewModel)
+                .task {
+                    notificationViewModel.reschedulePendingIrregularNotificationsIfNeeded()
+                }
+                .onChange(of: scenePhase) { _, newPhase in
+                    if newPhase == .active {
+                        notificationViewModel.reschedulePendingIrregularNotificationsIfNeeded()
+                    }
+                }
         }
     }
 }

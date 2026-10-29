@@ -60,6 +60,9 @@ class MedicineStockEndDateCalculator
             }
             rawStockEndDate = currentDate
             
+        case .alternateDays:
+            rawStockEndDate = calendar.date(byAdding: .day, value: jumpsRequired * 2, to: nextDosageDate) ?? nextDosageDate
+            
         case .fortnightly:
             rawStockEndDate = calendar.date(byAdding: .day, value: jumpsRequired * 14, to: nextDosageDate) ?? nextDosageDate
             

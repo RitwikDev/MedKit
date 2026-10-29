@@ -12,6 +12,7 @@
 		BA8C15AD2FE0F206008F8A78 /* DeviceCameraService in Frameworks */ = {isa = PBXBuildFile; productRef = BA8C15AC2FE0F206008F8A78 /* DeviceCameraService */; };
 		BA9586402FB957750095C2E2 /* FirebaseAILogic in Frameworks */ = {isa = PBXBuildFile; productRef = BA95863F2FB957750095C2E2 /* FirebaseAILogic */; };
 		BA95866B2FB95CC80095C2E2 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = BA95866A2FB95CC80095C2E2 /* FirebaseAnalytics */; };
+		BAAFFACA308BCBB000A240F8 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = BAAFFAC9308BCBB000A240F8 /* README.md */; };
 		BABBA3C42FE172F500DC5020 /* DevKitUI in Frameworks */ = {isa = PBXBuildFile; productRef = BABBA3C32FE172F500DC5020 /* DevKitUI */; };
 		BAE238B22FE45ED100C34F62 /* MedKit.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = BAE238B02FE45ED100C34F62 /* MedKit.xcdatamodeld */; };
 		BAE525A1305D7D2E0041C18E /* FirebaseAppCheck in Frameworks */ = {isa = PBXBuildFile; productRef = BAE525A0305D7D2E0041C18E /* FirebaseAppCheck */; };
@@ -31,6 +32,7 @@
 		362E636C2FB94D5E00CFB7AB /* MedKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MedKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		362E637D2FB9525100CFB7AB /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		BA310AD9306557D2006F7A1A /* MedKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MedKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BAAFFAC9308BCBB000A240F8 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		BAB9899A306A058200CBE832 /* MedKitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MedKitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		BAE238B12FE45ED100C34F62 /* MedKit.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MedKit.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -88,6 +90,7 @@
 		362E63632FB94D5E00CFB7AB = {
 			isa = PBXGroup;
 			children = (
+				BAAFFAC9308BCBB000A240F8 /* README.md */,
 				BAE238B02FE45ED100C34F62 /* MedKit.xcdatamodeld */,
 				362E637D2FB9525100CFB7AB /* .gitignore */,
 				362E636E2FB94D5E00CFB7AB /* MedKit */,
@@ -220,6 +223,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BAAFFACA308BCBB000A240F8 /* README.md in Resources */,
 				362E637E2FB9525900CFB7AB /* .gitignore in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -410,7 +414,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rss.MedKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -443,7 +447,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.rss.MedKit;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;

@@ -36,7 +36,7 @@ class GlobalDataViewModel {
             let tags = try manager.fetchAllTags()
             self.allTags = Array(Set(tags)).sorted()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseFetchFailed.errorDescription
         }
     }
     
@@ -44,7 +44,7 @@ class GlobalDataViewModel {
         do {
             self.allIngredients = try manager.fetchAllIngredients()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseFetchFailed.errorDescription
         }
     }
     
@@ -53,7 +53,7 @@ class GlobalDataViewModel {
             let customFields = try manager.fetchAllCustomFields()
             self.allCustomFields = Array(Set(customFields)).sorted { $0.label < $1.label }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseFetchFailed.errorDescription
         }
     }
     
@@ -61,7 +61,7 @@ class GlobalDataViewModel {
         do {
             self.allStrengthUnits = try manager.fetchAllStrengthUnits()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseFetchFailed.errorDescription
         }
     }
     
@@ -69,7 +69,7 @@ class GlobalDataViewModel {
         do {
             self.allStockTypes = try manager.fetchAllStockTypes()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseFetchFailed.errorDescription
         }
     }
     
@@ -83,7 +83,7 @@ class GlobalDataViewModel {
             }
             fetchAllTags()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseDeleteFailed.errorDescription
         }
     }
     
@@ -95,7 +95,7 @@ class GlobalDataViewModel {
             }
             fetchAllIngredients()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseDeleteFailed.errorDescription
         }
     }
     
@@ -107,7 +107,7 @@ class GlobalDataViewModel {
             }
             fetchAllCustomFields()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseDeleteFailed.errorDescription
         }
     }
     
@@ -118,7 +118,7 @@ class GlobalDataViewModel {
             try manager.deleteAllTags()
             fetchAllTags()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseDeleteFailed.errorDescription
         }
     }
     
@@ -127,7 +127,7 @@ class GlobalDataViewModel {
             try manager.deleteAllIngredients()
             fetchAllIngredients()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseDeleteFailed.errorDescription
         }
     }
     
@@ -136,7 +136,7 @@ class GlobalDataViewModel {
             try manager.deleteAllCustomFields()
             fetchAllCustomFields()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.databaseDeleteFailed.errorDescription
         }
     }
 }

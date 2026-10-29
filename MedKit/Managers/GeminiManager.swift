@@ -7,6 +7,7 @@
 
 import FirebaseAILogic
 import Foundation
+import OSLog
 import UIKit
 
 enum AnalysisStatus: Equatable {
@@ -17,6 +18,7 @@ enum AnalysisStatus: Equatable {
 class GeminiManager {
     @ObservationIgnored private var ai: FirebaseAI!
     @ObservationIgnored private var model: GenerativeModel!
+    @ObservationIgnored private let logger = Logger(subsystem: "com.rss.MedKit", category: "GeminiManager")
     
     var medicine: CodableMedicineModel?
     var analysisStatus: AnalysisStatus = .reset
@@ -64,7 +66,7 @@ class GeminiManager {
     
     func analyseImage(_ uiImage: UIImage) {
         guard let imageData = uiImage.jpegData(compressionQuality: 0.8) else {
-            errorMessage = "Error processing image data."
+            errorMessage = AppError.scanImageProcessingFailed.errorDescription ?? "Error processing image data."
             analysisStatus = .failure
             return
         }
@@ -102,7 +104,7 @@ class GeminiManager {
                 guard let jsonText = response.text,
                       let data = jsonText.data(using: .utf8) else {
                     await MainActor.run {
-                        self.errorMessage = "Empty or invalid response from Gemini."
+                        self.errorMessage = AppError.scanUnreadableLabel.errorDescription ?? "Could not read the medicine label."
                         self.analysisStatus = .failure
                     }
                     return
@@ -125,14 +127,14 @@ class GeminiManager {
                 }
                 
             } catch let decodingError as DecodingError {
-                print("Detailed Decoding Error: \(decodingError)")
+                logger.error("Detailed Decoding Error: \(decodingError.localizedDescription, privacy: .public)")
                 await MainActor.run {
-                    self.errorMessage = "JSON Parsing Error: \(decodingError.localizedDescription)"
+                    self.errorMessage = AppError.scanUnreadableLabel.errorDescription ?? "Could not read the medicine label."
                     self.analysisStatus = .failure
                 }
             } catch {
                 await MainActor.run {
-                    self.errorMessage = "API Error: \(error.localizedDescription)"
+                    self.errorMessage = AppError.scanNetworkError.errorDescription ?? "Unable to scan package. Please check your internet connection."
                     self.analysisStatus = .failure
                 }
             }

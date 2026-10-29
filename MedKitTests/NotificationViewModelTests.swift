@@ -13,10 +13,15 @@ struct NVMMocks {
         var removedAll = false
         var removedByMedicineId: UUID? = nil
         
+        var shouldThrowOnSchedule = false
+        
         func requestAuthorisation() { requestedAuth = true }
         func registerCategories() { registeredCategories = true }
         
         func scheduleInitialNotification(for medicine: Medicine) throws {
+            if shouldThrowOnSchedule {
+                throw NSError(domain: "NotificationError", code: -1)
+            }
             scheduledInitialId = medicine.id
         }
         
@@ -34,6 +39,11 @@ struct NVMMocks {
         
         func removeAllPendingNotificationRequests() {
             removedAll = true
+        }
+        
+        var rescheduledPendingIrregular = false
+        func reschedulePendingIrregularNotificationsIfNeeded() async {
+            rescheduledPendingIrregular = true
         }
     }
 }
@@ -77,5 +87,26 @@ struct NotificationViewModelTests {
         
         viewModel.removeAllPendingNotificationRequests()
         #expect(mockManager.removedAll == true)
+    }
+    
+    @Test
+    func reschedulePendingIrregular_success() async {
+        let mockManager = NVMMocks.MockNotificationManager()
+        let viewModel = NotificationViewModel(notificationManager: mockManager)
+        
+        viewModel.reschedulePendingIrregularNotificationsIfNeeded()
+        try? await Task.sleep(nanoseconds: 50_000_000)
+        #expect(mockManager.rescheduledPendingIrregular == true)
+    }
+    
+    @Test
+    func scheduleInitialNotification_errorSetsUserFriendlyMessage() {
+        let mockManager = NVMMocks.MockNotificationManager()
+        mockManager.shouldThrowOnSchedule = true
+        let viewModel = NotificationViewModel(notificationManager: mockManager)
+        
+        let med = Medicine(id: UUID(), name: "TestMed", tags: [], customFields: [], doseLogs: [])
+        viewModel.scheduleInitialNotification(for: med)
+        #expect(viewModel.errorMessage == AppError.notificationScheduleFailed.errorDescription)
     }
 }

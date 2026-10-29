@@ -81,7 +81,7 @@ struct DosageView: View {
             if (draftDosage.selectedDays.isEmpty || draftDosage.startDate == nil || draftDosage.reminderTimes.isEmpty) {
                 return true
             }
-        case .daily, .fortnightly, .monthly, .quarterly, .biannually, .annually:
+        case .daily, .alternateDays, .fortnightly, .monthly, .quarterly, .biannually, .annually:
             if (draftDosage.startDate == nil || draftDosage.reminderTimes.isEmpty) {
                 return true
             }
@@ -157,7 +157,7 @@ struct DosageView: View {
     }
     
     private var frequencyPickerSectionView: some View {
-        Section("Frequency") {
+        Section(header: Text("Frequency"), footer: irregularFootnoteView) {
             Picker("Repeat",
                    selection: $draftDosage.repeatType.animation()
             ) {
@@ -179,14 +179,33 @@ struct DosageView: View {
                 if (newValue == .never) {
                     draftDoseQuantityString = ""
                 }
+                
+                let irregularTypes: [RepeatType] = [.alternateDays, .fortnightly, .quarterly, .biannually, .custom]
+                if irregularTypes.contains(newValue) {
+                    displayToast(
+                        String(localized: "Please interact with dose notifications to ensure timely future reminders."),
+                        showToast: $showToast,
+                        toastMessage: $toastMessage
+                    )
+                }
             }
+        }
+    }
+    
+    @ViewBuilder
+    private var irregularFootnoteView: some View {
+        let irregularTypes: [RepeatType] = [.alternateDays, .fortnightly, .quarterly, .biannually, .custom]
+        if irregularTypes.contains(draftDosage.repeatType) {
+            Text("Irregular schedules require interacting with reminders to schedule subsequent doses.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
         }
     }
     
     @ViewBuilder
     private var conditionalSelectorSectionView: some View {
         switch draftDosage.repeatType {
-        case .never, .daily, .monthly, .quarterly, .biannually, .annually:
+        case .never, .daily, .alternateDays, .monthly, .quarterly, .biannually, .annually:
             EmptyView()
         case .selectDays:
             selectDaysView

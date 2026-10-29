@@ -69,13 +69,13 @@ struct DocumentOptionsView: View {
                 } catch {
                     withAnimation {
                         customFieldValue.documentValue = nil
-                        errorMessage = error.localizedDescription
+                        errorMessage = AppError.documentAttachmentFailed.errorDescription ?? "Unable to attach file."
                         showDocumentAlert = true
                     }
                 }
                 
-            case .failure(let error):
-                errorMessage = error.localizedDescription
+            case .failure:
+                errorMessage = AppError.documentSelectionFailed.errorDescription ?? "Unable to select file."
                 showDocumentAlert = true
                 resetDocumentVariables()
             }
@@ -113,7 +113,11 @@ struct DocumentOptionsView: View {
         } catch {
             withAnimation {
                 showProgressView = false
-                errorMessage = error.localizedDescription
+                if let validationError = error as? ValidationError {
+                    errorMessage = validationError.errorDescription ?? "Invalid image data."
+                } else {
+                    errorMessage = AppError.documentAttachmentFailed.errorDescription ?? "Unable to attach photo."
+                }
                 showDocumentAlert = true
                 resetDocumentVariables()
             }
@@ -132,7 +136,7 @@ struct DocumentOptionsView: View {
                 }
             }
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = AppError.documentAttachmentFailed.errorDescription ?? "Unable to load image."
             showDocumentAlert = true
         }
     }

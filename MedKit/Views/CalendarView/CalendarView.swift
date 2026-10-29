@@ -21,6 +21,21 @@ struct CalendarView: View {
         .background(Color(uiColor: .systemGroupedBackground))
         .shadow(radius: 6)
         .onAppear(perform: viewModel.initialiseMedicines)
+        .alert(
+            "Error",
+            isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { if !$0 { viewModel.errorMessage = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) {
+                viewModel.errorMessage = nil
+            }
+        } message: {
+            if let errorMsg = viewModel.errorMessage {
+                Text(errorMsg)
+            }
+        }
         .environment(viewModel)
     }
 }

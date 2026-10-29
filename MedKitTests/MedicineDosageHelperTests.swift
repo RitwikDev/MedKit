@@ -29,6 +29,46 @@ struct MedicineDosageHelperTests {
     }
 
     @Test
+    func getNextDosageDate_alternateDays_schedule() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: today)!
+        let dayAfterTomorrow = calendar.date(byAdding: .day, value: 2, to: today)!
+        let threeDaysLater = calendar.date(byAdding: .day, value: 3, to: today)!
+        let fourDaysLater = calendar.date(byAdding: .day, value: 4, to: today)!
+        
+        let dosage = DosageModel(
+            id: UUID(),
+            dosageQuantity: 1.0,
+            startDate: today,
+            endDate: fourDaysLater,
+            reminderTimes: [],
+            repeatType: .alternateDays
+        )
+        
+        // 1. On startDate: next dose is today
+        let dateOnStart = MedicineDosageHelper.getNextDosageDate(for: dosage, startingFrom: today)
+        #expect(calendar.isDate(dateOnStart!, inSameDayAs: today))
+        
+        // 2. On day 1 (off-day): next dose is day 2
+        let dateBetweenDoses = MedicineDosageHelper.getNextDosageDate(for: dosage, startingFrom: tomorrow)
+        #expect(calendar.isDate(dateBetweenDoses!, inSameDayAs: dayAfterTomorrow))
+        
+        // 3. On day 2 (on-day): next dose is day 2
+        let dateOnSecondDose = MedicineDosageHelper.getNextDosageDate(for: dosage, startingFrom: dayAfterTomorrow)
+        #expect(calendar.isDate(dateOnSecondDose!, inSameDayAs: dayAfterTomorrow))
+        
+        // 4. On day 3 (off-day): next dose is day 4
+        let dateOnThirdDay = MedicineDosageHelper.getNextDosageDate(for: dosage, startingFrom: threeDaysLater)
+        #expect(calendar.isDate(dateOnThirdDay!, inSameDayAs: fourDaysLater))
+        
+        // 5. Past end date (day 5): returns nil
+        let fiveDaysLater = calendar.date(byAdding: .day, value: 5, to: today)!
+        let datePastEnd = MedicineDosageHelper.getNextDosageDate(for: dosage, startingFrom: fiveDaysLater)
+        #expect(datePastEnd == nil)
+    }
+
+    @Test
     func getNextDosageDate_selectDays() {
         let calendar = Calendar.current
         let today = Date()

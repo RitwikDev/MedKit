@@ -6,8 +6,12 @@ struct MVMMocks {
     class MockMedicineListItemManager: MedicineListItemManagerProtocol {
         var mockedList: [MedicineListItemModel] = []
         var updateStockQuantityCalled = false
+        var shouldThrow = false
         
         func fetchMedicineList(sortOn: MedicineListSortOptionsEnum) throws -> [MedicineListItemModel] {
+            if shouldThrow {
+                throw NSError(domain: "TestError", code: 1)
+            }
             return mockedList
         }
         
@@ -111,5 +115,18 @@ struct MedicineViewModelTests {
         viewModel.updateStockQuantity(medicineId: UUID(), quantity: 10, dosage: nil)
         
         #expect(mockListManager.updateStockQuantityCalled == true)
+    }
+    
+    @Test
+    func fetchAllMedicines_errorSetsUserFriendlyMessage() {
+        let mockListManager = MVMMocks.MockMedicineListItemManager()
+        mockListManager.shouldThrow = true
+        let mockReadManager = MVMMocks.MockMedicineReadManager()
+        
+        let viewModel = MedicineViewModel(
+            listItemManager: mockListManager,
+            readManager: mockReadManager
+        )
+        #expect(viewModel.errorMessage == AppError.databaseFetchFailed.errorDescription)
     }
 }

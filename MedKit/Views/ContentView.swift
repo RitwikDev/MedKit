@@ -18,6 +18,8 @@ struct ContentView: View {
     let notificationTappedPub = NotificationCenter.default.publisher(for: NotificationManager.notificationTappedNotification)
     let shareStartedPub = NotificationCenter.default.publisher(for: NotificationManager.shareProcessingStarted)
     let shareFinishedPub = NotificationCenter.default.publisher(for: NotificationManager.shareProcessingFinished)
+    let shareFailedPub = NotificationCenter.default.publisher(for: NotificationManager.shareProcessingFailed)
+    @State private var shareErrorMessage: String? = nil
 
     var body: some View {
         ZStack {
@@ -64,6 +66,29 @@ struct ContentView: View {
             }
             .onReceive(shareFinishedPub) { _ in
                 withAnimation { isProcessingShare = false }
+            }
+            .onReceive(shareFailedPub) { notification in
+                withAnimation { isProcessingShare = false }
+                if let message = notification.object as? String {
+                    shareErrorMessage = message
+                } else {
+                    shareErrorMessage = AppError.shareAcceptFailed.errorDescription
+                }
+            }
+            .alert(
+                "Sharing Error",
+                isPresented: Binding(
+                    get: { shareErrorMessage != nil },
+                    set: { if !$0 { shareErrorMessage = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) {
+                    shareErrorMessage = nil
+                }
+            } message: {
+                if let msg = shareErrorMessage {
+                    Text(msg)
+                }
             }
             
             if isProcessingShare {

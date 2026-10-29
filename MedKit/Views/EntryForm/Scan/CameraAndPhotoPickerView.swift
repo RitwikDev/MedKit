@@ -157,7 +157,7 @@ extension CameraAndPhotoPickerView {
         do {
             try await camera.startCamera()
         } catch {
-            self.errorMessage = error.localizedDescription
+            self.errorMessage = AppError.cameraUnavailable.errorDescription
         }
     }
     

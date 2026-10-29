@@ -5,14 +5,16 @@
 //  Created by Rishik Dev on 23/06/26.
 //
 
+import CloudKit
 import CoreData
 import Foundation
-import CloudKit
+import OSLog
 
 class GlobalDataManager: GlobalDataManagerProtocol {
     /// The shared singleton instance.
     static let shared = GlobalDataManager()
     
+    private let logger = Logger(subsystem: "com.rss.MedKit", category: "GlobalDataManager")
     private let context: NSManagedObjectContext
     
     private init(context: NSManagedObjectContext = PersistenceController.shared.container.viewContext) {
@@ -284,7 +286,7 @@ class GlobalDataManager: GlobalDataManagerProtocol {
             let userRecordID = try await ckContainer.userRecordID()
             return userRecordID.recordName
         } catch {
-            print("Failed to fetch user record ID: \(error)")
+            logger.error("Failed to fetch user record ID: \(error.localizedDescription, privacy: .public)")
             return nil
         }
     }

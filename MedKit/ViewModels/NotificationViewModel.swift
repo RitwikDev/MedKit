@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import OSLog
 import UserNotifications
 
 @Observable
@@ -11,7 +12,10 @@ import UserNotifications
 class NotificationViewModel {
     let notificationManager: NotificationManagerProtocol
     var notificationRequests: [UNNotificationRequest] = []
+    var errorMessage: String? = nil
     
+    private let logger = Logger(subsystem: "com.rss.MedKit", category: "NotificationViewModel")
+
     init(notificationManager: NotificationManagerProtocol = NotificationManager.shared) {
         self.notificationManager = notificationManager
     }
@@ -34,7 +38,8 @@ class NotificationViewModel {
         do {
             try notificationManager.scheduleInitialNotification(for: medicine)
         } catch {
-            print("Error scheduling initial notification: \(error)")
+            logger.error("Error scheduling initial notification: \(error.localizedDescription, privacy: .public)")
+            errorMessage = AppError.notificationScheduleFailed.errorDescription
         }
     }
     
@@ -79,6 +84,13 @@ class NotificationViewModel {
     /// Removes all pending notification requests made by the application
     func removeAllPendingNotificationRequests() {
         notificationManager.removeAllPendingNotificationRequests()
+    }
+    
+    /// Reschedules irregular dosage notifications if none are currently pending
+    func reschedulePendingIrregularNotificationsIfNeeded() {
+        Task {
+            await notificationManager.reschedulePendingIrregularNotificationsIfNeeded()
+        }
     }
     
     private func nextTriggerDate(for request: UNNotificationRequest) -> Date? {

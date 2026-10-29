@@ -16,4 +16,11 @@ protocol NotificationManagerProtocol {
     func removePendingNotificationRequests(withIdentifiers identifiers: [String])
     func removePendingNotificationRequests(for medicineId: UUID) async
     func removeAllPendingNotificationRequests()
+    func scheduleNextIrregularNotificationIfNeeded(for medicineId: UUID, advanceFromTomorrow: Bool) async
+    func reschedulePendingIrregularNotificationsIfNeeded() async
+}
+
+extension NotificationManagerProtocol {
+    func scheduleNextIrregularNotificationIfNeeded(for medicineId: UUID, advanceFromTomorrow: Bool) async {}
+    func reschedulePendingIrregularNotificationsIfNeeded() async {}
 }

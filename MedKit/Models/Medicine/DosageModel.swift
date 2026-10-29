@@ -77,6 +77,7 @@ enum RepeatType: String, CaseIterable, Identifiable, Codable {
     var id: Self { self }
     case never = "Never"
     case daily = "Daily"
+    case alternateDays = "Alternate Days"
     case selectDays = "Select Days"
     case fortnightly = "Fortnightly"
     case monthly = "Monthly"
@@ -85,10 +86,27 @@ enum RepeatType: String, CaseIterable, Identifiable, Codable {
     case annually = "Annually"
     case custom = "Custom"
     
-        var localizedName: LocalizedStringKey {
+    init?(rawValue: String) {
+        switch rawValue {
+        case "Never": self = .never
+        case "Daily": self = .daily
+        case "Alternate Days": self = .alternateDays
+        case "Select Days": self = .selectDays
+        case "Fortnightly": self = .fortnightly
+        case "Monthly": self = .monthly
+        case "Quarterly": self = .quarterly
+        case "Biannually": self = .biannually
+        case "Annually": self = .annually
+        case "Custom": self = .custom
+        default: return nil
+        }
+    }
+    
+    var localizedName: LocalizedStringKey {
         switch self {
         case .never: return LocalizedStringKey("Never")
         case .daily: return LocalizedStringKey("Daily")
+        case .alternateDays: return LocalizedStringKey("Alternate Days")
         case .selectDays: return LocalizedStringKey("Select Days")
         case .fortnightly: return LocalizedStringKey("Fortnightly")
         case .monthly: return LocalizedStringKey("Monthly")

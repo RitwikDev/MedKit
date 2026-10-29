@@ -7,9 +7,13 @@ struct SLVMMocks {
     class MockMedicineReadManager: MedicineReadManagerProtocol {
         var fetchShoppingListMock: [Medicine] = []
         var fetchShoppingListCalled = false
+        var fetchShouldThrow = false
         
         func fetchShoppingList() throws -> [Medicine] {
             fetchShoppingListCalled = true
+            if fetchShouldThrow {
+                throw NSError(domain: "MockError", code: 500)
+            }
             return fetchShoppingListMock
         }
         
@@ -120,5 +124,17 @@ struct ShoppingListViewModelTests {
         #expect(writeMock.savedMedicines[0].isOnShoppingList == false)
         #expect(writeMock.savedMedicines[1].isOnShoppingList == false)
         #expect(readMock.fetchShoppingListCalled == true)
+    }
+    
+    @Test
+    func fetchShoppingList_errorSetsUserFriendlyMessage() {
+        let readMock = SLVMMocks.MockMedicineReadManager()
+        readMock.fetchShouldThrow = true
+        let writeMock = SLVMMocks.MockMedicineWriteManager()
+        
+        let viewModel = ShoppingListViewModel(readManager: readMock, writeManager: writeMock)
+        viewModel.fetchShoppingList()
+        
+        #expect(viewModel.errorMessage == AppError.shoppingListUpdateFailed.errorDescription)
     }
 }

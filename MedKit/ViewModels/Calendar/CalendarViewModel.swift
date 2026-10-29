@@ -30,6 +30,7 @@ class CalendarViewModel {
     var selectedDate: Date = Date()
     var events: [Date: [CalendarEvent]] = [:]
     var medicines: [CalendarMedicine] = []
+    var errorMessage: String? = nil
     
     private let calendar = Calendar.current
     
@@ -69,7 +70,7 @@ class CalendarViewModel {
             try medicines = calendarMedicineReadManager.getMedicines()
             triggerEventGeneration()
         } catch {
-            print(error)
+            errorMessage = AppError.calendarLoadFailed.errorDescription
             medicines = []
         }
     }
@@ -151,7 +152,9 @@ class CalendarViewModel {
                     self.initialiseMedicines() // Reload data and regenerate events
                 }
             } catch {
-                print("Failed to toggle dose log: \(error)")
+                await MainActor.run {
+                    self.errorMessage = AppError.doseRecordUpdateFailed.errorDescription
+                }
             }
         }
     }

@@ -303,7 +303,9 @@ class MedicineEditorViewModel {
             
             try writeManager.save(medicine)
         } catch {
-            errorMessage = error.localizedDescription
+            if !(error is ValidationError) {
+                errorMessage = AppError.databaseSaveFailed.errorDescription
+            }
             throw error
         }
     }
@@ -325,7 +327,7 @@ class MedicineEditorViewModel {
             
             return ShareContext(share: data.0, container: data.1)
         } catch {
-            print("Failed to fetch/create share: \(error.localizedDescription)")
+            errorMessage = AppError.cloudShareFailed.errorDescription
             return nil
         }
     }

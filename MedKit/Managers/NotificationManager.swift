@@ -7,6 +7,7 @@
 
 import CoreData
 import Foundation
+import OSLog
 import UserNotifications
 
 class NotificationManager: NSObject, UNUserNotificationCenterDelegate, NotificationManagerProtocol {
@@ -16,10 +17,14 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate, Notificat
     static let notificationTappedNotification = Notification.Name("NotificationManagerNotificationTapped")
     static let shareProcessingStarted = Notification.Name("NotificationManagerShareProcessingStarted")
     static let shareProcessingFinished = Notification.Name("NotificationManagerShareProcessingFinished")
+    static let shareProcessingFailed = Notification.Name("NotificationManagerShareProcessingFailed")
+    
+    private let logger = Logger(subsystem: "com.rss.MedKit", category: "NotificationManager")
     
     private let categoryIdentifier = "MEDICINE_REMINDER"
     private let actionTaken = "ACTION_TAKEN"
     private let actionRemind = "ACTION_REMIND"
+    private let actionSkip = "ACTION_SKIP"
     
     private let inventoryCategoryIdentifier = "INVENTORY_REMINDER"
 
@@ -35,7 +40,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate, Notificat
             if granted {
                 self.registerCategories()
             } else if let error = error {
-                print("Notification authorisation denied: \(error.localizedDescription)")
+                self.logger.error("Notification authorisation denied: \(error.localizedDescription, privacy: .public)")
             }
         }
     }
@@ -54,9 +59,15 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate, Notificat
             options: []
         )
         
+        let skipAction = UNNotificationAction(
+            identifier: actionSkip,
+            title: String(localized: "Remind Me Next Time"),
+            options: []
+        )
+        
         let medicineReminderCategory = UNNotificationCategory(
             identifier: categoryIdentifier,
-            actions: [takenAction, remindAction],
+            actions: [takenAction, remindAction, skipAction],
             intentIdentifiers: [],
             options: .customDismissAction
         )
@@ -109,7 +120,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate, Notificat
                 let baseId = medicine.id.uuidString
                 
                 // Irregular Schedules
-                let irregularTypes: [RepeatType] = [.custom, .fortnightly, .quarterly, .biannually]
+                let irregularTypes: [RepeatType] = [.custom, .fortnightly, .quarterly, .biannually, .alternateDays]
                 if irregularTypes.contains(dosage.repeatType) {
                     var components = Calendar.current.dateComponents([.year, .month, .day], from: nextDosageDate)
                     
@@ -185,7 +196,7 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate, Notificat
                     }
                 }
             } catch {
-                print("Failed scheduling initial notification: \(error)")
+                self.logger.error("Failed scheduling initial notification: \(error.localizedDescription, privacy: .public)")
             }
         }
     }
@@ -273,8 +284,11 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate, Notificat
                 )
             case actionTaken:
                 await processMedicineTaken(for: medicineId, deliveredDate: response.notification.date)
+                await scheduleNextIrregularNotificationIfNeeded(for: medicineId, advanceFromTomorrow: false)
             case actionRemind:
                 remindAgainIn15Minutes(originalContent: response.notification.request.content)
+            case actionSkip, UNNotificationDismissActionIdentifier:
+                await scheduleNextIrregularNotificationIfNeeded(for: medicineId, advanceFromTomorrow: true)
             default:
                 break
             }
@@ -381,61 +395,99 @@ class NotificationManager: NSObject, UNUserNotificationCenterDelegate, Notificat
             await scheduleInventoryNotifications(for: medicine)
             
         } catch {
-            print("Failed to process medicine in the background: \(error)")
+            self.logger.error("Failed to process medicine in the background: \(error.localizedDescription, privacy: .public)")
         }
     }
     
-
-
-    private func scheduleNextIrregularNotificationIfNeeded(for entity: MedicineEntity, dosage: DosageModel) {
-        let irregularTypes: [RepeatType] = [.custom, .fortnightly, .quarterly, .biannually]
-        guard irregularTypes.contains(dosage.repeatType),
-              let firstReminder = dosage.reminderTimes.first else { return }
+    func scheduleNextIrregularNotificationIfNeeded(for medicineId: UUID, advanceFromTomorrow: Bool = false) async {
+        guard let medicine = try? MedicineReadManager.shared.fetchById(medicineId),
+              medicine.dosage != nil else { return }
+        await scheduleNextIrregularNotificationIfNeeded(for: medicine, advanceFromTomorrow: advanceFromTomorrow)
+    }
+    
+    func scheduleNextIrregularNotificationIfNeeded(for medicine: Medicine, advanceFromTomorrow: Bool = false) async {
+        guard let dosage = medicine.dosage else { return }
+        let irregularTypes: [RepeatType] = [.custom, .fortnightly, .quarterly, .biannually, .alternateDays]
+        guard irregularTypes.contains(dosage.repeatType) else { return }
         
         let calendar = Calendar.current
         let now = Date()
-        var nextFireDate: Date?
         
-        switch dosage.repeatType {
-        case .fortnightly:
-            nextFireDate = calendar.date(byAdding: .day, value: 14, to: now)
-        case .quarterly:
-            nextFireDate = calendar.date(byAdding: .month, value: 3, to: now)
-        case .biannually:
-            nextFireDate = calendar.date(byAdding: .month, value: 6, to: now)
-        case .custom:
-            let validDates = dosage.selectedDates.compactMap { calendar.date(from: $0) }
-            nextFireDate = validDates.filter { $0 > now }.min()
-        default:
+        var searchStart: Date
+        if advanceFromTomorrow {
+            guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) else { return }
+            searchStart = tomorrow
+        } else {
+            let hasRemainingRemindersToday: Bool = {
+                guard let nextToday = MedicineDosageHelper.getNextDosageDate(for: dosage, startingFrom: now),
+                      calendar.isDate(nextToday, inSameDayAs: now) else { return false }
+                return dosage.reminderTimes.contains { reminder in
+                    let timeComps = calendar.dateComponents([.hour, .minute], from: reminder.time)
+                    var comps = calendar.dateComponents([.year, .month, .day], from: nextToday)
+                    comps.hour = timeComps.hour
+                    comps.minute = timeComps.minute
+                    if let fireDate = calendar.date(from: comps), fireDate > now {
+                        return true
+                    }
+                    return false
+                }
+            }()
+            
+            if hasRemainingRemindersToday {
+                searchStart = now
+            } else {
+                guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)) else { return }
+                searchStart = tomorrow
+            }
+        }
+        
+        guard let nextDosageDate = MedicineDosageHelper.getNextDosageDate(for: dosage, startingFrom: searchStart) else {
             return
         }
         
-        guard let validNextDate = nextFireDate else { return }
+        let baseId = medicine.id.uuidString
+        var nextComponents = calendar.dateComponents([.year, .month, .day], from: nextDosageDate)
         
-        if let endDate = dosage.endDate, validNextDate > endDate {
-            return
+        for reminderTime in dosage.reminderTimes {
+            let timeComponents = calendar.dateComponents([.hour, .minute], from: reminderTime.time)
+            nextComponents.hour = timeComponents.hour
+            nextComponents.minute = timeComponents.minute
+            
+            guard let finalDate = calendar.date(from: nextComponents), finalDate > now else { continue }
+            
+            let content = UNMutableNotificationContent()
+            content.title = String(localized: "Time to take \(medicine.name)")
+            content.sound = .default
+            content.categoryIdentifier = categoryIdentifier
+            content.userInfo = ["medicineId": baseId, "medicineName": medicine.name]
+            
+            let notificationIdentifier = "\(baseId)-\(reminderTime.id)-irregular"
+            scheduleSingleNotification(content: content, date: finalDate, notificationIdentifier: notificationIdentifier)
+        }
+    }
+    
+    func reschedulePendingIrregularNotificationsIfNeeded() async {
+        let pendingRequests = await getPendingNotificationRequests()
+        
+        guard let medicines = try? MedicineReadManager.shared.fetchAll() else { return }
+        let irregularTypes: [RepeatType] = [.custom, .fortnightly, .quarterly, .biannually, .alternateDays]
+        
+        let irregularMedicines = medicines.filter { medicine in
+            guard let dosage = medicine.dosage else { return false }
+            return irregularTypes.contains(dosage.repeatType)
         }
         
-        var nextComponents = calendar.dateComponents([.year, .month, .day], from: validNextDate)
-        let timeComponents = calendar.dateComponents([.hour, .minute], from: firstReminder.time)
-        
-        nextComponents.hour = timeComponents.hour
-        nextComponents.minute = timeComponents.minute
-        
-        guard let finalDate = calendar.date(from: nextComponents) else { return }
-        
-        let content = UNMutableNotificationContent()
-        content.title = String(localized: "Time to take \(entity.name ?? "your medicine")")
-        content.sound = .default
-        content.categoryIdentifier = categoryIdentifier
-        
-        let medIdString = entity.id?.uuidString ?? UUID().uuidString
-        content.userInfo = ["medicineId": medIdString, "medicineName": entity.name ?? ""]
-        
-        // Use a deterministic string instead of saving to Core Data
-        let notificationIdentifier = "\(medIdString)-\(firstReminder.id)-irregular"
-        
-        scheduleSingleNotification(content: content, date: finalDate, notificationIdentifier: notificationIdentifier)
+        for medicine in irregularMedicines {
+            let baseId = medicine.id.uuidString
+            let hasPending = pendingRequests.contains { request in
+                (request.content.userInfo["medicineId"] as? String) == baseId &&
+                request.identifier.contains("-irregular")
+            }
+            
+            if !hasPending {
+                await scheduleNextIrregularNotificationIfNeeded(for: medicine, advanceFromTomorrow: false)
+            }
+        }
     }
     
     private func scheduleSingleNotification(

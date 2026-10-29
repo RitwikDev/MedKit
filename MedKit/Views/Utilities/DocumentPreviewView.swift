@@ -5,6 +5,7 @@
 //  Created by Rishik Dev on 28/06/26.
 //
 
+import OSLog
 import QuickLook
 import SwiftUI
 
@@ -28,6 +29,7 @@ struct DocumentPreviewView: UIViewControllerRepresentable {
     class Coordinator: NSObject, QLPreviewControllerDataSource {
         let parent: DocumentPreviewView
         var temporaryFileURL: URL?
+        private let logger = Logger(subsystem: "com.rss.MedKit", category: "DocumentPreviewView")
 
         init(parent: DocumentPreviewView) {
             self.parent = parent
@@ -44,7 +46,7 @@ struct DocumentPreviewView: UIViewControllerRepresentable {
                 try parent.document.documentData.write(to: url, options: .atomic)
                 return url
             } catch {
-                print("Failed to write temporary file for QuickLook: \(error.localizedDescription)")
+                logger.error("Failed to write temporary file for QuickLook: \(error.localizedDescription, privacy: .public)")
                 return nil
             }
         }
@@ -57,7 +59,7 @@ struct DocumentPreviewView: UIViewControllerRepresentable {
 
         func previewController(_ controller: QLPreviewController, previewItemAt index: Int) -> QLPreviewItem {
             guard let url = temporaryFileURL else {
-                fatalError("QuickLook attempted to load a missing file URL.")
+                return URL(fileURLWithPath: "") as NSURL
             }
             return url as NSURL
         }
