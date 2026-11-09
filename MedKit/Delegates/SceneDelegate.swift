@@ -13,10 +13,20 @@ import SwiftUI
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private let logger = Logger(subsystem: "com.rss.MedKit", category: "SceneDelegate")
     
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
+        if let shareMetadata = connectionOptions.cloudKitShareMetadata,
+           let windowScene = scene as? UIWindowScene {
+            self.windowScene(windowScene, userDidAcceptCloudKitShareWith: shareMetadata)
+        }
+    }
+    
     func windowScene(_ windowScene: UIWindowScene, userDidAcceptCloudKitShareWith cloudKitShareMetadata: CKShare.Metadata) {
-        
         let container = PersistenceController.shared.container
-        guard let sharedStore = container.persistentStoreCoordinator.persistentStores.first(where: { $0.url?.lastPathComponent == "Shared.sqlite" }) else {
+        guard let sharedStore = PersistenceController.shared.sharedStore else {
             logger.error("Accept Share Error: Could not locate the Shared database store.")
             NotificationCenter.default.post(
                 name: NotificationManager.shareProcessingFailed,
@@ -30,19 +40,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         // Accept the share
         container.acceptShareInvitations(from: [cloudKitShareMetadata], into: sharedStore) { [weak self] _, error in
-            DispatchQueue.main.async {
-                NotificationCenter.default.post(name: NotificationManager.shareProcessingFinished, object: nil)
-            }
             if let error = error {
                 self?.logger.error("Accept Share Error: \(error.localizedDescription, privacy: .public)")
                 DispatchQueue.main.async {
                     NotificationCenter.default.post(
                         name: NotificationManager.shareProcessingFailed,
-                        object: AppError.shareAcceptFailed.errorDescription
+                        object: error.localizedDescription
                     )
                 }
             } else {
                 self?.logger.info("Successfully accepted the CloudKit share! Data is syncing...")
+                DispatchQueue.main.async {
+                    NotificationCenter.default.post(name: NotificationManager.shareProcessingFinished, object: nil)
+                }
             }
         }
     }

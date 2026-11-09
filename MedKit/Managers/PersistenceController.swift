@@ -19,6 +19,22 @@ public final class PersistenceController {
     /// The underlying CloudKit container managing the Core Data SQLite stores.
     public let container: NSPersistentCloudKitContainer
     
+    /// The shared persistent store where accepted CloudKit shares are stored.
+    public private(set) var sharedPersistentStore: NSPersistentStore?
+    
+    /// The private persistent store where the user's private data is stored.
+    public private(set) var privatePersistentStore: NSPersistentStore?
+    
+    /// Helper property to safely retrieve the shared persistent store.
+    public var sharedStore: NSPersistentStore? {
+        if let store = sharedPersistentStore {
+            return store
+        }
+        return container.persistentStoreCoordinator.persistentStores.first { store in
+            store.url?.lastPathComponent.caseInsensitiveCompare("Shared.sqlite") == .orderedSame
+        }
+    }
+    
     /// Initialises the Core Data stack and configures CloudKit sharing zones.
     /// - Parameter inMemory: If true, the database is stored in memory (useful for SwiftUI Previews and Unit Testing).
     private init(inMemory: Bool = false) {
@@ -39,23 +55,25 @@ public final class PersistenceController {
             
             // 1. Private Store Configuration
             let privateStoreURL = storesURL.appendingPathComponent("Private.sqlite")
-            let privateDescription = NSPersistentStoreDescription(url: privateStoreURL)
-            privateDescription.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: containerIdentifier)
-            privateDescription.cloudKitContainerOptions?.databaseScope = .private
+            defaultDescription.url = privateStoreURL
+            defaultDescription.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+            defaultDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+            let privateOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: containerIdentifier)
+            privateOptions.databaseScope = .private
+            defaultDescription.cloudKitContainerOptions = privateOptions
             
             // 2. Shared Store Configuration
+            guard let sharedDescription = defaultDescription.copy() as? NSPersistentStoreDescription else {
+                fatalError("Copying the private store description returned an unexpected value.")
+            }
             let sharedStoreURL = storesURL.appendingPathComponent("Shared.sqlite")
-            let sharedDescription = NSPersistentStoreDescription(url: sharedStoreURL)
-            sharedDescription.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: containerIdentifier)
-            sharedDescription.cloudKitContainerOptions?.databaseScope = .shared
+            sharedDescription.url = sharedStoreURL
+            let sharedOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: containerIdentifier)
+            sharedOptions.databaseScope = .shared
+            sharedDescription.cloudKitContainerOptions = sharedOptions
             
             // Apply both configurations to the container
-            container.persistentStoreDescriptions = [privateDescription, sharedDescription]
-        }
-        
-        // Loop through the assigned descriptions and apply the option to ALL of them
-        for description in container.persistentStoreDescriptions {
-            description.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+            container.persistentStoreDescriptions = [defaultDescription, sharedDescription]
         }
         
         // Load the persistent stores
@@ -64,6 +82,16 @@ public final class PersistenceController {
                 // In production, log to a telemetry service or display a critical error alert.
                 fatalError("Unresolved error loading Core Data stores: \(error), \(error.userInfo)")
             }
+        }
+        
+        if !inMemory {
+            let storesURL = defaultDescription.url!.deletingLastPathComponent()
+            let privateStoreURL = storesURL.appendingPathComponent("Private.sqlite")
+            let sharedStoreURL = storesURL.appendingPathComponent("Shared.sqlite")
+            
+            let coordinator = container.persistentStoreCoordinator
+            self.privatePersistentStore = coordinator.persistentStore(for: privateStoreURL)
+            self.sharedPersistentStore = coordinator.persistentStore(for: sharedStoreURL)
         }
         
         // Ensure the context automatically merges changes synced remotely from iCloud

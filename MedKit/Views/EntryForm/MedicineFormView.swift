@@ -11,8 +11,8 @@ import CloudKit
 
 struct CloudShareContext: Identifiable {
     let id = UUID()
-    let share: CKShare
-    let container: CKContainer
+    let share: CKShare?
+    let container: CKContainer?
 }
 
 struct MedicineFormView: View {
@@ -22,7 +22,6 @@ struct MedicineFormView: View {
     @State private var medicineEditorViewModel: MedicineEditorViewModel
     @State private var showAlert: Bool = false
     @State private var activeShareContext: CloudShareContext? = nil
-    @State private var isPreparingShare: Bool = false
     
     private var isNewMedicine: Bool {
         medicine.name.trimmedIsEmpty
@@ -98,18 +97,6 @@ struct MedicineFormView: View {
         .sheet(item: $activeShareContext) { context in
             CloudSharingView(medicine: medicine, share: context.share, container: context.container)
         }
-        .overlay {
-            if isPreparingShare {
-                ZStack {
-                    Color.black.opacity(0.2)
-                        .ignoresSafeArea()
-                    ProgressView("Preparing Share...")
-                        .padding()
-                        .background(RoundedRectangle(cornerRadius: 10).fill(Color(UIColor.systemBackground)))
-                        .shadow(radius: 10)
-                }
-            }
-        }
         .scrollDismissesKeyboard(.interactively)
         .navigationTitle(navigationTitle)
     }
@@ -127,29 +114,12 @@ struct MedicineFormView: View {
                 if let (share, container) = MedicineWriteManager.shared.fetchExistingShare(for: medicine) {
                     activeShareContext = CloudShareContext(share: share, container: container)
                 } else {
-                    isPreparingShare = true
-                    Task {
-                        if let context = await medicineEditorViewModel.shareMedicine() {
-                            await MainActor.run {
-                                activeShareContext = CloudShareContext(share: context.share, container: context.container)
-                                isPreparingShare = false
-                            }
-                        } else {
-                            await MainActor.run {
-                                isPreparingShare = false
-                                showAlert = true
-                            }
-                        }
-                    }
+                    activeShareContext = CloudShareContext(share: nil, container: nil)
                 }
             } label: {
-                if isPreparingShare {
-                    Label("Preparing...", systemImage: "arrow.triangle.2.circlepath")
-                } else {
-                    Label("Share", systemImage: "person.crop.circle.badge.plus")
-                }
+                Label("Share", systemImage: "person.crop.circle.badge.plus")
             }
-            .disabled(isPreparingShare)
+            .disabled(isNewMedicine)
         }
     }
     

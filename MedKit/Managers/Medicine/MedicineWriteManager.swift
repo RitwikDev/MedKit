@@ -338,6 +338,43 @@ class MedicineWriteManager: MedicineWriteManagerProtocol {
         return nil
     }
 
+    /// Creates a new CKShare for the specified medicine using NSPersistentCloudKitContainer's preparation API.
+    /// - Parameters:
+    ///   - medicine: The medicine to share.
+    ///   - completion: Closure invoked with the created CKShare, CKContainer, or an error.
+    public func createShare(for medicine: Medicine, completion: @escaping (CKShare?, CKContainer?, Error?) -> Void) {
+        let container = PersistenceController.shared.container
+        let context = container.viewContext
+        
+        context.perform {
+            let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
+            request.predicate = NSPredicate(format: "id == %@", medicine.id as CVarArg)
+            
+            guard let entity = try? context.fetch(request).first else {
+                let error = NSError(domain: "MedicineManager", code: 404, userInfo: [NSLocalizedDescriptionKey: "Medicine not found."])
+                completion(nil, nil, error)
+                return
+            }
+            
+            // 1. Flush any pending changes to the SQLite store before sharing
+            if context.hasChanges {
+                do {
+                    try context.save()
+                } catch {
+                    completion(nil, nil, error)
+                    return
+                }
+            }
+            
+            container.share([entity], to: nil) { objectIDs, share, ckContainer, error in
+                if let share = share {
+                    share[CKShare.SystemFieldKey.title] = medicine.name as CKRecordValue
+                }
+                completion(share, ckContainer, error)
+            }
+        }
+    }
+
     @MainActor
     public func fetchOrCreateShare(for medicine: Medicine) async throws -> (CKShare, CKContainer) {
         let request: NSFetchRequest<MedicineEntity> = MedicineEntity.fetchRequest()
